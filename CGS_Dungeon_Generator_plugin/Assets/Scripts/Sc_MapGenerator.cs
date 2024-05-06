@@ -3,29 +3,24 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEngine.UIElements;
 
+[RequireComponent(typeof(Sc_ModGenerator))]
 class Sc_MapGenerator : MonoBehaviour
 {
     // size x and z will be horizontal and Y will be vertical, basically resembling the total number of floors.
-    [SerializeField] const int SIZE_X = 1, SIZE_Y = 1, SIZE_Z = 1;
+    [SerializeField] int SIZE_X = 1;
+    [SerializeField] int SIZE_Y = 1;
+    [SerializeField] int SIZE_Z = 1;
     // the Wave Function Collapse 3D Array Container
-    WFCModule[,] m_WFC = new WFCModule[SIZE_X, SIZE_Y];
+    WFCModule[,] m_WFC;
     
     /// this WFC cycles through the whole array every time,
     /// using overlapping chunks will help with performance and accuracy.
 
-    private void Start()
-    {
-        if(File.Exists(Application.dataPath + "/JSON/Js_WFC-Tileset.json"))
-        {
-            string str = File.ReadAllText(Application.dataPath + "/JSON/Jsn_SimpleTiles.json");
-        }
-    }
-
-    private void GenerateMap()
+    public void GenerateMap()
     {
         while (!Collapsed())
         {
-           // Iterate();
+           Iterate();
         }
     }
 
@@ -41,10 +36,12 @@ class Sc_MapGenerator : MonoBehaviour
         return true;
     }
 
+    // iterates through the WFC 
     private void Iterate()
     {
         var coords = GetMinEntropyCoords();
-        CollapseAt(coords);
+
+        Instantiate(CollapseAt(coords), new Vector3(coords.x, 0, coords.y), Quaternion.identity);
         Propagate(coords);
 
     }
@@ -105,40 +102,95 @@ class Sc_MapGenerator : MonoBehaviour
         }
 
         return value;
-
     }
 
-    void CollapseAt(Vector2 value) // collapses at the position
+    void UpdateOptions(Vector2 coords)
     {
-        m_WFC[(int)value.x, (int)value.y].Collapse();
+        // Check in a plus around it
+        //UP = 
+        List<Sc_Module> toRemove = new List<Sc_Module>();
+        Vector2 posY = new Vector2(coords.x, coords.y + 1);
+        if (coords.y + 1 < SIZE_Y || IsCollapsed(posY))
+        {
+            foreach (Sc_Module mod in GetVectorModule(posY).GetOptions())
+            {
+                if(!Compare(mod, GetVectorModule(coords).GetModule().GetNeighbour("posY").GetOptions()))
+                {
+                    toRemove.Add(mod);
+                }
+            }
+        }
+        
     }
-    public void CheckRotations()
+
+    // add compare function to check if the the compare function does not include any of the following
+
+    bool Compare(Sc_Module _mod, List<Option> _compare)
     {
-        // checks each horizontal side
+        
+        return false;
+    }
+
+    Mesh CollapseAt(Vector2 value) // collapses at the position
+    {
+        Mesh newObject = m_WFC[(int)value.x, (int)value.y].Collapse();
+
+        return newObject;
+    }
+
+    // check if a specific coordinate is collapsed
+    bool IsCollapsed(Vector2 coords)
+    {
+        if (m_WFC[(int)coords.x, (int)coords.y].isCollapsed())
+        {
+            return true;
+        }
+        return false;
+    }
+
+    WFCModule GetVectorModule(Vector2 coords)
+    {
+        return m_WFC[(int)coords.x, (int)coords.y];
     }
 }
 
 class WFCModule : MonoBehaviour
 {
-    Mesh _mesh;
-    int _currentRotation;
-    bool _collapsed;
-    Vector2 _coords;
+    List<Sc_Module> m_options;
+    bool m_collapsed;
+    Sc_Module m_collapsedMod = null;
     
+    public WFCModule(List<Sc_Module> _options)
+    {
+        m_options = _options;
+    }
+
+    public ref List<Sc_Module> GetOptions()
+    {
+        return ref m_options;
+    }
 
     public bool isCollapsed()
     {
-        return _collapsed;
+        return m_collapsed;
     }
 
-    public void Collapse()
+    public Mesh Collapse()
     {
         // collapses the current tile based on the principle that it has the lowest entropy so it must close, if there is more than one ooption apply randomization
+        m_collapsedMod = m_options[Random.Range(0, m_options.Count - 1)];
+        m_collapsed = true;
+        return m_collapsedMod.GetMesh();
     }
 
     public int GetEntropy()
     {
-        return 1;
+        return m_options.Count;
+    }
+
+    public Sc_Module GetModule()
+    {
+        return m_collapsedMod;
     }
 
 }
