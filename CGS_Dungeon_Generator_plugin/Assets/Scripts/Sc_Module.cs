@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Mod_", menuName = "ScriptableObjects/Module", order = 1)]
@@ -6,12 +7,12 @@ public class Sc_Module : ScriptableObject
 {
     [Header("Object Details")]
     // Mesh and Rotation and the chance Weight of selection
-    [SerializeField] Mesh m_mesh = null;
+    [SerializeField] GameObject m_mesh = null;
     [SerializeField] int m_rotation = 0;
     [SerializeField] int m_weight = 1;
 
     // Sets values
-    public void SetUp(Mesh _mesh, int _rotation, int _weight) { m_mesh = _mesh; m_rotation = _rotation; m_weight = _weight; }
+    public void SetUp(GameObject _mesh, int _rotation, int _weight) { m_mesh = _mesh; m_rotation = _rotation; m_weight = _weight; }
 
     [Header("Edge Connections")]
     // Edges - type of connections based on the edges
@@ -56,7 +57,7 @@ public class Sc_Module : ScriptableObject
         return null;
     }
 
-    public Mesh GetMesh() { return m_mesh; }
+    public GameObject GetMesh() { return m_mesh; }
     public int GetRotation() { return m_rotation; }
     public int GetWeight() { return m_weight; }
 }
@@ -96,10 +97,14 @@ public class Neighbour
 /*
  instead of Neighbour class, it becomes the edge class and contains the connection type, name and neighbours instead
  */
-
+[System.Serializable]
 public struct Option
 {
     public Sc_Module m_mod;
     public int m_rotation;
     public Option(Sc_Module _mod, int _rotation) { m_mod = _mod; m_rotation = _rotation; }
+    public void Reset(){
+        m_mod = null;
+        m_rotation = 0;
+    }
 }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 785eb980aebc9b848be55d4d52ea528e, type: 3}
   m_Name: Mod_Dirt
   m_EditorClassIdentifier: 
-  m_mesh: {fileID: 6202518890732439607, guid: 04121e1a41a8de8438cd0a8333ec9951, type: 3}
+  m_mesh: {fileID: 919132149155446097, guid: 04121e1a41a8de8438cd0a8333ec9951, type: 3}
   m_rotation: 0
   m_weight: 1
   m_posX: 0s

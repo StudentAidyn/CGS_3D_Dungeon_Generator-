@@ -14,7 +14,12 @@ public class Sc_MapGenEditor : Editor
 
         if(GUILayout.Button("Generate Dungeon"))
         {
-            gen.GenerateMap();
+            gen.Generate();
+        }
+
+        if (GUILayout.Button("Clear Dungeon"))
+        {
+            gen.ClearGOList();
         }
     }
 }

@@ -16,6 +16,11 @@ public class Sc_ModGenerator : MonoBehaviour
 {
     // list of all the possible modules
     [SerializeField] List<Sc_Module> m_modules = new List<Sc_Module>();
+    public List<Sc_Module> GetModules() { return m_modules; }
+
+    [Header("Edge Types")]
+    [SerializeField] char m_similarEdges = 'S';
+    [SerializeField] char m_flippedEdges = 'F';
 
     // generate connections based on the connection rules - can generate during editor (out of play state)
     public void CreateConnections()
@@ -35,6 +40,7 @@ public class Sc_ModGenerator : MonoBehaviour
             CompareModules(mod, index);
             index++;            
         }
+        Debug.Log("EdgesCreated");
     }
 
     // compares the X and Z connection types against themselves and each other
@@ -49,49 +55,130 @@ public class Sc_ModGenerator : MonoBehaviour
         }
     }
 
+    /* order:
+     posX
+     negZ
+     negX
+     posZ
+     */
+
+
     // compares the positive X of the main module to the negative X of the other,
     // then compares the negative X of the main mod to the positive of the other
     void CompareX(Sc_Module _mod, Sc_Module _other)
     {
         if (CompareEdges(_mod.m_posX, _other.m_negX))
         {
-            AddModToNeighbour(_mod, _other, "posX");
-            AddModToNeighbour(_other, _mod, "negX");
+            AddModToNeighbour(_mod, _other, "posX", 0);
+            AddModToNeighbour(_other, _mod, "negX", 0);
         }
 
+        if(CompareEdges(_mod.m_posX, _other.m_posZ))
+        {
+            AddModToNeighbour(_mod, _other, "posX", 1);
+            AddModToNeighbour(_other, _mod, "posZ", 3);
+        }
+
+        if (CompareEdges(_mod.m_posX, _other.m_posX))
+        {
+            AddModToNeighbour(_mod, _other, "posX", 2);
+            AddModToNeighbour(_other, _mod, "posX", 2);
+        }
+
+        if (CompareEdges(_mod.m_posX, _other.m_posZ))
+        {
+            AddModToNeighbour(_mod, _other, "posX", 3);
+            AddModToNeighbour(_other, _mod, "negZ", 1);
+        }
+
+        // Checking the Other Side
         if (CompareEdges(_mod.m_negX, _other.m_posX))
         {
-            AddModToNeighbour(_mod, _other, "negX");
-            AddModToNeighbour(_other, _mod, "posX");
+            AddModToNeighbour(_mod, _other, "negX", 0);
+            AddModToNeighbour(_other, _mod, "posX", 0);
         }
-        Debug.Log("Compared X");
+
+        if (CompareEdges(_mod.m_negX, _other.m_negZ))
+        {
+            AddModToNeighbour(_mod, _other, "posX", 3);
+            AddModToNeighbour(_other, _mod, "negZ", 1);
+        }
+
+        if (CompareEdges(_mod.m_negX, _other.m_negX))
+        {
+            AddModToNeighbour(_mod, _other, "posX", 2);
+            AddModToNeighbour(_other, _mod, "negX", 2);
+        }
+
+        if (CompareEdges(_mod.m_negX, _other.m_posZ))
+        {
+            AddModToNeighbour(_mod, _other, "posX", 1);
+            AddModToNeighbour(_other, _mod, "posZ", 3);
+        }
     }
     void CompareY(Sc_Module _mod, Sc_Module _other)
     {
         if(CompareVerticalEdges(_mod.m_posY, _other.m_negY))
         {
-            AddModToNeighbour(_mod, _other, "posY");
-            AddModToNeighbour(_other, _mod, "negY");
+            AddModToNeighbour(_mod, _other, "posY", 0);
+            AddModToNeighbour(_other, _mod, "negY", 0);
         }
 
         if (CompareVerticalEdges(_mod.m_negY, _other.m_posY))
         {
-            AddModToNeighbour(_mod, _other, "negY");
-            AddModToNeighbour(_other, _mod, "posY");
+            AddModToNeighbour(_mod, _other, "negY", 0);
+            AddModToNeighbour(_other, _mod, "posY", 0);
         }
     }
     void CompareZ(Sc_Module _mod, Sc_Module _other)
     {
         if (CompareEdges(_mod.m_posZ, _other.m_negZ))
         {
-            AddModToNeighbour(_mod, _other, "posZ");
-            AddModToNeighbour(_other, _mod, "negZ");
+            AddModToNeighbour(_mod, _other, "posZ", 0);
+            AddModToNeighbour(_other, _mod, "negZ", 0);
         }
 
+        if (CompareEdges(_mod.m_posZ, _other.m_negX))
+        {
+            AddModToNeighbour(_mod, _other, "posZ", 1);
+            AddModToNeighbour(_other, _mod, "negX", 3);
+        }
+
+        if (CompareEdges(_mod.m_posZ, _other.m_posZ))
+        {
+            AddModToNeighbour(_mod, _other, "posZ", 2);
+            AddModToNeighbour(_other, _mod, "posZ", 2);
+        }
+
+        if (CompareEdges(_mod.m_posZ, _other.m_posX))
+        {
+            AddModToNeighbour(_mod, _other, "posZ", 3);
+            AddModToNeighbour(_other, _mod, "posX", 1);
+        }
+
+        // Comparing the other sides
         if (CompareEdges(_mod.m_negZ, _other.m_posZ))
         {
-            AddModToNeighbour(_mod, _other, "negZ");
-            AddModToNeighbour(_other, _mod, "posZ");
+            AddModToNeighbour(_mod, _other, "negZ", 0);
+            AddModToNeighbour(_other, _mod, "posZ", 0);
+        }
+
+        if (CompareEdges(_mod.m_negZ, _other.m_posX))
+        {
+            AddModToNeighbour(_mod, _other, "negZ", 3);
+            AddModToNeighbour(_other, _mod, "posX", 1);
+        }
+
+        if (CompareEdges(_mod.m_negZ, _other.m_negZ))
+        {
+            AddModToNeighbour(_mod, _other, "negZ", 2);
+            AddModToNeighbour(_other, _mod, "negZ", 2);
+        }
+
+        if (CompareEdges(_mod.m_negZ, _other.m_negX))
+        {
+            AddModToNeighbour(_mod, _other, "negZ", 1);
+            AddModToNeighbour(_other, _mod, "negX", 3);
         }
     }
 
@@ -109,17 +196,17 @@ public class Sc_ModGenerator : MonoBehaviour
             {
                 // Compares the last 2, if they are both S then they succeed
                 // if not then it means at least 1 was an F causing it to fail since it knows it already knows there is 2 chars in this string
-                if (edge[1] == 'S' && other[1] == 'S') {
+                if (edge[1] == m_similarEdges && other[1] == m_similarEdges) {
                     return true;
                 }
             }
             // if baseEdge length is larger than otherEdge then it has 2 chars and if any of those chars = f then it can connect
             else if (edge.Length > other.Length)
             {
-                if (edge[1] == 'F') { return true; }
+                if (edge[1] == m_flippedEdges) { return true; }
             }
             else if (edge.Length < other.Length) {
-                if (other[1] == 'F') { return true; }
+                if (other[1] == m_flippedEdges) { return true; }
             }
         }
         // else return false
@@ -151,14 +238,13 @@ public class Sc_ModGenerator : MonoBehaviour
 
      */
 
-    void AddModToNeighbour(Sc_Module _mod, Sc_Module _other, string _edge)
+    void AddModToNeighbour(Sc_Module _mod, Sc_Module _other, string _edge, int _rotation)
     {
         for (int i = 0; i < _mod.GetNeighbours().Length; i++)
         {
-            Debug.Log(_mod.GetNeighbours()[i].GetEdge() + " :  " + _edge);
             if (_mod.GetNeighbours()[i].GetEdge() == _edge)
             {
-                _mod.GetNeighbours()[i].AddNeighbour(_other, _other.GetRotation()); // TODO: Fix this so it records the current rotation when connecting then the current rotation of the object
+                _mod.GetNeighbours()[i].AddNeighbour(_other, _rotation); // TODO: Fix this so it records the current rotation when connecting then the current rotation of the object
             }
         }
     }
