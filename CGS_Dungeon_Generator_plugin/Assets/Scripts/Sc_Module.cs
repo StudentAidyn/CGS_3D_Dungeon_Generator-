@@ -10,6 +10,9 @@ public class Sc_Module : ScriptableObject
     [SerializeField] GameObject m_mesh = null;
     [SerializeField] int m_rotation = 0;
     [SerializeField] int m_weight = 1;
+    [SerializeField] bool m_sameSides = false;
+
+    public bool SameSides() { return m_sameSides; }
 
     // Sets values
     public void SetUp(GameObject _mesh, int _rotation, int _weight) { m_mesh = _mesh; m_rotation = _rotation; m_weight = _weight; }

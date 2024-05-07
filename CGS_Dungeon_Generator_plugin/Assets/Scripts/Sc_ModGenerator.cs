@@ -22,6 +22,8 @@ public class Sc_ModGenerator : MonoBehaviour
     [SerializeField] char m_similarEdges = 'S';
     [SerializeField] char m_flippedEdges = 'F';
 
+    List<Sc_Module> m_Variants = new List<Sc_Module>();
+
     // generate connections based on the connection rules - can generate during editor (out of play state)
     public void CreateConnections()
     {
@@ -73,23 +75,23 @@ public class Sc_ModGenerator : MonoBehaviour
             AddModToNeighbour(_other, _mod, "negX", 0);
         }
 
-        if(CompareEdges(_mod.m_posX, _other.m_posZ))
-        {
-            AddModToNeighbour(_mod, _other, "posX", 1);
-            AddModToNeighbour(_other, _mod, "posZ", 3);
-        }
+        //if(CompareEdges(_mod.m_posX, _other.m_posZ))
+        //{
+        //    AddModToNeighbour(_mod, _other, "posX", 1);
+        //    AddModToNeighbour(_other, _mod, "posZ", 3);
+        //}
 
-        if (CompareEdges(_mod.m_posX, _other.m_posX))
-        {
-            AddModToNeighbour(_mod, _other, "posX", 2);
-            AddModToNeighbour(_other, _mod, "posX", 2);
-        }
+        //if (CompareEdges(_mod.m_posX, _other.m_posX))
+        //{
+        //    AddModToNeighbour(_mod, _other, "posX", 2);
+        //    AddModToNeighbour(_other, _mod, "posX", 2);
+        //}
 
-        if (CompareEdges(_mod.m_posX, _other.m_posZ))
-        {
-            AddModToNeighbour(_mod, _other, "posX", 3);
-            AddModToNeighbour(_other, _mod, "negZ", 1);
-        }
+        //if (CompareEdges(_mod.m_posX, _other.m_posZ))
+        //{
+        //    AddModToNeighbour(_mod, _other, "posX", 3);
+        //    AddModToNeighbour(_other, _mod, "negZ", 1);
+        //}
 
         // Checking the Other Side
         if (CompareEdges(_mod.m_negX, _other.m_posX))
@@ -98,23 +100,23 @@ public class Sc_ModGenerator : MonoBehaviour
             AddModToNeighbour(_other, _mod, "posX", 0);
         }
 
-        if (CompareEdges(_mod.m_negX, _other.m_negZ))
-        {
-            AddModToNeighbour(_mod, _other, "posX", 3);
-            AddModToNeighbour(_other, _mod, "negZ", 1);
-        }
+        //if (CompareEdges(_mod.m_negX, _other.m_negZ))
+        //{
+        //    AddModToNeighbour(_mod, _other, "posX", 3);
+        //    AddModToNeighbour(_other, _mod, "negZ", 1);
+        //}
 
-        if (CompareEdges(_mod.m_negX, _other.m_negX))
-        {
-            AddModToNeighbour(_mod, _other, "posX", 2);
-            AddModToNeighbour(_other, _mod, "negX", 2);
-        }
+        //if (CompareEdges(_mod.m_negX, _other.m_negX))
+        //{
+        //    AddModToNeighbour(_mod, _other, "posX", 2);
+        //    AddModToNeighbour(_other, _mod, "negX", 2);
+        //}
 
-        if (CompareEdges(_mod.m_negX, _other.m_posZ))
-        {
-            AddModToNeighbour(_mod, _other, "posX", 1);
-            AddModToNeighbour(_other, _mod, "posZ", 3);
-        }
+        //if (CompareEdges(_mod.m_negX, _other.m_posZ))
+        //{
+        //    AddModToNeighbour(_mod, _other, "posX", 1);
+        //    AddModToNeighbour(_other, _mod, "posZ", 3);
+        //}
     }
     void CompareY(Sc_Module _mod, Sc_Module _other)
     {
@@ -138,23 +140,23 @@ public class Sc_ModGenerator : MonoBehaviour
             AddModToNeighbour(_other, _mod, "negZ", 0);
         }
 
-        if (CompareEdges(_mod.m_posZ, _other.m_negX))
-        {
-            AddModToNeighbour(_mod, _other, "posZ", 1);
-            AddModToNeighbour(_other, _mod, "negX", 3);
-        }
+        //if (CompareEdges(_mod.m_posZ, _other.m_negX))
+        //{
+        //    AddModToNeighbour(_mod, _other, "posZ", 1);
+        //    AddModToNeighbour(_other, _mod, "negX", 3);
+        //}
 
-        if (CompareEdges(_mod.m_posZ, _other.m_posZ))
-        {
-            AddModToNeighbour(_mod, _other, "posZ", 2);
-            AddModToNeighbour(_other, _mod, "posZ", 2);
-        }
+        //if (CompareEdges(_mod.m_posZ, _other.m_posZ))
+        //{
+        //    AddModToNeighbour(_mod, _other, "posZ", 2);
+        //    AddModToNeighbour(_other, _mod, "posZ", 2);
+        //}
 
-        if (CompareEdges(_mod.m_posZ, _other.m_posX))
-        {
-            AddModToNeighbour(_mod, _other, "posZ", 3);
-            AddModToNeighbour(_other, _mod, "posX", 1);
-        }
+        //if (CompareEdges(_mod.m_posZ, _other.m_posX))
+        //{
+        //    AddModToNeighbour(_mod, _other, "posZ", 3);
+        //    AddModToNeighbour(_other, _mod, "posX", 1);
+        //}
 
         // Comparing the other sides
         if (CompareEdges(_mod.m_negZ, _other.m_posZ))
@@ -163,23 +165,23 @@ public class Sc_ModGenerator : MonoBehaviour
             AddModToNeighbour(_other, _mod, "posZ", 0);
         }
 
-        if (CompareEdges(_mod.m_negZ, _other.m_posX))
-        {
-            AddModToNeighbour(_mod, _other, "negZ", 3);
-            AddModToNeighbour(_other, _mod, "posX", 1);
-        }
+    //    if (CompareEdges(_mod.m_negZ, _other.m_posX))
+    //    {
+    //        AddModToNeighbour(_mod, _other, "negZ", 3);
+    //        AddModToNeighbour(_other, _mod, "posX", 1);
+    //    }
 
-        if (CompareEdges(_mod.m_negZ, _other.m_negZ))
-        {
-            AddModToNeighbour(_mod, _other, "negZ", 2);
-            AddModToNeighbour(_other, _mod, "negZ", 2);
-        }
+    //    if (CompareEdges(_mod.m_negZ, _other.m_negZ))
+    //    {
+    //        AddModToNeighbour(_mod, _other, "negZ", 2);
+    //        AddModToNeighbour(_other, _mod, "negZ", 2);
+    //    }
 
-        if (CompareEdges(_mod.m_negZ, _other.m_negX))
-        {
-            AddModToNeighbour(_mod, _other, "negZ", 1);
-            AddModToNeighbour(_other, _mod, "negX", 3);
-        }
+    //    if (CompareEdges(_mod.m_negZ, _other.m_negX))
+    //    {
+    //        AddModToNeighbour(_mod, _other, "negZ", 1);
+    //        AddModToNeighbour(_other, _mod, "negX", 3);
+    //    }
     }
 
     // Compares 2 Edges passed through based on the rules given 
@@ -253,7 +255,18 @@ public class Sc_ModGenerator : MonoBehaviour
     
     public void CreateRotatedVariants()
     {
-        CreateVariant(m_modules[0]);
+        foreach(Sc_Module mod in m_modules)
+        {
+            if (!mod.SameSides())
+            {
+                CreateVariant(mod);
+            }
+        }
+
+        foreach(Sc_Module mod in m_Variants)
+        {
+            m_modules.Add(mod);
+        }
     }
 
     // create simple check for if a module is the same on all  sides
@@ -262,46 +275,58 @@ public class Sc_ModGenerator : MonoBehaviour
 
     void CreateVariant(Sc_Module mod)
     {
-        Sc_Module newModule = ScriptableObject.CreateInstance<Sc_Module>();
+        for (int i = 1; i < 4; i++){
+            Sc_Module newModule = ScriptableObject.CreateInstance<Sc_Module>();
 
-        CloneRotatedValues(mod, newModule);//from Mod to NewMod
+            CloneRotatedValues(mod, newModule, i);//from Mod to NewMod
 
-        string MOD = mod.name; // name of the asset;
-        string text = newModule.GetRotation().ToString();
-        UnityEditor.AssetDatabase.CreateAsset(newModule, $"Assets/Modules/{MOD}_{text}.asset");
-        m_modules.Add(newModule);
+            string MOD = mod.name; // name of the asset;
+            string rot = newModule.GetRotation().ToString();
+            UnityEditor.AssetDatabase.CreateAsset(newModule, $"Assets/Modules/Variants/{MOD}_{rot}.asset");
+            m_Variants.Add(newModule);
+        }
     }
     
-    void CloneRotatedValues(Sc_Module _mod, Sc_Module _newMod)
+    void CloneRotatedValues(Sc_Module _mod, Sc_Module _newMod, int _rotation)
     {
         // Mesh, Rotation, Weight
-        _newMod.SetUp(_mod.GetMesh(), _mod.GetRotation() + 1, _mod.GetWeight());
+        _newMod.SetUp(_mod.GetMesh(), _rotation, _mod.GetWeight());
 
+        string newPosX = "";
+        string newPosZ = "";
+        string newNegX = "";
+        string newNegZ = "";
         //
-        switch (_newMod.GetRotation()) {
+        switch (_rotation) {
             case 1:
-                _newMod.SetEdges(
-                    _mod.m_posZ,
-                    _mod.m_negZ,
-                    _mod.m_posY + "_" + _newMod.GetRotation().ToString(),
-                    _mod.m_negY + "_" + _newMod.GetRotation().ToString(),
-                    _mod.m_negX,
-                    _mod.m_posX);
+                newPosX = _mod.m_posZ;
+                newNegX = _mod.m_negZ;
+                newPosZ = _mod.m_negX;
+                newNegZ = _mod.m_posX;
                 break;
             case 2:
+                newPosX = _mod.m_negX;
+                newNegX = _mod.m_posX;
+                newPosZ = _mod.m_negZ;
+                newNegZ = _mod.m_posZ;
                 break;
             case 3:
+                newPosX = _mod.m_negZ;
+                newNegX = _mod.m_posZ;
+                newPosZ = _mod.m_posX;
+                newNegZ = _mod.m_negX;
                 break;
             default:
-                _newMod.SetEdges(
-                    _mod.m_posX,
-                    _mod.m_negX,
-                    _mod.m_posY,
-                    _mod.m_negY,
-                    _mod.m_posZ,
-                    _mod.m_negZ);
+
                 break;
         }
+        _newMod.SetEdges(
+        newPosX,
+        newNegX,
+        _mod.m_posY + "_" + _newMod.GetRotation().ToString(),
+        _mod.m_negY + "_" + _newMod.GetRotation().ToString(),
+        newPosZ,
+        newNegZ );
     }
 
     /*Rotation Rules:

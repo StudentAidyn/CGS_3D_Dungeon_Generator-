@@ -15,202 +15,71 @@ MonoBehaviour:
   m_mesh: {fileID: 919132149155446097, guid: 101210ca2737bf4408e8875084918a36, type: 3}
   m_rotation: 0
   m_weight: 1
-  m_posX: 0s
-  m_negX: 0s
-  m_posY: 0s
+  m_sameSides: 1
+  m_posX: -s
+  m_negX: -s
+  m_posY: -s
   m_negY: 0s
-  m_posZ: 0s
-  m_negZ: 0s
+  m_posZ: -s
+  m_negZ: -s
   m_neighbours:
   - m_edge: posX
     _validOptions:
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000, guid: b21f4ba66ad73554dbb308ca11a52955, type: 2}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000, guid: b21f4ba66ad73554dbb308ca11a52955, type: 2}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
-      m_rotation: 2
     - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
       m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
-      m_rotation: 1
     - m_mod: {fileID: 11400000}
       m_rotation: 0
     - m_mod: {fileID: 11400000}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000}
       m_rotation: 0
-    - m_mod: {fileID: 11400000}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000, guid: 23c8f79d4a09c9741be574910ddd7ca4, type: 2}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000, guid: 23c8f79d4a09c9741be574910ddd7ca4, type: 2}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000, guid: 23c8f79d4a09c9741be574910ddd7ca4, type: 2}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000, guid: 2837b8976023b664a999d218292a6c92, type: 2}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000, guid: 2837b8976023b664a999d218292a6c92, type: 2}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000, guid: 2837b8976023b664a999d218292a6c92, type: 2}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000, guid: 2837b8976023b664a999d218292a6c92, type: 2}
-      m_rotation: 1
+    - m_mod: {fileID: 11400000, guid: 31222eaf966962c449708175625ebdb2, type: 2}
+      m_rotation: 0
+    - m_mod: {fileID: 11400000, guid: ca84189b64c109c468d1a42511ac0bc5, type: 2}
+      m_rotation: 0
   - m_edge: negX
     _validOptions:
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000, guid: b21f4ba66ad73554dbb308ca11a52955, type: 2}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000, guid: b21f4ba66ad73554dbb308ca11a52955, type: 2}
-      m_rotation: 3
     - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
       m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
-      m_rotation: 3
     - m_mod: {fileID: 11400000}
       m_rotation: 0
     - m_mod: {fileID: 11400000}
       m_rotation: 0
-    - m_mod: {fileID: 11400000}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000}
-      m_rotation: 3
+    - m_mod: {fileID: 11400000, guid: 35ab2665e6aaa7e4081ba5ccfff0afc2, type: 2}
+      m_rotation: 0
+    - m_mod: {fileID: 11400000, guid: f4c3e4e08e5a5464fb520923451df3b0, type: 2}
+      m_rotation: 0
   - m_edge: posY
-    _validOptions:
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 0
+    _validOptions: []
   - m_edge: negY
     _validOptions:
-    - m_mod: {fileID: 11400000, guid: ec17b3cd3cbe2d74a80c224db99b8b36, type: 2}
+    - m_mod: {fileID: 11400000, guid: 35ab2665e6aaa7e4081ba5ccfff0afc2, type: 2}
       m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: b21f4ba66ad73554dbb308ca11a52955, type: 2}
+    - m_mod: {fileID: 11400000, guid: f4c3e4e08e5a5464fb520923451df3b0, type: 2}
       m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: 23c8f79d4a09c9741be574910ddd7ca4, type: 2}
+    - m_mod: {fileID: 11400000, guid: 31222eaf966962c449708175625ebdb2, type: 2}
       m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: 2837b8976023b664a999d218292a6c92, type: 2}
+    - m_mod: {fileID: 11400000, guid: ca84189b64c109c468d1a42511ac0bc5, type: 2}
       m_rotation: 0
   - m_edge: posZ
     _validOptions:
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: b21f4ba66ad73554dbb308ca11a52955, type: 2}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000, guid: b21f4ba66ad73554dbb308ca11a52955, type: 2}
-      m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
-      m_rotation: 2
     - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
       m_rotation: 0
     - m_mod: {fileID: 11400000}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000}
       m_rotation: 0
     - m_mod: {fileID: 11400000}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000}
       m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: 23c8f79d4a09c9741be574910ddd7ca4, type: 2}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000, guid: 2837b8976023b664a999d218292a6c92, type: 2}
+    - m_mod: {fileID: 11400000, guid: f4c3e4e08e5a5464fb520923451df3b0, type: 2}
       m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: 2837b8976023b664a999d218292a6c92, type: 2}
-      m_rotation: 2
+    - m_mod: {fileID: 11400000, guid: 31222eaf966962c449708175625ebdb2, type: 2}
+      m_rotation: 0
   - m_edge: negZ
     _validOptions:
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000, guid: b21f4ba66ad73554dbb308ca11a52955, type: 2}
-      m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: b21f4ba66ad73554dbb308ca11a52955, type: 2}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
-      m_rotation: 1
     - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
       m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000}
-      m_rotation: 1
     - m_mod: {fileID: 11400000}
       m_rotation: 0
     - m_mod: {fileID: 11400000}
       m_rotation: 0
-    - m_mod: {fileID: 11400000}
-      m_rotation: 3
-    - m_mod: {fileID: 11400000}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000}
-      m_rotation: 2
-    - m_mod: {fileID: 11400000}
-      m_rotation: 1
-    - m_mod: {fileID: 11400000, guid: 23c8f79d4a09c9741be574910ddd7ca4, type: 2}
+    - m_mod: {fileID: 11400000, guid: 35ab2665e6aaa7e4081ba5ccfff0afc2, type: 2}
       m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: 2837b8976023b664a999d218292a6c92, type: 2}
+    - m_mod: {fileID: 11400000, guid: ca84189b64c109c468d1a42511ac0bc5, type: 2}
       m_rotation: 0
-    - m_mod: {fileID: 11400000, guid: 2837b8976023b664a999d218292a6c92, type: 2}
-      m_rotation: 2

@@ -91,13 +91,12 @@ class Sc_MapGenerator : MonoBehaviour
             if (!AttemptBuild(new Vector2(X, Y)))
             {
                 Debug.Log("FIRST_BUILD_FAILIER");
-                ResetGenerator();
                 function = false;
             }
             else
             {
                 // propagates the modules around the collapsed module
-                Propagate(new Vector2(X, Y));
+                Propagate(new Vector2(X, Y),  true);
             }
 
             // Loops until the all Modules are collapsed - this is where the loop needs to be freed to properly generate it correctly
@@ -105,12 +104,12 @@ class Sc_MapGenerator : MonoBehaviour
             {
                 if (!Iterate())
                 {
-                    ResetGenerator();
                     function = false;
                 }
                 
             }
             if (Collapsed()) _isBuilt = true; // COULD USE BREAK INSTEAD BUT I LIKE THE CONTROL
+            if(!function) ResetGenerator();
         }
         Debug.Log(_isBuilt ? "SUCCESS" : "FAILED");
     }
@@ -128,12 +127,13 @@ class Sc_MapGenerator : MonoBehaviour
     // iterates through the WFC 
     private bool Iterate() {
         var coords = GetMinEntropyCoords(); 
+        if(coords.x == -1) return false;
 
         // attempts to build the minimum entropy object
         if (!AttemptBuild(coords)) return false;
 
         //Instantiate(go, new Vector3(coords.x, 0, coords.y), Quaternion.identity);
-        Propagate(coords);
+        Propagate(coords, true);
         return true;
     }
 
@@ -164,6 +164,11 @@ class Sc_MapGenerator : MonoBehaviour
                 }
 
             }
+        }
+
+        if(_lowestEntropy == 0)
+        {
+            return new Vector2(-1, -1);
         }
 
         // gets all modules that have the same entropy
@@ -200,7 +205,8 @@ class Sc_MapGenerator : MonoBehaviour
 
     // Attempts to build the GameObject, if the object fails it sends back false restarting the whole build
     bool AttemptBuild(Vector2 _coords) {
-        GameObject mod = m_WFC[(int)_coords.x, (int)_coords.y].Collapse();
+        WFCModule WFCMod = m_WFC[(int)_coords.x, (int)_coords.y];
+        GameObject mod = WFCMod.Collapse();
         Debug.Log(_coords + " : " + mod + " on attempt: " + attemptCounter);
 
 
@@ -209,50 +215,108 @@ class Sc_MapGenerator : MonoBehaviour
         }
 
 
-        GameObject obj = Instantiate(mod, new Vector3(_coords.x, 0f, _coords.y), Quaternion.Euler(ModRotation(m_WFC[(int)_coords.x, (int)_coords.y].GetOption())));
+        GameObject obj = Instantiate(mod, new Vector3(_coords.x, 0f, _coords.y), Quaternion.Euler(ModRotation(WFCMod.GetOption())));
         m_Build.Add(obj);
         return true;
     }
 
-    private void Propagate(Vector2 _coords)
+    private void Propagate(Vector2 _coords, bool _double)
     {
         // Check around Module  
-        Sc_Module _mod = GetVectorModule(_coords).GetOption().m_mod;
+        Option _opt = GetVectorModule(_coords).GetOption();
 
 
         Vector2 posY = new Vector2(_coords.x, _coords.y + 1);
         if (posY.y < SIZE_Y && !IsCollapsed(posY))
         {
-            foreach (Sc_Module mod in CompareOptions(_mod, posY, "posZ"))
+            foreach (Option mod in CompareOptions(_opt, posY, "posZ"))
             {
-                GetVectorModule(posY).GetOptions().Remove(mod);
+                GetVectorModule(posY).RemoveOption(mod);
+            }
+            PropagateSurroundings(posY);
+        }
+
+        Vector2 negY = new Vector2(_coords.x, _coords.y - 1);
+        if (negY.y > 0 && !IsCollapsed(negY))
+        {
+            foreach (Option mod in CompareOptions(_opt, negY, "negZ"))
+            {
+                GetVectorModule(negY).RemoveOption(mod);
+            }
+            PropagateSurroundings(negY);
+        }
+
+        Vector2 posX = new Vector2(_coords.x + 1, _coords.y);
+        if (posX.x < SIZE_X && !IsCollapsed(posX))
+        {
+            foreach (Option mod in CompareOptions(_opt, posX, "posX"))
+            {
+                GetVectorModule(posX).RemoveOption(mod);
+            }
+            PropagateSurroundings(posX);
+        }
+
+        Vector2 negX = new Vector2(_coords.x - 1, _coords.y);
+        if (negX.x > 0 && !IsCollapsed(negX))
+        {
+            foreach (Option mod in CompareOptions(_opt, negX, "negX"))
+            {
+                GetVectorModule(negX).RemoveOption(mod);
+            }
+            PropagateSurroundings(negX);
+        }
+    }
+
+    void PropagateSurroundings(Vector2 _coords)
+    {
+        // Check around Module  
+        List<Option> options = GetVectorModule(_coords).GetOptions();
+
+        Vector2 posY = new Vector2(_coords.x, _coords.y + 1);
+        if (posY.y < SIZE_Y && !IsCollapsed(posY))
+        {
+            foreach (Option _opt in options)
+            {
+                foreach (Option mod in CompareOptions(_opt, posY, "posZ"))
+                {
+                    GetVectorModule(posY).RemoveOption(mod);
+                }
             }
         }
 
         Vector2 negY = new Vector2(_coords.x, _coords.y - 1);
         if (negY.y > 0 && !IsCollapsed(negY))
         {
-            foreach (Sc_Module mod in CompareOptions(_mod, negY, "negZ"))
-            {
-                GetVectorModule(negY).GetOptions().Remove(mod);
+            foreach (Option _opt in options) 
+            { 
+                foreach (Option mod in CompareOptions(_opt, negY, "negZ"))
+                {
+                    GetVectorModule(negY).RemoveOption(mod);
+                }
             }
         }
 
         Vector2 posX = new Vector2(_coords.x + 1, _coords.y);
         if (posX.x < SIZE_X && !IsCollapsed(posX))
         {
-            foreach (Sc_Module mod in CompareOptions(_mod, posX, "posX"))
+            foreach (Option _opt in options)
             {
-                GetVectorModule(posX).GetOptions().Remove(mod);
+                foreach (Option mod in CompareOptions(_opt, posX, "posX"))
+                {
+                    GetVectorModule(posX).RemoveOption(mod);
+                }
             }
         }
 
         Vector2 negX = new Vector2(_coords.x - 1, _coords.y);
         if (negX.x > 0 && !IsCollapsed(negX))
         {
-            foreach (Sc_Module mod in CompareOptions(_mod, negX, "negX"))
+            foreach (Option _opt in options)
             {
-                GetVectorModule(negX).GetOptions().Remove(mod);
+                foreach (Option mod in CompareOptions(_opt, negX, "negX"))
+                {
+                    GetVectorModule(negX).RemoveOption(mod);
+                }
             }
         }
     }
@@ -263,14 +327,15 @@ class Sc_MapGenerator : MonoBehaviour
     }
 
     // Passes back option removal list
-    List<Sc_Module> CompareOptions(Sc_Module _mod, Vector2 _coord, string _edge)
+    List<Option> CompareOptions(Option _opt, Vector2 _coord, string _edge)
     {
-        List<Sc_Module> toRemove = new List<Sc_Module>();
-        foreach (Sc_Module mod in GetVectorModule(_coord).GetOptions())
+        List<Option> toRemove = new List<Option>();
+        // gets the new vector coordinate and compares the options of the new coordinate
+        foreach (Option opt in GetVectorModule(_coord).GetOptions())
         {
-            if (!Compare(mod, _mod.GetNeighbour(_edge).GetOptions()))
+            if (!Compare(opt, _opt.m_mod.GetNeighbour(_edge).GetOptions()))
             {
-                toRemove.Add(mod);
+                toRemove.Add(opt);
             }
         }
 
@@ -279,9 +344,9 @@ class Sc_MapGenerator : MonoBehaviour
 
 
     // add compare function to check if the the compare function does not include any of the following
-    bool Compare(Sc_Module _mod, List<Option> _compare) {
+    bool Compare(Option _opt, List<Option> _compare) {
         foreach (Option comp in _compare) {
-            if(_mod == comp.m_mod) {
+            if(_opt.m_mod == comp.m_mod && _opt.m_rotation == comp.m_rotation) {
                 return true;
             }
         }
@@ -330,34 +395,74 @@ class Sc_MapGenerator : MonoBehaviour
     }
 }
 
+/*
+how to get all 4 sides ? generate four types? 
+
+m_options will include the sides too
+*/
 class WFCModule
 {
     // list of possible options that the module could become
-    List<Sc_Module> m_options;
+    List<Option> m_options;
     bool m_collapsed; // to state if the module has already been collapsed
     Option m_option; // the module it has become when it gets collapsed
     
     // Constructor w/ List of module Parameter
     public WFCModule(List<Sc_Module> _options)
     {
-        m_options = new List<Sc_Module>(_options);
+        SetOptions(_options);
+    }
+
+    public void SetOptions(List<Sc_Module> _options)
+    {
+        m_options = new List<Option>();
+        foreach (Sc_Module module in _options)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                Option valid = new Option(module, i);
+                m_options.Add(valid);
+            }
+
+        }
     }
 
 
     // Getter and Setter for Options
     public void ResetOptions(List<Sc_Module> _options)
     {
-        m_options = new List<Sc_Module>(_options);
+        m_options.Clear();
+        SetOptions(_options);
 
         m_collapsed = false;
         m_option.Reset();
-        m_options.Clear();
     }
-    public List<Sc_Module> GetOptions()
+    public List<Option> GetOptions()
     {
         return m_options;
     }
 
+
+    // removes option in parameter
+    public void RemoveOption(Option option)
+    {
+        List<Option> toRemove = new List<Option>();
+        foreach(Option opt in m_options)
+        {
+            if (opt.m_mod == option.m_mod && opt.m_rotation == option.m_rotation) 
+            {
+                toRemove.Add(opt);
+            }
+        }
+
+
+        foreach(Option opt in toRemove)
+        {
+            m_options.Remove(opt);
+        }
+
+        toRemove.Clear();
+    }
 
     // returns module it has collapsed to
     public Option GetOption()
@@ -379,7 +484,7 @@ class WFCModule
         if(m_options.Count > 0)
         {
             // collapses the current tile based on the principle that it has the lowest entropy so it must close, if there is more than one ooption apply randomization
-            m_option.m_mod = m_options[Random.Range(0, m_options.Count)];
+            m_option = m_options[Random.Range(0, m_options.Count)];
             m_collapsed = true;
             return m_option.m_mod.GetMesh();
         }
