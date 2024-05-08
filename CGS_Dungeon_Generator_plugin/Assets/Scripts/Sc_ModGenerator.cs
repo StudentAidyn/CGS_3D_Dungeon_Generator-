@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 
 
@@ -21,6 +22,10 @@ public class Sc_ModGenerator : MonoBehaviour
     [Header("Edge Types")]
     [SerializeField] char m_similarEdges = 'S';
     [SerializeField] char m_flippedEdges = 'F';
+
+    [Header("To Prevent Accidental Variants")]
+    [SerializeField] bool GENERATE = false;
+    [SerializeField] bool DELETE = false;
 
     List<Sc_Module> m_Variants = new List<Sc_Module>();
 
@@ -246,7 +251,7 @@ public class Sc_ModGenerator : MonoBehaviour
         {
             if (_mod.GetNeighbours()[i].GetEdge() == _edge)
             {
-                _mod.GetNeighbours()[i].AddNeighbour(_other, _rotation); // TODO: Fix this so it records the current rotation when connecting then the current rotation of the object
+                _mod.GetNeighbours()[i].AddNeighbour(_other); // TODO: Fix this so it records the current rotation when connecting then the current rotation of the object
             }
         }
     }
@@ -255,18 +260,26 @@ public class Sc_ModGenerator : MonoBehaviour
     
     public void CreateRotatedVariants()
     {
-        foreach(Sc_Module mod in m_modules)
+        if (GENERATE)
         {
-            if (!mod.SameSides())
+            foreach (Sc_Module mod in m_modules)
             {
-                CreateVariant(mod);
+                if (!mod.SameSides())
+                {
+                    CreateVariant(mod);
+                }
             }
+
+            foreach (Sc_Module mod in m_Variants)
+            {
+                m_modules.Add(mod);
+            }
+
+            m_Variants.Clear();
+
+            GENERATE = false;
         }
 
-        foreach(Sc_Module mod in m_Variants)
-        {
-            m_modules.Add(mod);
-        }
     }
 
     // create simple check for if a module is the same on all  sides
@@ -332,6 +345,40 @@ public class Sc_ModGenerator : MonoBehaviour
     /*Rotation Rules:
      Rotation will occur clockwise
      */
+
+    public void DeleteAllVariantsInFolder()
+    {
+        // to stop accidental deletion
+        if (DELETE)
+        {
+            // folder should exist before running this Method
+            string[] variantFolder = { "Assets/Modules/Variants" };
+            foreach (var asset in AssetDatabase.FindAssets("", variantFolder))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(asset);
+                AssetDatabase.DeleteAsset(path);
+            }
+
+            List<Sc_Module> toRemove = new List<Sc_Module>();
+
+            foreach (Sc_Module mod in m_modules)
+            {
+                if (mod == null)
+                {
+                    toRemove.Add(mod);
+                }
+            }
+
+            foreach (Sc_Module mod in toRemove)
+            {
+                m_modules.Remove(mod);
+            }
+
+            DELETE = false;
+        }
+
+    }
+
 
     // function to clear all neighbours to reset the modules
     public void ResetModuleNeighbours()

@@ -6,18 +6,24 @@ using System.CodeDom.Compiler;
 using Unity.VisualScripting;
 using UnityEditor.PackageManager.Requests;
 using UnityEngine.Rendering;
+using static UnityEditor.Progress;
 
 
 [ExecuteInEditMode]
 [RequireComponent(typeof(Sc_ModGenerator))]
 class Sc_MapGenerator : MonoBehaviour
 {
+    //Fail indicator
+    [SerializeField] GameObject FAIL = null;
+    [SerializeField] GameObject Dungeon = null;
+
+    [Header("Width, Height and Length")]
     // size x and z will be horizontal and Y will be vertical, basically resembling the total number of floors.
-    [SerializeField] const int SIZE_X = 20;
-    [SerializeField] const int SIZE_Y = 30;
-    [SerializeField] const int SIZE_Z = 10;
+    [SerializeField] int SIZE_X = 10;
+    [SerializeField] int SIZE_Y = 10;
+    [SerializeField] int SIZE_Z = 10;
     // the Wave Function Collapse 3D Array Container
-    WFCModule[,] m_WFC ;
+    WFCModule[,,] m_WFC ;
 
     [SerializeField] List<GameObject> m_Build = new List<GameObject>();
 
@@ -44,17 +50,23 @@ class Sc_MapGenerator : MonoBehaviour
         }
 
         // creates a new array (to hold the map) to this size
-        m_WFC = new WFCModule[SIZE_X, SIZE_Y];
+        m_WFC = new WFCModule[SIZE_X, SIZE_Y, SIZE_Z];
         // creates new Wave Function Collapse Modules with Modules List
-        for (int i = 0; i < SIZE_X; i++)
+        for (int x = 0; x < SIZE_X; x++)
         {
-            for (int j = 0; j < SIZE_Y; j++)
+            for (int y = 0; y < SIZE_Y; y++)
             {
-                m_WFC[i, j] = new WFCModule(modules);
+                for (int z = 0; z < SIZE_Z; z++)
+                {
+                    m_WFC[x, y, z] = new WFCModule(modules);
+                }
             }
-        }
+        }        
+
         _isBuilt = false;
         GenerateMap();
+
+        attemptCounter = MAX_ATTEMPTS;
     }
 
 
@@ -65,9 +77,12 @@ class Sc_MapGenerator : MonoBehaviour
 
         ClearGOList();
 
-        for (int i = 0; i < SIZE_X; i++) {
-            for (int j = 0; j < SIZE_Y; j++) {
-                m_WFC[i, j].ResetOptions(modules);
+        for (int x = 0; x < SIZE_X; x++) {
+            for (int y = 0; y < SIZE_Y; y++) {
+                for (int z = 0; z < SIZE_Z; z++)
+                {
+                    m_WFC[x, y, z].ResetOptions(modules);
+                }
             }
         }
 
@@ -87,8 +102,9 @@ class Sc_MapGenerator : MonoBehaviour
             // picks and generates the first collapsed module
             int X = Random.Range(0, SIZE_X);
             int Y = Random.Range(0, SIZE_Y);
+            int Z = Random.Range(0, SIZE_Z);
             bool function = true;
-            if (!AttemptBuild(new Vector2(X, Y)))
+            if (!AttemptBuild(new Vector3(X, Y, Z)))
             {
                 Debug.Log("FIRST_BUILD_FAILIER");
                 function = false;
@@ -96,7 +112,7 @@ class Sc_MapGenerator : MonoBehaviour
             else
             {
                 // propagates the modules around the collapsed module
-                Propagate(new Vector2(X, Y),  true);
+                Propagate(new Vector3(X, Y, Z),  true);
             }
 
             // Loops until the all Modules are collapsed - this is where the loop needs to be freed to properly generate it correctly
@@ -108,19 +124,24 @@ class Sc_MapGenerator : MonoBehaviour
                 }
                 
             }
-            if (Collapsed()) _isBuilt = true; // COULD USE BREAK INSTEAD BUT I LIKE THE CONTROL
-            if(!function) ResetGenerator();
+            //if (Collapsed())
+            _isBuilt = true; // COULD USE BREAK INSTEAD BUT I LIKE THE CONTROL
+            //if(!function) ResetGenerator();
         }
         Debug.Log(_isBuilt ? "SUCCESS" : "FAILED");
     }
 
     // Checks if all Modules are currently collapsed 
     private bool Collapsed() {
-        for(int i = 0; i < SIZE_X; i++) {
-            for(int j = 0; j < SIZE_Y; j++) {
-                if (!m_WFC[i, j].isCollapsed()) return false; 
+
+        for (int x = 0; x < SIZE_X; x++) {
+            for (int y = 0; y < SIZE_Y; y++) {
+                for (int z = 0; z < SIZE_Z; z++) {
+                    if (!m_WFC[x, y, z].isCollapsed()) return false;
+                }
             }
         }
+
         return true;
     }
 
@@ -139,55 +160,58 @@ class Sc_MapGenerator : MonoBehaviour
 
     // finds and returns the location of *minimum entropy
     // *if more than 1 it will randomize between modules
-    Vector2 GetMinEntropyCoords()
+    Vector3 GetMinEntropyCoords()
     {
         // cycle through the tiles
         // find the lowest number (lowest entropy)
         // cycle through again and check for the number found (checking for doubles)
-        int _lowestEntropy = 1;
+        float _lowestEntropy = 1;
         bool _firstPass = true;
-        for (int i = 0; i < SIZE_X; i++)
-        {
-            for (int j = 0; j < SIZE_Y; j++)
-            {
-                if (!m_WFC[i, j].isCollapsed()) // checks for collapsed modules
-                {
-                    if (_firstPass)
+
+        for (int x = 0; x < SIZE_X; x++) {
+            for (int y = 0; y < SIZE_Y; y++) {
+                for (int z = 0; z < SIZE_Z; z++) {
+                    if (!m_WFC[x, y, z].isCollapsed()) // checks for collapsed modules
                     {
-                        _lowestEntropy = m_WFC[i, j].GetEntropy();
-                        _firstPass = false;
-                    }
-                    if (m_WFC[i, j].GetEntropy() < _lowestEntropy)
-                    {
-                        _lowestEntropy = m_WFC[i, j].GetEntropy();
+                        if (_firstPass) {
+                            _lowestEntropy = m_WFC[x, y, z].GetEntropy();
+                            _firstPass = false;
+                        }
+                        if (m_WFC[x, y, z].GetEntropy() < _lowestEntropy) {
+                            _lowestEntropy = m_WFC[x, y, z].GetEntropy();
+                        }
                     }
                 }
-
             }
         }
 
-        if(_lowestEntropy == 0)
+        if (_lowestEntropy <= 0)
         {
-            return new Vector2(-1, -1);
+            Debug.Log("Entropy is: " + _lowestEntropy);
+            //return new Vector2(-1, -1);
         }
 
         // gets all modules that have the same entropy
-        List<Vector2> temp = new List<Vector2>();
-        for (int i = 0; i < SIZE_X; i++)
-        {
-            for (int j = 0; j < SIZE_Y; j++) { 
-                if (!m_WFC[i, j].isCollapsed()) // checks for collapsed modules
-                {
-                    if (m_WFC[i, j].GetEntropy() == _lowestEntropy)
+        List<Vector3> temp = new List<Vector3>();
+        for (int x = 0; x < SIZE_X; x++) {
+            for (int y = 0; y < SIZE_Y; y++) { 
+                for (int z = 0; z < SIZE_Z; z++) {
+                    if (!m_WFC[x, y, z].isCollapsed()) // checks for collapsed modules
                     {
-                        temp.Add(new Vector2(i, j));
+                        if (m_WFC[x, y, z].GetEntropy() == _lowestEntropy)
+                        {
+                            temp.Add(new Vector3(x, y, z));
+                        }
                     }
                 }
+
             }
         }
 
+
+
         // choosing on random if needed the returned module
-        Vector2 value = new Vector2(0, 0);
+        Vector3 value = new Vector3(0, 0, 0);
         if (temp.Count > 1)
         {
             // if there is more than one, select one at random
@@ -204,80 +228,89 @@ class Sc_MapGenerator : MonoBehaviour
     }
 
     // Attempts to build the GameObject, if the object fails it sends back false restarting the whole build
-    bool AttemptBuild(Vector2 _coords) {
-        WFCModule WFCMod = m_WFC[(int)_coords.x, (int)_coords.y];
+    bool AttemptBuild(Vector3 _coords) {
+        WFCModule WFCMod = m_WFC[(int)_coords.x, (int)_coords.y, (int)_coords.z];
         GameObject mod = WFCMod.Collapse();
-        Debug.Log(_coords + " : " + mod + " on attempt: " + attemptCounter);
+        Debug.Log(_coords + " : [" + mod + "] on attempt: " + attemptCounter);
 
 
         if(mod == null) {
+            GameObject fail = Instantiate(FAIL, new Vector3(_coords.x, _coords.y, _coords.z), Quaternion.identity, Dungeon.transform);
+            m_Build.Add(fail);
             return false;
         }
 
 
-        GameObject obj = Instantiate(mod, new Vector3(_coords.x, 0f, _coords.y), Quaternion.Euler(ModRotation(WFCMod.GetOption())));
+        GameObject obj = Instantiate(mod, new Vector3(_coords.x, _coords.y, _coords.z), Quaternion.Euler(ModRotation(WFCMod.GetModule())), Dungeon.transform);
         m_Build.Add(obj);
         return true;
     }
 
-    private void Propagate(Vector2 _coords, bool _double)
+    private void Propagate(Vector3 _coords, bool _double)
     {
         // Check around Module  
-        Option _opt = GetVectorModule(_coords).GetOption();
+        Sc_Module mods = GetVectorModule(_coords).GetModule();
+    
 
-
-        Vector2 posY = new Vector2(_coords.x, _coords.y + 1);
-        if (posY.y < SIZE_Y && !IsCollapsed(posY))
-        {
-            foreach (Option mod in CompareOptions(_opt, posY, "posZ"))
-            {
-                GetVectorModule(posY).RemoveOption(mod);
-            }
-            PropagateSurroundings(posY);
-        }
-
-        Vector2 negY = new Vector2(_coords.x, _coords.y - 1);
-        if (negY.y > 0 && !IsCollapsed(negY))
-        {
-            foreach (Option mod in CompareOptions(_opt, negY, "negZ"))
-            {
-                GetVectorModule(negY).RemoveOption(mod);
-            }
-            PropagateSurroundings(negY);
-        }
-
-        Vector2 posX = new Vector2(_coords.x + 1, _coords.y);
+        // Compares the surrounding area around X first
+        Vector3 posX = new Vector3(_coords.x + 1, _coords.y, _coords.z);
         if (posX.x < SIZE_X && !IsCollapsed(posX))
         {
-            foreach (Option mod in CompareOptions(_opt, posX, "posX"))
+            foreach (Sc_Module mod in CompareOptions(mods, posX, "posX"))
             {
                 GetVectorModule(posX).RemoveOption(mod);
             }
-            PropagateSurroundings(posX);
+            //PropagateSurroundings(posX);
         }
 
-        Vector2 negX = new Vector2(_coords.x - 1, _coords.y);
-        if (negX.x > 0 && !IsCollapsed(negX))
+        Vector3 negX = new Vector3(_coords.x - 1, _coords.y, _coords.z);
+        if (negX.x >= 0 && !IsCollapsed(negX))
         {
-            foreach (Option mod in CompareOptions(_opt, negX, "negX"))
+            foreach (Sc_Module mod in CompareOptions(mods, negX, "negX"))
             {
                 GetVectorModule(negX).RemoveOption(mod);
             }
-            PropagateSurroundings(negX);
+            //PropagateSurroundings(negX);
         }
+
+        //TODO: Add Comparing Y Coords (UP and DOWN)
+
+
+        // Compares area around Z last
+        Vector3 posZ = new Vector3(_coords.x, _coords.y, _coords.z + 1);
+        if (posZ.z < SIZE_Z && !IsCollapsed(posZ))
+        {
+            foreach (Sc_Module mod in CompareOptions(mods, posZ, "posZ"))
+            {
+                GetVectorModule(posZ).RemoveOption(mod);
+            }
+            //PropagateSurroundings(posY);
+        }
+
+        Vector3 negZ = new Vector3(_coords.x, _coords.y, _coords.z - 1);
+        if (negZ.z >= 0 && !IsCollapsed(negZ))
+        {
+            foreach (Sc_Module mod in CompareOptions(mods, negZ, "negZ"))
+            {
+                GetVectorModule(negZ).RemoveOption(mod);
+            }
+            //PropagateSurroundings(negY);
+        }
+
     }
 
+    // Propogate the surrounding area near the newly propogated WFCModule, TODO: alter it so it compares all options and passes back a false only if all options fail
     void PropagateSurroundings(Vector2 _coords)
     {
         // Check around Module  
-        List<Option> options = GetVectorModule(_coords).GetOptions();
+        List<Sc_Module> options = GetVectorModule(_coords).GetOptions();
 
         Vector2 posY = new Vector2(_coords.x, _coords.y + 1);
         if (posY.y < SIZE_Y && !IsCollapsed(posY))
         {
-            foreach (Option _opt in options)
+            foreach (Sc_Module comp in options)
             {
-                foreach (Option mod in CompareOptions(_opt, posY, "posZ"))
+                foreach (Sc_Module mod in CompareOptions(comp, posY, "posZ"))
                 {
                     GetVectorModule(posY).RemoveOption(mod);
                 }
@@ -287,9 +320,9 @@ class Sc_MapGenerator : MonoBehaviour
         Vector2 negY = new Vector2(_coords.x, _coords.y - 1);
         if (negY.y > 0 && !IsCollapsed(negY))
         {
-            foreach (Option _opt in options) 
+            foreach (Sc_Module comp in options) 
             { 
-                foreach (Option mod in CompareOptions(_opt, negY, "negZ"))
+                foreach (Sc_Module mod in CompareOptions(comp, negY, "negZ"))
                 {
                     GetVectorModule(negY).RemoveOption(mod);
                 }
@@ -299,9 +332,9 @@ class Sc_MapGenerator : MonoBehaviour
         Vector2 posX = new Vector2(_coords.x + 1, _coords.y);
         if (posX.x < SIZE_X && !IsCollapsed(posX))
         {
-            foreach (Option _opt in options)
+            foreach (Sc_Module comp in options)
             {
-                foreach (Option mod in CompareOptions(_opt, posX, "posX"))
+                foreach (Sc_Module mod in CompareOptions(comp, posX, "posX"))
                 {
                     GetVectorModule(posX).RemoveOption(mod);
                 }
@@ -311,9 +344,9 @@ class Sc_MapGenerator : MonoBehaviour
         Vector2 negX = new Vector2(_coords.x - 1, _coords.y);
         if (negX.x > 0 && !IsCollapsed(negX))
         {
-            foreach (Option _opt in options)
+            foreach (Sc_Module comp in options)
             {
-                foreach (Option mod in CompareOptions(_opt, negX, "negX"))
+                foreach (Sc_Module mod in CompareOptions(comp, negX, "negX"))
                 {
                     GetVectorModule(negX).RemoveOption(mod);
                 }
@@ -321,21 +354,21 @@ class Sc_MapGenerator : MonoBehaviour
         }
     }
 
-    Vector3 ModRotation(Option _opt)
+    Vector3 ModRotation(Sc_Module _mod)
     {
-        return new Vector3(0f, _opt.m_rotation * 90f, 0);
+        return new Vector3(0f, _mod.GetRotation() * 90f, 0);
     }
 
     // Passes back option removal list
-    List<Option> CompareOptions(Option _opt, Vector2 _coord, string _edge)
+    List<Sc_Module> CompareOptions(Sc_Module _mod, Vector3 _coord, string _edge)
     {
-        List<Option> toRemove = new List<Option>();
+        List<Sc_Module> toRemove = new List<Sc_Module>();
         // gets the new vector coordinate and compares the options of the new coordinate
-        foreach (Option opt in GetVectorModule(_coord).GetOptions())
+        foreach (Sc_Module mod in GetVectorModule(_coord).GetOptions())
         {
-            if (!Compare(opt, _opt.m_mod.GetNeighbour(_edge).GetOptions()))
+            if (!Compare(mod, _mod.GetNeighbour(_edge).GetOptions()))
             {
-                toRemove.Add(opt);
+                toRemove.Add(mod);
             }
         }
 
@@ -344,9 +377,9 @@ class Sc_MapGenerator : MonoBehaviour
 
 
     // add compare function to check if the the compare function does not include any of the following
-    bool Compare(Option _opt, List<Option> _compare) {
-        foreach (Option comp in _compare) {
-            if(_opt.m_mod == comp.m_mod && _opt.m_rotation == comp.m_rotation) {
+    bool Compare(Sc_Module _mod, List<Sc_Module> _compare) {
+        foreach (Sc_Module comp in _compare) {
+            if(_mod == comp) {
                 return true;
             }
         }
@@ -356,15 +389,15 @@ class Sc_MapGenerator : MonoBehaviour
 
 
     // returns WFC Module using the Vector2 Coordinates of itself
-    WFCModule GetVectorModule(Vector2 coords)
+    WFCModule GetVectorModule(Vector3 _coords)
     {
-        return m_WFC[(int)coords.x, (int)coords.y];
+        return m_WFC[(int)_coords.x, (int)_coords.y, (int)_coords.z];
     }
 
     // check if a specific coordinate is collapsed
-    bool IsCollapsed(Vector2 coords)
+    bool IsCollapsed(Vector3 _coords)
     {
-        if (m_WFC[(int)coords.x, (int)coords.y].isCollapsed())
+        if (m_WFC[(int)_coords.x, (int)_coords.y, (int)_coords.z].isCollapsed())
         {
             return true;
         }
@@ -403,9 +436,9 @@ m_options will include the sides too
 class WFCModule
 {
     // list of possible options that the module could become
-    List<Option> m_options;
+    List<Sc_Module> m_options;
     bool m_collapsed; // to state if the module has already been collapsed
-    Option m_option; // the module it has become when it gets collapsed
+    Sc_Module m_module; // the module it has become when it gets collapsed
     
     // Constructor w/ List of module Parameter
     public WFCModule(List<Sc_Module> _options)
@@ -415,16 +448,7 @@ class WFCModule
 
     public void SetOptions(List<Sc_Module> _options)
     {
-        m_options = new List<Option>();
-        foreach (Sc_Module module in _options)
-        {
-            for (int i = 0; i < 4; i++)
-            {
-                Option valid = new Option(module, i);
-                m_options.Add(valid);
-            }
-
-        }
+        m_options = new List<Sc_Module>(_options);
     }
 
 
@@ -435,39 +459,38 @@ class WFCModule
         SetOptions(_options);
 
         m_collapsed = false;
-        m_option.Reset();
+        m_module = null;
     }
-    public List<Option> GetOptions()
+    public List<Sc_Module> GetOptions()
     {
         return m_options;
     }
 
 
     // removes option in parameter
-    public void RemoveOption(Option option)
+    public void RemoveOption(Sc_Module _mod)
     {
-        List<Option> toRemove = new List<Option>();
-        foreach(Option opt in m_options)
+        List<Sc_Module> toRemove = new List<Sc_Module>();
+        foreach(Sc_Module mod in m_options)
         {
-            if (opt.m_mod == option.m_mod && opt.m_rotation == option.m_rotation) 
+            if (mod == _mod) 
             {
-                toRemove.Add(opt);
+                toRemove.Add(mod);
             }
         }
 
-
-        foreach(Option opt in toRemove)
+        foreach(Sc_Module mod in toRemove)
         {
-            m_options.Remove(opt);
+            m_options.Remove(mod);
         }
 
         toRemove.Clear();
     }
 
     // returns module it has collapsed to
-    public Option GetOption()
+    public Sc_Module GetModule()
     {
-        return m_option;
+        return m_module;
     }
 
 
@@ -477,32 +500,81 @@ class WFCModule
         return m_collapsed;
     }
 
-    // Collapses the current Module into one of the Options left
+    // Collapses the current Module into one of the options taking in consideration the weights of the objects
     public GameObject Collapse()
     {
         Debug.Log(m_options.Count);
-        if(m_options.Count > 0)
+
+
+        // Calculate total weight
+        float totalWeight = 0;
+        foreach (Sc_Module tile in m_options)
+        {
+            totalWeight += tile.GetWeight();
+        }
+
+        // Generate a random value within the range of total weight
+        float randomValue = Random.Range(0f, totalWeight);
+
+        // Find the tile corresponding to the random value
+        float cumulativeWeight = 0;
+        foreach (Sc_Module tile in m_options)
+        {
+            cumulativeWeight += tile.GetWeight();
+            if (randomValue <= cumulativeWeight)
+            {
+                m_module = tile;
+                m_collapsed = true;
+                return tile.GetMesh();
+            }
+        }
+
+        //if fails
+        if (m_options.Count > 0)
         {
             // collapses the current tile based on the principle that it has the lowest entropy so it must close, if there is more than one ooption apply randomization
-            m_option = m_options[Random.Range(0, m_options.Count)];
+            m_module = m_options[Random.Range(0, m_options.Count)];
             m_collapsed = true;
-            return m_option.m_mod.GetMesh();
+            return m_module.GetMesh();
         }
         return null;
 
     }
 
     // returns the current Entropy of the object (returns total options) : TODO: change it so the Entropy is effected by the weight
-    public int GetEntropy()
+    public float GetEntropy()
     {
-        return m_options.Count;
+        float sumWeightLogWeight = 0;
+        foreach (var tile in m_options)
+        {
+            sumWeightLogWeight += tile.GetWeight() * Mathf.Log(tile.GetWeight());
+        }
+
+        float shannon_entropy_for_module = Mathf.Log(GetTotalWeight()) - (sumWeightLogWeight / GetTotalWeight());
+
+        return shannon_entropy_for_module;
+
     }
 
+    float GetTotalWeight()
+    {
+        float weight = 0;
+        foreach(Sc_Module mod in m_options)
+        {
+            weight += mod.GetWeight();
+        }
+        if(weight == 0) { return 1; }
+        return weight;
+    }
 
+    float GetModuleWeight(Sc_Module _mod)
+    {
+        float weight = _mod.GetWeight()/GetTotalWeight();
+
+        return weight;
+    }
 
 }
-
-
 
 
 /*

@@ -16,8 +16,8 @@ MonoBehaviour:
   m_rotation: 2
   m_weight: 1
   m_sameSides: 0
-  m_posX: 2f
-  m_negX: 2
+  m_posX: 0s
+  m_negX: 0s
   m_posY: 0s_2
   m_negY: 0s_2
   m_posZ: 0s

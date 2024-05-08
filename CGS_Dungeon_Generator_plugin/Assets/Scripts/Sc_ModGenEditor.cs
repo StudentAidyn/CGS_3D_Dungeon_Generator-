@@ -18,6 +18,11 @@ public class Sc_ModGenEditor : Editor
             gen.CreateRotatedVariants();
         }
 
+        if (GUILayout.Button("DELETE Rotation Variants"))
+        {
+            gen.DeleteAllVariantsInFolder();
+        }
+
         if (GUILayout.Button("Generate Connections"))
         {
             gen.CreateConnections();

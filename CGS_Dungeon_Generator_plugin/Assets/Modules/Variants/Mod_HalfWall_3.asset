@@ -20,8 +20,8 @@ MonoBehaviour:
   m_negX: -s
   m_posY: 0s_3
   m_negY: 0s_3
-  m_posZ: 2
-  m_negZ: 2f
+  m_posZ: 0s
+  m_negZ: 0s
   m_neighbours:
   - m_edge: posX
     _validOptions: []

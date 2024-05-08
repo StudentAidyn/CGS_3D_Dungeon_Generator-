@@ -9,13 +9,13 @@ public class Sc_Module : ScriptableObject
     // Mesh and Rotation and the chance Weight of selection
     [SerializeField] GameObject m_mesh = null;
     [SerializeField] int m_rotation = 0;
-    [SerializeField] int m_weight = 1;
+    [SerializeField] float m_weight = 1;
     [SerializeField] bool m_sameSides = false;
 
     public bool SameSides() { return m_sameSides; }
 
     // Sets values
-    public void SetUp(GameObject _mesh, int _rotation, int _weight) { m_mesh = _mesh; m_rotation = _rotation; m_weight = _weight; }
+    public void SetUp(GameObject _mesh, int _rotation, float _weight) { m_mesh = _mesh; m_rotation = _rotation; m_weight = _weight; }
 
     [Header("Edge Connections")]
     // Edges - type of connections based on the edges
@@ -62,7 +62,7 @@ public class Sc_Module : ScriptableObject
 
     public GameObject GetMesh() { return m_mesh; }
     public int GetRotation() { return m_rotation; }
-    public int GetWeight() { return m_weight; }
+    public float GetWeight() { return m_weight; }
 }
 
 [System.Serializable]
@@ -71,7 +71,7 @@ public class Neighbour
 {
     // the name of the side
     public string m_edge = string.Empty;
-    public List<Option> _validOptions = new List<Option>();
+    public List<Sc_Module> _validOptions = new List<Sc_Module>();
 
     public Neighbour(string edge) {
         m_edge = edge;
@@ -80,9 +80,9 @@ public class Neighbour
     public string GetEdge() { return m_edge; }
 
     // adds new neighbour to valid options
-    public void AddNeighbour(Sc_Module _newNeighbour, int _rotation)
+    public void AddNeighbour(Sc_Module _newNeighbour)
     {
-        _validOptions.Add(new Option(_newNeighbour, _rotation));
+        _validOptions.Add(_newNeighbour);
     }
 
     // clears neighbours
@@ -91,7 +91,7 @@ public class Neighbour
         _validOptions.Clear();
     }
 
-    public List<Option> GetOptions()
+    public List<Sc_Module> GetOptions()
     {
         return _validOptions;
     }
@@ -100,14 +100,17 @@ public class Neighbour
 /*
  instead of Neighbour class, it becomes the edge class and contains the connection type, name and neighbours instead
  */
-[System.Serializable]
-public struct Option
-{
-    public Sc_Module m_mod;
-    public int m_rotation;
-    public Option(Sc_Module _mod, int _rotation) { m_mod = _mod; m_rotation = _rotation; }
-    public void Reset(){
-        m_mod = null;
-        m_rotation = 0;
-    }
-}
+
+// REMOVED OPTIONS - Just using the original way with variants
+
+//[System.Serializable]
+//public struct Option
+//{
+//    public Sc_Module m_mod;
+//    public int m_rotation;
+//    public Option(Sc_Module _mod, int _rotation) { m_mod = _mod; m_rotation = _rotation; }
+//    public void Reset(){
+//        m_mod = null;
+//        m_rotation = 0;
+//    }
+//}
