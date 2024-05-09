@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 785eb980aebc9b848be55d4d52ea528e, type: 3}
+  m_Name: Mod_BridgeMiddle
+  m_EditorClassIdentifier: 
+  m_mesh: {fileID: 8717290757398742489, guid: 62b95232e79f67547bd18edf3e084e93, type: 3}
+  m_rotation: 0
+  m_weight: 0.2
+  m_sameSides: 0
+  m_posX: -r
+  m_negX: -r
+  m_posY: -r
+  m_negY: -r
+  m_posZ: 3s
+  m_negZ: 3s
+  m_neighbours:
+  - m_edge: posX
+    _validOptions:
+    - {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
+    - {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
+    - {fileID: 11400000, guid: 7c25adaa47f1d8649940acb61230c9e6, type: 2}
+    - {fileID: 11400000, guid: 9e37837e556dadf4991e5ec41aefd057, type: 2}
+  - m_edge: negX
+    _validOptions:
+    - {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
+    - {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
+    - {fileID: 11400000, guid: 7c25adaa47f1d8649940acb61230c9e6, type: 2}
+    - {fileID: 11400000, guid: aa736caf1331bd441a9abb88992d3d03, type: 2}
+  - m_edge: posY
+    _validOptions:
+    - {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
+    - {fileID: 11400000}
+    - {fileID: 11400000}
+    - {fileID: 11400000, guid: 3c5d04938b8fafd40a1d78d9429be0ff, type: 2}
+    - {fileID: 11400000, guid: 9cadd1227d97c9d41a2a1ee1aa48fa6a, type: 2}
+    - {fileID: 11400000, guid: 9242bc588e2cea14e8f438f338f5dbac, type: 2}
+    - {fileID: 11400000, guid: fa32c2a518c69764cb82cbe6dc444d5c, type: 2}
+    - {fileID: 11400000, guid: e545bc31d174a684d9aa27c2f38a2d1c, type: 2}
+    - {fileID: 11400000, guid: 31fa23aa352efc946867385a3aa86e8e, type: 2}
+    - {fileID: 11400000, guid: 7b25222dcc2e424468ada1d4ff254f5e, type: 2}
+  - m_edge: negY
+    _validOptions:
+    - {fileID: 11400000, guid: 7094b1d2af1c6314baea09ca8bbba68d, type: 2}
+    - {fileID: 11400000, guid: 9be8e96eb8d589143bf0dbdcd5ae5b8b, type: 2}
+    - {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
+    - {fileID: 11400000}
+    - {fileID: 11400000}
+    - {fileID: 11400000, guid: 3c5d04938b8fafd40a1d78d9429be0ff, type: 2}
+    - {fileID: 11400000, guid: 9afb488264dcfc149912499f062abd3d, type: 2}
+    - {fileID: 11400000, guid: 7c25adaa47f1d8649940acb61230c9e6, type: 2}
+    - {fileID: 11400000, guid: 27b52cd3189bd1d499bcd89643233f3c, type: 2}
+    - {fileID: 11400000, guid: 9272956b84a632d479f3c1f1038b1261, type: 2}
+    - {fileID: 11400000, guid: e78c93a060f004d498375fad5ad19bd5, type: 2}
+    - {fileID: 11400000, guid: aa736caf1331bd441a9abb88992d3d03, type: 2}
+    - {fileID: 11400000, guid: d9f7d5db9fe052e4c8205177c309db48, type: 2}
+    - {fileID: 11400000, guid: 9e37837e556dadf4991e5ec41aefd057, type: 2}
+    - {fileID: 11400000, guid: 9cadd1227d97c9d41a2a1ee1aa48fa6a, type: 2}
+    - {fileID: 11400000, guid: 9242bc588e2cea14e8f438f338f5dbac, type: 2}
+    - {fileID: 11400000, guid: fa32c2a518c69764cb82cbe6dc444d5c, type: 2}
+    - {fileID: 11400000, guid: e545bc31d174a684d9aa27c2f38a2d1c, type: 2}
+    - {fileID: 11400000, guid: 31fa23aa352efc946867385a3aa86e8e, type: 2}
+    - {fileID: 11400000, guid: 7b25222dcc2e424468ada1d4ff254f5e, type: 2}
+  - m_edge: posZ
+    _validOptions:
+    - {fileID: 11400000}
+    - {fileID: 11400000}
+    - {fileID: 11400000, guid: 9242bc588e2cea14e8f438f338f5dbac, type: 2}
+    - {fileID: 11400000, guid: 31fa23aa352efc946867385a3aa86e8e, type: 2}
+  - m_edge: negZ
+    _validOptions:
+    - {fileID: 11400000}
+    - {fileID: 11400000}
+    - {fileID: 11400000, guid: 3c5d04938b8fafd40a1d78d9429be0ff, type: 2}
+    - {fileID: 11400000, guid: 9242bc588e2cea14e8f438f338f5dbac, type: 2}

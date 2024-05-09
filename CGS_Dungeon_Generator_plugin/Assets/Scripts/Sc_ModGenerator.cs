@@ -22,6 +22,8 @@ public class Sc_ModGenerator : MonoBehaviour
     [Header("Edge Types")]
     [SerializeField] char m_similarEdges = 'S';
     [SerializeField] char m_flippedEdges = 'F';
+    [SerializeField] char m_dominantEdges = 'D';
+    [SerializeField] char m_recessiveEdges = 'R';
 
     [Header("To Prevent Accidental Variants")]
     [SerializeField] bool GENERATE = false;
@@ -206,6 +208,8 @@ public class Sc_ModGenerator : MonoBehaviour
                 if (edge[1] == m_similarEdges && other[1] == m_similarEdges) {
                     return true;
                 }
+                if (edge[1] == m_dominantEdges && (other[1] == m_dominantEdges || other[1] == m_recessiveEdges)) { return true; }
+                if ((edge[1] == m_dominantEdges || edge[1] == m_recessiveEdges) && other[1] == m_dominantEdges) { return true; }
             }
             // if baseEdge length is larger than otherEdge then it has 2 chars and if any of those chars = f then it can connect
             else if (edge.Length > other.Length)
@@ -303,7 +307,7 @@ public class Sc_ModGenerator : MonoBehaviour
     void CloneRotatedValues(Sc_Module _mod, Sc_Module _newMod, int _rotation)
     {
         // Mesh, Rotation, Weight
-        _newMod.SetUp(_mod.GetMesh(), _rotation, _mod.GetWeight());
+        _newMod.SetUp(_mod.GetMesh(), _rotation, _mod.GetWeight(), _mod.GetType());
 
         string newPosX = "";
         string newPosZ = "";

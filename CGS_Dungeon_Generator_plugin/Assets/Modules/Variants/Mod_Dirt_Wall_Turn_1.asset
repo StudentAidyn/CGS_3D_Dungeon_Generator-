@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 785eb980aebc9b848be55d4d52ea528e, type: 3}
+  m_Name: Mod_Dirt_Wall_Turn_1
+  m_EditorClassIdentifier: 
+  m_mesh: {fileID: 5389283891448863182, guid: be6a94fb2dbe05d4b88efa2daf7d4b09, type: 3}
+  m_rotation: 1
+  m_weight: 1
+  m_type:
+    serializedVersion: 2
+    m_Bits: 64
+  m_posX: 6
+  m_negX: 0s
+  m_posY: 7s_1
+  m_negY: 0s_1
+  m_posZ: 6f
+  m_negZ: 0s
+  m_sameSides: 0
+  m_neighbours:
+  - m_edge: posX
+    _validOptions: []
+  - m_edge: negX
+    _validOptions: []
+  - m_edge: posY
+    _validOptions: []
+  - m_edge: negY
+    _validOptions: []
+  - m_edge: posZ
+    _validOptions: []
+  - m_edge: negZ
+    _validOptions: []

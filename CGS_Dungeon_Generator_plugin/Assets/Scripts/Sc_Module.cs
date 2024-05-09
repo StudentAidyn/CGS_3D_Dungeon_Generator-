@@ -10,12 +10,11 @@ public class Sc_Module : ScriptableObject
     [SerializeField] GameObject m_mesh = null;
     [SerializeField] int m_rotation = 0;
     [SerializeField] float m_weight = 1;
-    [SerializeField] bool m_sameSides = false;
-
-    public bool SameSides() { return m_sameSides; }
+    [SerializeField] LayerMask m_type;
+    public LayerMask GetType() { return m_type; }
 
     // Sets values
-    public void SetUp(GameObject _mesh, int _rotation, float _weight) { m_mesh = _mesh; m_rotation = _rotation; m_weight = _weight; }
+    public void SetUp(GameObject _mesh, int _rotation, float _weight, LayerMask _type) { m_mesh = _mesh; m_rotation = _rotation; m_weight = _weight; m_type = _type; }
 
     [Header("Edge Connections")]
     // Edges - type of connections based on the edges
@@ -25,6 +24,10 @@ public class Sc_Module : ScriptableObject
     [SerializeField] public string m_negY = string.Empty;    // DOWN
     [SerializeField] public string m_posZ = string.Empty;
     [SerializeField] public string m_negZ = string.Empty;
+
+    [SerializeField] bool m_sameSides = false;
+
+    public bool SameSides() { return m_sameSides; }
 
     public void SetEdges(string _posX, string _negX, string _posY, string _negY, string _posZ, string _negZ)
     {

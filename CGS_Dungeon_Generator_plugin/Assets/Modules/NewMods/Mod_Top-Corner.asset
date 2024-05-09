@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 785eb980aebc9b848be55d4d52ea528e, type: 3}
+  m_Name: Mod_Top-Corner
+  m_EditorClassIdentifier: 
+  m_mesh: {fileID: 112646289005582345, guid: 54b9aa07d92bd08499d201aac0052d6b, type: 3}
+  m_rotation: 0
+  m_weight: 1
+  m_sameSides: 0
+  m_posX: -s
+  m_negX: 2f
+  m_posY: -s
+  m_negY: 1s
+  m_posZ: -s
+  m_negZ: 2
+  m_neighbours:
+  - m_edge: posX
+    _validOptions: []
+  - m_edge: negX
+    _validOptions: []
+  - m_edge: posY
+    _validOptions: []
+  - m_edge: negY
+    _validOptions: []
+  - m_edge: posZ
+    _validOptions: []
+  - m_edge: negZ
+    _validOptions: []
