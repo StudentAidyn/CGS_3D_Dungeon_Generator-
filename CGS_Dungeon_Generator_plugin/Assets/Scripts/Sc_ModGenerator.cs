@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Windows;
 
 
 /*
@@ -82,48 +83,12 @@ public class Sc_ModGenerator : MonoBehaviour
             AddModToNeighbour(_other, _mod, "negX", 0);
         }
 
-        //if(CompareEdges(_mod.m_posX, _other.m_posZ))
-        //{
-        //    AddModToNeighbour(_mod, _other, "posX", 1);
-        //    AddModToNeighbour(_other, _mod, "posZ", 3);
-        //}
-
-        //if (CompareEdges(_mod.m_posX, _other.m_posX))
-        //{
-        //    AddModToNeighbour(_mod, _other, "posX", 2);
-        //    AddModToNeighbour(_other, _mod, "posX", 2);
-        //}
-
-        //if (CompareEdges(_mod.m_posX, _other.m_posZ))
-        //{
-        //    AddModToNeighbour(_mod, _other, "posX", 3);
-        //    AddModToNeighbour(_other, _mod, "negZ", 1);
-        //}
-
         // Checking the Other Side
         if (CompareEdges(_mod.m_negX, _other.m_posX))
         {
             AddModToNeighbour(_mod, _other, "negX", 0);
             AddModToNeighbour(_other, _mod, "posX", 0);
         }
-
-        //if (CompareEdges(_mod.m_negX, _other.m_negZ))
-        //{
-        //    AddModToNeighbour(_mod, _other, "posX", 3);
-        //    AddModToNeighbour(_other, _mod, "negZ", 1);
-        //}
-
-        //if (CompareEdges(_mod.m_negX, _other.m_negX))
-        //{
-        //    AddModToNeighbour(_mod, _other, "posX", 2);
-        //    AddModToNeighbour(_other, _mod, "negX", 2);
-        //}
-
-        //if (CompareEdges(_mod.m_negX, _other.m_posZ))
-        //{
-        //    AddModToNeighbour(_mod, _other, "posX", 1);
-        //    AddModToNeighbour(_other, _mod, "posZ", 3);
-        //}
     }
     void CompareY(Sc_Module _mod, Sc_Module _other)
     {
@@ -147,48 +112,12 @@ public class Sc_ModGenerator : MonoBehaviour
             AddModToNeighbour(_other, _mod, "negZ", 0);
         }
 
-        //if (CompareEdges(_mod.m_posZ, _other.m_negX))
-        //{
-        //    AddModToNeighbour(_mod, _other, "posZ", 1);
-        //    AddModToNeighbour(_other, _mod, "negX", 3);
-        //}
-
-        //if (CompareEdges(_mod.m_posZ, _other.m_posZ))
-        //{
-        //    AddModToNeighbour(_mod, _other, "posZ", 2);
-        //    AddModToNeighbour(_other, _mod, "posZ", 2);
-        //}
-
-        //if (CompareEdges(_mod.m_posZ, _other.m_posX))
-        //{
-        //    AddModToNeighbour(_mod, _other, "posZ", 3);
-        //    AddModToNeighbour(_other, _mod, "posX", 1);
-        //}
-
         // Comparing the other sides
         if (CompareEdges(_mod.m_negZ, _other.m_posZ))
         {
             AddModToNeighbour(_mod, _other, "negZ", 0);
             AddModToNeighbour(_other, _mod, "posZ", 0);
         }
-
-    //    if (CompareEdges(_mod.m_negZ, _other.m_posX))
-    //    {
-    //        AddModToNeighbour(_mod, _other, "negZ", 3);
-    //        AddModToNeighbour(_other, _mod, "posX", 1);
-    //    }
-
-    //    if (CompareEdges(_mod.m_negZ, _other.m_negZ))
-    //    {
-    //        AddModToNeighbour(_mod, _other, "negZ", 2);
-    //        AddModToNeighbour(_other, _mod, "negZ", 2);
-    //    }
-
-    //    if (CompareEdges(_mod.m_negZ, _other.m_negX))
-    //    {
-    //        AddModToNeighbour(_mod, _other, "negZ", 1);
-    //        AddModToNeighbour(_other, _mod, "negX", 3);
-    //    }
     }
 
     // Compares 2 Edges passed through based on the rules given 
@@ -233,12 +162,20 @@ public class Sc_ModGenerator : MonoBehaviour
     // Vertical connections
     bool CompareVerticalEdges(string _edge, string _other)
     {
+        // convert this to check for rotation, a value after an '_' will indicate the orientation of the piece
         char[] edge = (_edge.ToUpper()).ToCharArray();
         char[] other = (_other.ToUpper()).ToCharArray();
 
         if (edge[0] == other[0])
         {
-            return true;
+            if (edge[edge.Length - 1] == other[other.Length - 1])
+            {
+                return true;
+            }
+            else if (edge[1] == m_similarEdges && other[1] == m_similarEdges)
+            {
+                return true;
+            }
         }
 
         return false;
@@ -292,6 +229,7 @@ public class Sc_ModGenerator : MonoBehaviour
 
     void CreateVariant(Sc_Module mod)
     {
+        
         for (int i = 1; i < 4; i++){
             Sc_Module newModule = ScriptableObject.CreateInstance<Sc_Module>();
 
@@ -302,11 +240,13 @@ public class Sc_ModGenerator : MonoBehaviour
             UnityEditor.AssetDatabase.CreateAsset(newModule, $"Assets/Modules/Variants/{MOD}_{rot}.asset");
             m_Variants.Add(newModule);
         }
+        CloneRotatedValues(mod, mod, 0); // passes the basic mod through so it will recieve the proper connectors
+
     }
-    
+
     void CloneRotatedValues(Sc_Module _mod, Sc_Module _newMod, int _rotation)
     {
-        // Mesh, Rotation, Weight
+        // Mesh, Rotation, Weight, Layer Type
         _newMod.SetUp(_mod.GetMesh(), _rotation, _mod.GetWeight(), _mod.GetType());
 
         string newPosX = "";
@@ -315,6 +255,12 @@ public class Sc_ModGenerator : MonoBehaviour
         string newNegZ = "";
         //
         switch (_rotation) {
+            case 0:
+                newPosX = _mod.m_posX;
+                newNegX = _mod.m_negX;
+                newPosZ = _mod.m_posZ;
+                newNegZ = _mod.m_negZ;
+                break;
             case 1:
                 newPosX = _mod.m_posZ;
                 newNegX = _mod.m_negZ;
@@ -371,6 +317,11 @@ public class Sc_ModGenerator : MonoBehaviour
                 {
                     toRemove.Add(mod);
                 }
+                else
+                {
+                    RemoveRotationStringFromBase(ref mod.m_negY);
+                    RemoveRotationStringFromBase(ref mod.m_posY);
+                }
             }
 
             foreach (Sc_Module mod in toRemove)
@@ -381,6 +332,13 @@ public class Sc_ModGenerator : MonoBehaviour
             DELETE = false;
         }
 
+    }
+
+    void RemoveRotationStringFromBase(ref string _str)
+    {
+        int index = _str.IndexOf("_");
+        if (index >= 0)
+            _str = _str.Substring(0, index);
     }
 
 

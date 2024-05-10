@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Mod_Dirt_Wall_Turn_2
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 5389283891448863182, guid: be6a94fb2dbe05d4b88efa2daf7d4b09, type: 3}
-  m_rotation: 2
   m_weight: 1
   m_type:
     serializedVersion: 2

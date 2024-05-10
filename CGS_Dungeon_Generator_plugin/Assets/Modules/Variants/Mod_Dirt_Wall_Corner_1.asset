@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Mod_Dirt_Wall_Corner_1
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 5294900199192245806, guid: 8e89bff2ae883104daaf2d9ff77aeb48, type: 3}
-  m_rotation: 1
   m_weight: 1
   m_type:
     serializedVersion: 2

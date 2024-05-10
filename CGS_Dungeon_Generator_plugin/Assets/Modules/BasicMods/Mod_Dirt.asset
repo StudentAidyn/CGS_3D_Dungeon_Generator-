@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Mod_Dirt
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 919132149155446097, guid: 04121e1a41a8de8438cd0a8333ec9951, type: 3}
-  m_rotation: 0
-  m_weight: 1
+  m_weight: 10
   m_type:
     serializedVersion: 2
     m_Bits: 64

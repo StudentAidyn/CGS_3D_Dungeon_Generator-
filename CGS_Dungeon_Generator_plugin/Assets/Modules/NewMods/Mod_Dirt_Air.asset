@@ -13,11 +13,10 @@ MonoBehaviour:
   m_Name: Mod_Dirt_Air
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 3218529666003124816, guid: 639a11cded8f3df4ba27d6e2fc718276, type: 3}
-  m_rotation: 0
-  m_weight: 1
+  m_weight: 10
   m_type:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 320
   m_posX: 5s
   m_negX: 5s
   m_posY: -s

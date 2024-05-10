@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Mod_Top-Corner_3
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 112646289005582345, guid: 54b9aa07d92bd08499d201aac0052d6b, type: 3}
-  m_rotation: 3
   m_weight: 1
   m_type:
     serializedVersion: 2

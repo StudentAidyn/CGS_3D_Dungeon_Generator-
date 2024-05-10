@@ -32,11 +32,13 @@ MonoBehaviour:
     - {fileID: 11400000}
     - {fileID: 11400000}
     - {fileID: 11400000, guid: 16948e21900105f459b97ab9ee53f82b, type: 2}
+    - {fileID: 11400000, guid: a782f7a66477be74f9cd3aafba3e0cf9, type: 2}
   - m_edge: negX
     _validOptions:
     - {fileID: 11400000}
     - {fileID: 11400000}
     - {fileID: 11400000, guid: 0f64a0cda18cdec4e8033735609bca3b, type: 2}
+    - {fileID: 11400000, guid: a782f7a66477be74f9cd3aafba3e0cf9, type: 2}
     - {fileID: 11400000, guid: ae2b296939adfd741a3685566bddd7ad, type: 2}
   - m_edge: posY
     _validOptions:

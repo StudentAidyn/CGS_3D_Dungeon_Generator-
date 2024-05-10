@@ -8,7 +8,7 @@ public class Sc_Module : ScriptableObject
     [Header("Object Details")]
     // Mesh and Rotation and the chance Weight of selection
     [SerializeField] GameObject m_mesh = null;
-    [SerializeField] int m_rotation = 0;
+    int m_rotation = 0;
     [SerializeField] float m_weight = 1;
     [SerializeField] LayerMask m_type;
     public LayerMask GetType() { return m_type; }

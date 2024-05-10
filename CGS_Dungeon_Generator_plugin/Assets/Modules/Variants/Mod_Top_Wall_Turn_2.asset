@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Mod_Top_Wall_Turn_2
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 483478777610597637, guid: 34898943ede0a0a4ab5ff2ce9fe8c8d7, type: 3}
-  m_rotation: 2
   m_weight: 1
   m_type:
     serializedVersion: 2

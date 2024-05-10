@@ -24,7 +24,7 @@ class Sc_MapGenerator : MonoBehaviour
     [SerializeField] int SIZE_Y = 10;
     [SerializeField] int SIZE_Z = 10;
     // the Wave Function Collapse 3D Array Container
-    WFCModule[,,] m_WFC ;
+    Sc_MapModule[,,] m_WFC ;
 
     [SerializeField] List<GameObject> m_Build = new List<GameObject>();
 
@@ -53,7 +53,7 @@ class Sc_MapGenerator : MonoBehaviour
         }
 
         // creates a new array (to hold the map) to this size
-        m_WFC = new WFCModule[SIZE_X, SIZE_Y, SIZE_Z];
+        m_WFC = new Sc_MapModule[SIZE_X, SIZE_Y, SIZE_Z];
         // creates new Wave Function Collapse Modules with Modules List
         for (int x = 0; x < SIZE_X; x++)
         {
@@ -61,7 +61,7 @@ class Sc_MapGenerator : MonoBehaviour
             {
                 for (int z = 0; z < SIZE_Z; z++)
                 {
-                    m_WFC[x, y, z] = new WFCModule(modules);
+                    m_WFC[x, y, z] = new Sc_MapModule(modules);
                 }
             }
         }        
@@ -240,7 +240,7 @@ class Sc_MapGenerator : MonoBehaviour
 
     // Attempts to build the GameObject, if the object fails it sends back false restarting the whole build
     bool AttemptBuild(Vector3 _coords) {
-        WFCModule WFCMod = GetVectorModule(_coords);
+        Sc_MapModule WFCMod = GetVectorModule(_coords);
         GameObject mod = WFCMod.Collapse();
         Debug.Log(_coords + " : [" + mod + "] on attempt: " + attemptCounter);
 
@@ -270,7 +270,7 @@ class Sc_MapGenerator : MonoBehaviour
             {
                 GetVectorModule(posX).RemoveOption(mod);
             }
-            //PropagateSurroundings(posX);
+            PropagateSurroundings(posX);
         }
 
         Vector3 negX = new Vector3(_coords.x - 1, _coords.y, _coords.z);
@@ -280,7 +280,7 @@ class Sc_MapGenerator : MonoBehaviour
             {
                 GetVectorModule(negX).RemoveOption(mod);
             }
-            //PropagateSurroundings(negX);
+            PropagateSurroundings(negX);
         }
 
         //TODO: Add Comparing Y Coords (UP and DOWN)
@@ -294,7 +294,7 @@ class Sc_MapGenerator : MonoBehaviour
             {
                 GetVectorModule(posY).RemoveOption(mod);
             }
-            //PropagateSurroundings(posY);
+            PropagateSurroundings(posY);
         }
 
         Vector3 negY = new Vector3(_coords.x, _coords.y - 1, _coords.z);
@@ -304,7 +304,7 @@ class Sc_MapGenerator : MonoBehaviour
             {
                 GetVectorModule(negY).RemoveOption(mod);
             }
-            //PropagateSurroundings(negY);
+            PropagateSurroundings(negY);
         }
 
 
@@ -316,7 +316,7 @@ class Sc_MapGenerator : MonoBehaviour
             {
                 GetVectorModule(posZ).RemoveOption(mod);
             }
-            //PropagateSurroundings(posZ);
+            PropagateSurroundings(posZ);
         }
 
         Vector3 negZ = new Vector3(_coords.x, _coords.y, _coords.z - 1);
@@ -326,16 +326,16 @@ class Sc_MapGenerator : MonoBehaviour
             {
                 GetVectorModule(negZ).RemoveOption(mod);
             }
-            //PropagateSurroundings(negZ);
+            PropagateSurroundings(negZ);
         }
 
     }
 
-    // Propogate the surrounding area near the newly propogated WFCModule, TODO: alter it so it compares all options and passes back a false only if all options fail
+    // Propogate the surrounding area near the newly propogated WFCModule, TODO: alter it so it compares all options and passes back a false only if all options fail - CHECK WHAT IS WRONG OR UPDATE PROPOGATE
     void PropagateSurroundings(Vector3 _coords)
     {
         // Check around Module  
-        WFCModule mods = GetVectorModule(_coords);
+        Sc_MapModule mods = GetVectorModule(_coords);
 
         // Compares the surrounding area around X first
         Vector3 posX = new Vector3(_coords.x + 1, _coords.y, _coords.z);
@@ -424,7 +424,7 @@ class Sc_MapGenerator : MonoBehaviour
         return toRemove;
     }
 
-    List<Sc_Module> CompareOptionsAdvanced(WFCModule _mod, Vector3 _coord /*propagated coord*/, string _edge)
+    List<Sc_Module> CompareOptionsAdvanced(Sc_MapModule _mod, Vector3 _coord /*propagated coord*/, string _edge)
     {
         List<Sc_Module> toRemove = new List<Sc_Module>();
         // gets the new vector coordinate and compares the options of the new coordinate
@@ -468,7 +468,7 @@ class Sc_MapGenerator : MonoBehaviour
 
 
     // returns WFC Module using the Vector2 Coordinates of itself
-    WFCModule GetVectorModule(Vector3 _coords)
+    Sc_MapModule GetVectorModule(Vector3 _coords)
     {
         return m_WFC[(int)_coords.x, (int)_coords.y, (int)_coords.z];
     }
@@ -476,7 +476,7 @@ class Sc_MapGenerator : MonoBehaviour
     // check if a specific coordinate is collapsed
     bool IsCollapsed(Vector3 _coords)
     {
-        WFCModule wfc = m_WFC[(int)_coords.x, (int)_coords.y, (int)_coords.z];
+        Sc_MapModule wfc = m_WFC[(int)_coords.x, (int)_coords.y, (int)_coords.z];
         if (wfc != null)
         {
             if (m_WFC[(int)_coords.x, (int)_coords.y, (int)_coords.z].isCollapsed())
@@ -492,7 +492,7 @@ class Sc_MapGenerator : MonoBehaviour
 
     void SetLevelToType(LayerMask _layer, int _level)
     {
-        foreach (WFCModule mod in GetModulesFromLevel(_level))
+        foreach (Sc_MapModule mod in GetModulesFromLevel(_level))
         {
             List<Sc_Module> toRemove = new List<Sc_Module>();
             foreach(Sc_Module option in mod.GetOptions())
@@ -510,9 +510,9 @@ class Sc_MapGenerator : MonoBehaviour
         }
     }
 
-    List<WFCModule> GetModulesFromLevel(int _level)
+    List<Sc_MapModule> GetModulesFromLevel(int _level)
     {
-        List<WFCModule> modules = new List<WFCModule>();
+        List<Sc_MapModule> modules = new List<Sc_MapModule>();
 
         for (int x = 0; x < SIZE_X; x++)
         {
@@ -561,157 +561,5 @@ how to get all 4 sides ? generate four types?
 
 m_options will include the sides too
 */
-class WFCModule
-{
-    // list of possible options that the module could become
-    List<Sc_Module> m_options;
-    bool m_collapsed; // to state if the module has already been collapsed
-    Sc_Module m_module; // the module it has become when it gets collapsed
-    
-    // Constructor w/ List of module Parameter
-    public WFCModule(List<Sc_Module> _options)
-    {
-        SetOptions(_options);
-    }
-
-    public void SetOptions(List<Sc_Module> _options)
-    {
-        m_options = new List<Sc_Module>(_options);
-    }
 
 
-    // Getter and Setter for Options
-    public void ResetOptions(List<Sc_Module> _options)
-    {
-        m_options.Clear();
-        SetOptions(_options);
-
-        m_collapsed = false;
-        m_module = null;
-    }
-    public List<Sc_Module> GetOptions()
-    {
-        return m_options;
-    }
-
-
-    // removes option in parameter
-    public void RemoveOption(Sc_Module _mod)
-    {
-        List<Sc_Module> toRemove = new List<Sc_Module>();
-        foreach(Sc_Module mod in m_options)
-        {
-            if (mod == _mod) 
-            {
-                toRemove.Add(mod);
-            }
-        }
-
-        foreach(Sc_Module mod in toRemove)
-        {
-            m_options.Remove(mod);
-        }
-
-        toRemove.Clear();
-    }
-
-    // returns module it has collapsed to
-    public Sc_Module GetModule()
-    {
-        return m_module;
-    }
-
-
-    // Checks if the current Module has been collapsed
-    public bool isCollapsed()
-    {
-        return m_collapsed;
-    }
-
-    // Collapses the current Module into one of the options taking in consideration the weights of the objects
-    public GameObject Collapse()
-    {
-        Debug.Log(m_options.Count);
-
-
-        // Calculate total weight
-        float totalWeight = 0;
-        foreach (Sc_Module tile in m_options)
-        {
-            totalWeight += tile.GetWeight();
-        }
-
-        // Generate a random value within the range of total weight
-        float randomValue = Random.Range(0f, totalWeight);
-
-        // Find the tile corresponding to the random value
-        float cumulativeWeight = 0;
-        foreach (Sc_Module tile in m_options)
-        {
-            cumulativeWeight += tile.GetWeight();
-            if (randomValue <= cumulativeWeight)
-            {
-                m_module = tile;
-                m_collapsed = true;
-                return tile.GetMesh();
-            }
-        }
-
-        //if fails
-        if (m_options.Count > 0)
-        {
-            // collapses the current tile based on the principle that it has the lowest entropy so it must close, if there is more than one ooption apply randomization
-            m_module = m_options[Random.Range(0, m_options.Count)];
-            m_collapsed = true;
-            return m_module.GetMesh();
-        }
-        return null;
-
-    }
-
-    // returns the current Entropy of the object (returns total options) : TODO: change it so the Entropy is effected by the weight
-    public double GetEntropy()
-    {
-        float sumWeightLogWeight = 0;
-        foreach (var tile in m_options) {
-            sumWeightLogWeight += tile.GetWeight() * Mathf.Log(tile.GetWeight());
-        }
-
-        double shannon_entropy_for_module = Mathf.Log(GetTotalWeight()) - (sumWeightLogWeight / GetTotalWeight());
-
-        return shannon_entropy_for_module;
-
-    }
-
-    float GetTotalWeight()
-    {
-        float weight = 0;
-        foreach(Sc_Module mod in m_options)
-        {
-            weight += mod.GetWeight();
-        }
-        if(weight == 0) { return 1; }
-        return weight;
-    }
-
-    float GetModuleWeight(Sc_Module _mod)
-    {
-        float weight = _mod.GetWeight()/GetTotalWeight();
-
-        return weight;
-    }
-
-}
-
-
-/*
- 
- When Generating the map it needs to cycle through all the options
-
-What happens if it fails to find a possible collapse
-needs to clear itself entirely then restart not just call restart, it will need to just be set to restart
- 
-
-
-TODO: ADD ROTATION INTO THE BUILDING
- */

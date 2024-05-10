@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Mod_Middle_Edge_2
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 1457629533801288485, guid: d8bb9839b739fde429963ed1dbbf6f37, type: 3}
-  m_rotation: 2
   m_weight: 1
   m_type:
     serializedVersion: 2

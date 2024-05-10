@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 785eb980aebc9b848be55d4d52ea528e, type: 3}
+  m_Name: Mod_Top_Turn_Corner
+  m_EditorClassIdentifier: 
+  m_mesh: {fileID: 8510606635837190083, guid: 0e3c3ea42f3e9414599d48502b0e4f67, type: 3}
+  m_weight: 1
+  m_type:
+    serializedVersion: 2
+    m_Bits: 0
+  m_posX: 6
+  m_negX: 2f
+  m_posY: 1s
+  m_negY: 7s
+  m_posZ: 2
+  m_negZ: 6f
+  m_sameSides: 0
+  m_neighbours:
+  - m_edge: posX
+    _validOptions:
+    - {fileID: 11400000, guid: c08a0ca318c188744b59588e10dc7ac4, type: 2}
+    - {fileID: 11400000, guid: ab2a46f2514a3034b834d71deee83be0, type: 2}
+    - {fileID: 11400000, guid: e44d556d22e286b44bdb4d06fc9baf50, type: 2}
+    - {fileID: 11400000, guid: 466081364c635c24885d892062437ba3, type: 2}
+  - m_edge: negX
+    _validOptions:
+    - {fileID: 11400000, guid: a10c7c4fbc0bd8b43960d46efedba208, type: 2}
+    - {fileID: 11400000, guid: 48e197c2e8cee7b4e8bf3509684e9628, type: 2}
+    - {fileID: 11400000, guid: b721857c87500a2479a79b8a08678717, type: 2}
+    - {fileID: 11400000, guid: 466081364c635c24885d892062437ba3, type: 2}
+  - m_edge: posY
+    _validOptions:
+    - {fileID: 11400000, guid: b18c6bf7d44fa2845bc3108ced7ea2ff, type: 2}
+    - {fileID: 11400000, guid: b83d6ea2f69d2d14899ca48b9c45e774, type: 2}
+  - m_edge: negY
+    _validOptions:
+    - {fileID: 11400000, guid: 16948e21900105f459b97ab9ee53f82b, type: 2}
+    - {fileID: 11400000, guid: 4377393ba382f5e4fa5d4c23ade4acc5, type: 2}
+  - m_edge: posZ
+    _validOptions:
+    - {fileID: 11400000, guid: 48e197c2e8cee7b4e8bf3509684e9628, type: 2}
+    - {fileID: 11400000, guid: fa93794935aa19a4a80776f0bce68656, type: 2}
+    - {fileID: 11400000, guid: 33485ff9e22de8e4da2e36d7180df894, type: 2}
+    - {fileID: 11400000, guid: 24810139cc7510140b36b2807a6c3a23, type: 2}
+  - m_edge: negZ
+    _validOptions:
+    - {fileID: 11400000, guid: c08a0ca318c188744b59588e10dc7ac4, type: 2}
+    - {fileID: 11400000, guid: 4cfc0575eb622854e875dadfae532630, type: 2}
+    - {fileID: 11400000, guid: ae2b296939adfd741a3685566bddd7ad, type: 2}
+    - {fileID: 11400000, guid: 24810139cc7510140b36b2807a6c3a23, type: 2}

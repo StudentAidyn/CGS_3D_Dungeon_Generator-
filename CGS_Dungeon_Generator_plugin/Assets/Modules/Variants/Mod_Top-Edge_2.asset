@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Mod_Top-Edge_2
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 6769898886604261349, guid: 453aa1d2c2f62684b93bf00c6dad6ec2, type: 3}
-  m_rotation: 2
   m_weight: 1
   m_type:
     serializedVersion: 2

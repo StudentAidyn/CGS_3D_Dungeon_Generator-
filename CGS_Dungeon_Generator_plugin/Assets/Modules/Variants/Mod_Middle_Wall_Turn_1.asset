@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Mod_Middle_Wall_Turn_1
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 9089596509089719006, guid: a147d7695251f3940b7af966b4e5a686, type: 3}
-  m_rotation: 1
   m_weight: 1
   m_type:
     serializedVersion: 2

@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Mod_Dirt_Wall_Edge_2
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 7761976308468286601, guid: 9551a814bcd092d43b57d02c67c29768, type: 3}
-  m_rotation: 2
   m_weight: 1
   m_type:
     serializedVersion: 2
