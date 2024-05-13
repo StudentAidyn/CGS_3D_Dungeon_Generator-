@@ -266,21 +266,21 @@ class Sc_MapGenerator : MonoBehaviour
         Vector3 posX = new Vector3(_coords.x + 1, _coords.y, _coords.z);
         if (posX.x < SIZE_X && !IsCollapsed(posX))
         {
-            foreach (Sc_Module mod in CompareOptions(mods, posX, "posX"))
+            foreach (Sc_Module mod in CompareOptions(mods, posX, edge.X))
             {
                 GetVectorModule(posX).RemoveOption(mod);
             }
-            PropagateSurroundings(posX);
+            //PropagateSurroundings(posX);
         }
 
         Vector3 negX = new Vector3(_coords.x - 1, _coords.y, _coords.z);
         if (negX.x >= 0 && !IsCollapsed(negX))
         {
-            foreach (Sc_Module mod in CompareOptions(mods, negX, "negX"))
+            foreach (Sc_Module mod in CompareOptions(mods, negX, edge.nX))
             {
                 GetVectorModule(negX).RemoveOption(mod);
             }
-            PropagateSurroundings(negX);
+            //PropagateSurroundings(negX);
         }
 
         //TODO: Add Comparing Y Coords (UP and DOWN)
@@ -290,21 +290,21 @@ class Sc_MapGenerator : MonoBehaviour
         Debug.Log(posY);
         if (posY.y < SIZE_Y && !IsCollapsed(posY))
         {
-            foreach (Sc_Module mod in CompareOptions(mods, posY, "posY"))
+            foreach (Sc_Module mod in CompareOptions(mods, posY, edge.Y))
             {
                 GetVectorModule(posY).RemoveOption(mod);
             }
-            PropagateSurroundings(posY);
+            //PropagateSurroundings(posY);
         }
 
         Vector3 negY = new Vector3(_coords.x, _coords.y - 1, _coords.z);
         if (negY.y >= 0 && !IsCollapsed(negY))
         {
-            foreach (Sc_Module mod in CompareOptions(mods, negY, "negY"))
+            foreach (Sc_Module mod in CompareOptions(mods, negY, edge.nY))
             {
                 GetVectorModule(negY).RemoveOption(mod);
             }
-            PropagateSurroundings(negY);
+            //PropagateSurroundings(negY);
         }
 
 
@@ -312,21 +312,21 @@ class Sc_MapGenerator : MonoBehaviour
         Vector3 posZ = new Vector3(_coords.x, _coords.y, _coords.z + 1);
         if (posZ.z < SIZE_Z && !IsCollapsed(posZ))
         {
-            foreach (Sc_Module mod in CompareOptions(mods, posZ, "posZ"))
+            foreach (Sc_Module mod in CompareOptions(mods, posZ, edge.Z))
             {
                 GetVectorModule(posZ).RemoveOption(mod);
             }
-            PropagateSurroundings(posZ);
+            //PropagateSurroundings(posZ);
         }
 
         Vector3 negZ = new Vector3(_coords.x, _coords.y, _coords.z - 1);
         if (negZ.z >= 0 && !IsCollapsed(negZ))
         {
-            foreach (Sc_Module mod in CompareOptions(mods, negZ, "negZ"))
+            foreach (Sc_Module mod in CompareOptions(mods, negZ, edge.nZ))
             {
                 GetVectorModule(negZ).RemoveOption(mod);
             }
-            PropagateSurroundings(negZ);
+            //PropagateSurroundings(negZ);
         }
 
     }
@@ -341,7 +341,7 @@ class Sc_MapGenerator : MonoBehaviour
         Vector3 posX = new Vector3(_coords.x + 1, _coords.y, _coords.z);
         if (posX.x < SIZE_X && !IsCollapsed(posX))
         {
-            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posX, "posX"))
+            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posX, edge.X))
             {
                 GetVectorModule(posX).RemoveOption(mod);
             }
@@ -351,7 +351,7 @@ class Sc_MapGenerator : MonoBehaviour
         if (negX.x >= 0 && !IsCollapsed(negX))
         {
             // Main Mod , compared Mod, Edge of Comparison
-            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negX, "negX"))
+            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negX, edge.nX))
             {
                 GetVectorModule(negX).RemoveOption(mod);
             }
@@ -364,7 +364,7 @@ class Sc_MapGenerator : MonoBehaviour
         Vector3 posY = new Vector3(_coords.x, _coords.y + 1, _coords.z);
         if (posY.y < SIZE_Y && !IsCollapsed(posY))
         {
-            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posY, "posY"))
+            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posY, edge.Y))
             {
                 GetVectorModule(posY).RemoveOption(mod);
             }
@@ -374,7 +374,7 @@ class Sc_MapGenerator : MonoBehaviour
         Vector3 negY = new Vector3(_coords.x, _coords.y - 1, _coords.z);
         if (negY.y >= 0 && !IsCollapsed(negY))
         {
-            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negY, "negY"))
+            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negY, edge.nY))
             {
                 GetVectorModule(negY).RemoveOption(mod);
             }
@@ -385,7 +385,7 @@ class Sc_MapGenerator : MonoBehaviour
         Vector3 posZ = new Vector3(_coords.x, _coords.y, _coords.z + 1);
         if (posZ.z < SIZE_Z && !IsCollapsed(posZ))
         {
-            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posZ, "posZ"))
+            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posZ, edge.Z))
             {
                 GetVectorModule(posZ).RemoveOption(mod);
             }
@@ -394,7 +394,7 @@ class Sc_MapGenerator : MonoBehaviour
         Vector3 negZ = new Vector3(_coords.x, _coords.y, _coords.z - 1);
         if (negZ.z >= 0 && !IsCollapsed(negZ))
         {
-            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negZ, "negZ"))
+            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negZ, edge.nZ))
             {
                 GetVectorModule(negZ).RemoveOption(mod);
             }
@@ -408,7 +408,7 @@ class Sc_MapGenerator : MonoBehaviour
     }
 
     // Passes back option removal list
-    List<Sc_Module> CompareOptions(Sc_Module _mod, Vector3 _coord /*propagated coord*/, string _edge)
+    List<Sc_Module> CompareOptions(Sc_Module _mod, Vector3 _coord /*propagated coord*/, edge _edge)
     {
         List<Sc_Module> toRemove = new List<Sc_Module>();
         // gets the new vector coordinate and compares the options of the new coordinate
@@ -424,7 +424,7 @@ class Sc_MapGenerator : MonoBehaviour
         return toRemove;
     }
 
-    List<Sc_Module> CompareOptionsAdvanced(Sc_MapModule _mod, Vector3 _coord /*propagated coord*/, string _edge)
+    List<Sc_Module> CompareOptionsAdvanced(Sc_MapModule _mod, Vector3 _coord /*propagated coord*/, edge _edge)
     {
         List<Sc_Module> toRemove = new List<Sc_Module>();
         // gets the new vector coordinate and compares the options of the new coordinate
@@ -440,7 +440,7 @@ class Sc_MapGenerator : MonoBehaviour
         return toRemove;
     }
 
-    List<Sc_Module> GetAllNeighboursAlongAnEdge(List<Sc_Module> _mod, string _edge)
+    List<Sc_Module> GetAllNeighboursAlongAnEdge(List<Sc_Module> _mod, edge _edge)
     {
         List<Sc_Module> neighbours = new List<Sc_Module>();
         foreach (Sc_Module mod in _mod)
@@ -497,7 +497,7 @@ class Sc_MapGenerator : MonoBehaviour
             List<Sc_Module> toRemove = new List<Sc_Module>();
             foreach(Sc_Module option in mod.GetOptions())
             {
-                if(option.GetType() != (option.GetType() | (1 << _layer)))
+                if(option.GetLayerType() != (option.GetLayerType() | (1 << _layer)))
                 {
                     toRemove.Add(option);
                 }

@@ -8,53 +8,45 @@ public class Sc_Module : ScriptableObject
     [Header("Object Details")]
     // Mesh and Rotation and the chance Weight of selection
     [SerializeField] GameObject m_mesh = null;
-    int m_rotation = 0;
+    [SerializeField] int m_rotation = 0;
     [SerializeField] float m_weight = 1;
     [SerializeField] LayerMask m_type;
-    public LayerMask GetType() { return m_type; }
+    public LayerMask GetLayerType() { return m_type; }
 
     // Sets values
     public void SetUp(GameObject _mesh, int _rotation, float _weight, LayerMask _type) { m_mesh = _mesh; m_rotation = _rotation; m_weight = _weight; m_type = _type; }
 
     [Header("Edge Connections")]
-    // Edges - type of connections based on the edges
-    [SerializeField] public string m_posX = string.Empty;
-    [SerializeField] public string m_negX = string.Empty;    
-    [SerializeField] public string m_posY = string.Empty;    // UP
-    [SerializeField] public string m_negY = string.Empty;    // DOWN
-    [SerializeField] public string m_posZ = string.Empty;
-    [SerializeField] public string m_negZ = string.Empty;
 
     [SerializeField] bool m_sameSides = false;
 
     public bool SameSides() { return m_sameSides; }
 
-    public void SetEdges(string _posX, string _negX, string _posY, string _negY, string _posZ, string _negZ)
+    public void SetEdges(string _X, string _nX, string _Y, string _nY, string _Z, string _nZ)
     {
-        m_posX = _posX;
-        m_negX = _negX;
-        m_posY = _posY;
-        m_negY = _negY;
-        m_posZ = _posZ;
-        m_negZ = _negZ;
+        m_neighbours[(int)edge.Z].SetEdgeType(_Z);
+        m_neighbours[(int)edge.nZ].SetEdgeType(_nZ);
+        m_neighbours[(int)edge.X].SetEdgeType(_X);
+        m_neighbours[(int)edge.nX].SetEdgeType(_nX);
+        m_neighbours[(int)edge.Y].SetEdgeType(_Y);
+        m_neighbours[(int)edge.nY].SetEdgeType(_nY);
     }
-
     // an array of valid neighbours
      [SerializeField] Neighbour[] m_neighbours = {
-        new Neighbour("posX"),
-        new Neighbour("negX"),
-        new Neighbour("posY"),
-        new Neighbour("negY"),
-        new Neighbour("posZ"),
-        new Neighbour("negZ")
+        new Neighbour(edge.Z),
+        new Neighbour(edge.X),
+        new Neighbour(edge.nZ),
+        new Neighbour(edge.nX),
+        new Neighbour(edge.Y),
+        new Neighbour(edge.nY)
     };
 
     public Neighbour[] GetNeighbours() { return m_neighbours; }
-    public Neighbour GetNeighbour(string _type)
+    public Neighbour GetNeighbour(edge _edge)
     {
         for (int i = 0; i < m_neighbours.Length; i++)
         {
-            if (m_neighbours[i].GetEdge() == _type)
+            if (m_neighbours[i].GetEdge() == _edge)
             {
                 return m_neighbours[i];
             }
@@ -73,14 +65,18 @@ public class Sc_Module : ScriptableObject
 public class Neighbour
 {
     // the name of the side
-    public string m_edge = string.Empty;
+    public edge m_edge = 0; // by default every edge will be set to Z
+    public string m_type = null;
     public List<Sc_Module> _validOptions = new List<Sc_Module>();
 
-    public Neighbour(string edge) {
-        m_edge = edge;
+    public Neighbour(edge _edge) {
+        m_edge = _edge;
     }
 
-    public string GetEdge() { return m_edge; }
+    public edge GetEdge() { return m_edge; }
+
+    public void SetEdgeType(string _type) { m_type = _type; }
+    public ref string GetEdgeType() { return ref m_type; }
 
     // adds new neighbour to valid options
     public void AddNeighbour(Sc_Module _newNeighbour)
@@ -117,3 +113,14 @@ public class Neighbour
 //        m_rotation = 0;
 //    }
 //}
+
+
+public enum edge
+{
+    Z = 0,
+    X = 1,
+    nZ = 2,
+    nX = 3,
+    Y = 4,
+    nY = 5
+}

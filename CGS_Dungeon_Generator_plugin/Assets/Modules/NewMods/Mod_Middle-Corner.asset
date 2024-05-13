@@ -15,23 +15,56 @@ MonoBehaviour:
   m_mesh: {fileID: 3280646258924656262, guid: 1ab433120f1300c4e98b84c2d18869d1, type: 3}
   m_rotation: 0
   m_weight: 1
+  m_type:
+    serializedVersion: 2
+    m_Bits: 0
   m_sameSides: 0
-  m_posX: -s
-  m_negX: 3f
-  m_posY: 1s
-  m_negY: 1s
-  m_posZ: -s
-  m_negZ: 3
   m_neighbours:
-  - m_edge: posX
+  - m_edge: 0
+    m_type: -s
     _validOptions: []
-  - m_edge: negX
+  - m_edge: 1
+    m_type: 2
+    _validOptions:
+    - {fileID: 11400000, guid: 7709ce48447052c4fa67c8a3758d441b, type: 2}
+    - {fileID: 11400000, guid: cb616a57cc0450f4699539f4bebaf430, type: 2}
+    - {fileID: 11400000, guid: 4377393ba382f5e4fa5d4c23ade4acc5, type: 2}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  - m_edge: 2
+    m_type: 2f
+    _validOptions:
+    - {fileID: 11400000, guid: 4377393ba382f5e4fa5d4c23ade4acc5, type: 2}
+    - {fileID: 11400000, guid: 3f8f492fe6f4c3d4a8112d40d5208f64, type: 2}
+  - m_edge: 3
+    m_type: -s
     _validOptions: []
-  - m_edge: posY
-    _validOptions: []
-  - m_edge: negY
-    _validOptions: []
-  - m_edge: posZ
-    _validOptions: []
-  - m_edge: negZ
-    _validOptions: []
+  - m_edge: 4
+    m_type: 1
+    _validOptions:
+    - {fileID: 11400000}
+    - {fileID: 11400000}
+    - {fileID: 11400000, guid: b83d6ea2f69d2d14899ca48b9c45e774, type: 2}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  - m_edge: 5
+    m_type: 1
+    _validOptions:
+    - {fileID: 11400000, guid: 9bb582bf842fa7e488262913c9db17ab, type: 2}
+    - {fileID: 11400000}
+    - {fileID: 11400000}
+    - {fileID: 11400000, guid: 49c888a9d86305a4ea4da90dd8bf9240, type: 2}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}

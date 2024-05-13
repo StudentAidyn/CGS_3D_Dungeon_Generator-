@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -77,46 +78,46 @@ public class Sc_ModGenerator : MonoBehaviour
     // then compares the negative X of the main mod to the positive of the other
     void CompareX(Sc_Module _mod, Sc_Module _other)
     {
-        if (CompareEdges(_mod.m_posX, _other.m_negX))
+        if (CompareEdges(_mod.GetNeighbour(edge.X).GetEdgeType(), _other.GetNeighbour(edge.nX).GetEdgeType()))
         {
-            AddModToNeighbour(_mod, _other, "posX", 0);
-            AddModToNeighbour(_other, _mod, "negX", 0);
+            AddModToNeighbour(_mod, _other, edge.X, 0);
+            AddModToNeighbour(_other, _mod, edge.nX, 0);
         }
 
         // Checking the Other Side
-        if (CompareEdges(_mod.m_negX, _other.m_posX))
+        if (CompareEdges(_mod.GetNeighbour(edge.nX).GetEdgeType(), _other.GetNeighbour(edge.X).GetEdgeType()))
         {
-            AddModToNeighbour(_mod, _other, "negX", 0);
-            AddModToNeighbour(_other, _mod, "posX", 0);
+            AddModToNeighbour(_mod, _other, edge.nX, 0);
+            AddModToNeighbour(_other, _mod, edge.X, 0);
         }
     }
     void CompareY(Sc_Module _mod, Sc_Module _other)
     {
-        if(CompareVerticalEdges(_mod.m_posY, _other.m_negY))
+        if(CompareVerticalEdges(_mod.GetNeighbour(edge.Y).GetEdgeType(), _other.GetNeighbour(edge.nY).GetEdgeType()))
         {
-            AddModToNeighbour(_mod, _other, "posY", 0);
-            AddModToNeighbour(_other, _mod, "negY", 0);
+            AddModToNeighbour(_mod, _other, edge.Y, 0);
+            AddModToNeighbour(_other, _mod, edge.nY, 0);
         }
 
-        if (CompareVerticalEdges(_mod.m_negY, _other.m_posY))
+        if (CompareVerticalEdges(_mod.GetNeighbour(edge.nY).GetEdgeType(), _other.GetNeighbour(edge.Y).GetEdgeType()))
         {
-            AddModToNeighbour(_mod, _other, "negY", 0);
-            AddModToNeighbour(_other, _mod, "posY", 0);
+            AddModToNeighbour(_mod, _other, edge.nY, 0);
+            AddModToNeighbour(_other, _mod, edge.Y, 0);
         }
     }
     void CompareZ(Sc_Module _mod, Sc_Module _other)
     {
-        if (CompareEdges(_mod.m_posZ, _other.m_negZ))
+        if (CompareEdges(_mod.GetNeighbour(edge.Z).GetEdgeType(), _other.GetNeighbour(edge.nZ).GetEdgeType()))
         {
-            AddModToNeighbour(_mod, _other, "posZ", 0);
-            AddModToNeighbour(_other, _mod, "negZ", 0);
+            AddModToNeighbour(_mod, _other, edge.Z, 0);
+            AddModToNeighbour(_other, _mod, edge.nZ, 0);
         }
 
         // Comparing the other sides
-        if (CompareEdges(_mod.m_negZ, _other.m_posZ))
+        if (CompareEdges(_mod.GetNeighbour(edge.nZ).GetEdgeType(), _other.GetNeighbour(edge.Z).GetEdgeType()))
         {
-            AddModToNeighbour(_mod, _other, "negZ", 0);
-            AddModToNeighbour(_other, _mod, "posZ", 0);
+            AddModToNeighbour(_mod, _other, edge.nZ, 0);
+            AddModToNeighbour(_other, _mod, edge.Z, 0);
         }
     }
 
@@ -161,18 +162,22 @@ public class Sc_ModGenerator : MonoBehaviour
 
     // Vertical connections
     bool CompareVerticalEdges(string _edge, string _other)
-    {
+    {   
+        if(_edge.Length <= 0 || _other.Length <= 0)
+        {
+            return false;
+        }
         // convert this to check for rotation, a value after an '_' will indicate the orientation of the piece
         char[] edge = (_edge.ToUpper()).ToCharArray();
         char[] other = (_other.ToUpper()).ToCharArray();
-
+       
         if (edge[0] == other[0])
         {
             if (edge[edge.Length - 1] == other[other.Length - 1])
             {
                 return true;
             }
-            else if (edge[1] == m_similarEdges && other[1] == m_similarEdges)
+            else if (edge[edge.Length - 1] == 'X' || other[other.Length - 1] == 'X')
             {
                 return true;
             }
@@ -181,12 +186,14 @@ public class Sc_ModGenerator : MonoBehaviour
         return false;
     }
 
+
+
     /*Rules:
      A T can only connect to a B (with the correct orientation) and with the correct number
 
      */
 
-    void AddModToNeighbour(Sc_Module _mod, Sc_Module _other, string _edge, int _rotation)
+    void AddModToNeighbour(Sc_Module _mod, Sc_Module _other, edge _edge, int _rotation)
     {
         for (int i = 0; i < _mod.GetNeighbours().Length; i++)
         {
@@ -205,7 +212,11 @@ public class Sc_ModGenerator : MonoBehaviour
         {
             foreach (Sc_Module mod in m_modules)
             {
-                if (!mod.SameSides())
+                if (mod.SameSides())
+                {
+                    AdjustForVariant(mod);
+                }
+                else
                 {
                     CreateVariant(mod);
                 }
@@ -223,14 +234,22 @@ public class Sc_ModGenerator : MonoBehaviour
 
     }
 
+    // Forces the modules with the same sides to generate an X at the end to help identify them
+    void AdjustForVariant(Sc_Module _mod)
+    {
+        _mod.GetNeighbour(edge.Y).SetEdgeType(_mod.GetNeighbour(edge.Y).GetEdgeType() + "_X");
+        _mod.GetNeighbour(edge.nY).SetEdgeType(_mod.GetNeighbour(edge.nY).GetEdgeType() + "_X");
+    }
+
     // create simple check for if a module is the same on all  sides
     // with the top and bottom I realised they will need to be adjusted since the variable will need to know if it can loop,
     // I think by adding a new rule it can check if a top will need to be oriented if not the object can be kept the same
 
     void CreateVariant(Sc_Module mod)
     {
-        
-        for (int i = 1; i < 4; i++){
+
+        for (int i = 1; i < 4; i++)
+        {
             Sc_Module newModule = ScriptableObject.CreateInstance<Sc_Module>();
 
             CloneRotatedValues(mod, newModule, i);//from Mod to NewMod
@@ -247,49 +266,41 @@ public class Sc_ModGenerator : MonoBehaviour
     void CloneRotatedValues(Sc_Module _mod, Sc_Module _newMod, int _rotation)
     {
         // Mesh, Rotation, Weight, Layer Type
-        _newMod.SetUp(_mod.GetMesh(), _rotation, _mod.GetWeight(), _mod.GetType());
+        _newMod.SetUp(_mod.GetMesh(), _rotation, _mod.GetWeight(), _mod.GetLayerType());
 
-        string newPosX = "";
-        string newPosZ = "";
-        string newNegX = "";
-        string newNegZ = "";
-        //
-        switch (_rotation) {
-            case 0:
-                newPosX = _mod.m_posX;
-                newNegX = _mod.m_negX;
-                newPosZ = _mod.m_posZ;
-                newNegZ = _mod.m_negZ;
-                break;
-            case 1:
-                newPosX = _mod.m_posZ;
-                newNegX = _mod.m_negZ;
-                newPosZ = _mod.m_negX;
-                newNegZ = _mod.m_posX;
-                break;
-            case 2:
-                newPosX = _mod.m_negX;
-                newNegX = _mod.m_posX;
-                newPosZ = _mod.m_negZ;
-                newNegZ = _mod.m_posZ;
-                break;
-            case 3:
-                newPosX = _mod.m_negZ;
-                newNegX = _mod.m_posZ;
-                newPosZ = _mod.m_posX;
-                newNegZ = _mod.m_negX;
-                break;
-            default:
-
-                break;
+        // Adjusting X and Z values
+        for (int i = 0; i < 4; i++)
+        {
+            int toPos = _rotation == 0 ? 0 + i : (i + _rotation) % 4;
+            _newMod.GetNeighbours()[toPos].SetEdgeType(_mod.GetNeighbours()[i].GetEdgeType());
         }
-        _newMod.SetEdges(
-        newPosX,
-        newNegX,
-        _mod.m_posY + "_" + _newMod.GetRotation().ToString(),
-        _mod.m_negY + "_" + _newMod.GetRotation().ToString(),
-        newPosZ,
-        newNegZ );
+
+        // Adjusting Positive Y
+        string newY = _mod.GetNeighbours()[(int)edge.Y].GetEdgeType();
+        string newRotation = RotationAdjust(newY, _rotation);
+        RemoveRotationStringFromBase(ref newY);
+        _newMod.GetNeighbours()[(int)edge.Y].SetEdgeType(newY + newRotation);
+
+        // Adjusting Negative Y
+        newY = _mod.GetNeighbours()[(int)edge.nY].GetEdgeType();
+        newRotation = RotationAdjust(newY, _rotation);
+        RemoveRotationStringFromBase(ref newY);
+        _newMod.GetNeighbours()[(int)edge.nY].SetEdgeType(newY + newRotation);
+
+    }
+
+    string RotationAdjust(string mod, int _rotation)
+    {
+        int index = mod.IndexOf('_');
+        string val;
+        int rotationAdjust = 0;
+        if (index >= 0)
+        {
+            val = mod.Substring(index, mod.Length);
+            rotationAdjust = int.TryParse(val, out int rotation) ? rotation + _rotation : 0;
+        }
+        string result = "_" + rotationAdjust;
+        return result;
     }
 
     /*Rotation Rules:
@@ -319,8 +330,11 @@ public class Sc_ModGenerator : MonoBehaviour
                 }
                 else
                 {
-                    RemoveRotationStringFromBase(ref mod.m_negY);
-                    RemoveRotationStringFromBase(ref mod.m_posY);
+                    if (!mod.SameSides())
+                    {
+                        RemoveRotationStringFromBase(ref mod.GetNeighbour(edge.Y).GetEdgeType());
+                        RemoveRotationStringFromBase(ref mod.GetNeighbour(edge.nY).GetEdgeType());
+                    }
                 }
             }
 

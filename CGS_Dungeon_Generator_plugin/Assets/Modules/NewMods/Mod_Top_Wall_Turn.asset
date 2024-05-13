@@ -15,23 +15,42 @@ MonoBehaviour:
   m_mesh: {fileID: 483478777610597637, guid: 34898943ede0a0a4ab5ff2ce9fe8c8d7, type: 3}
   m_rotation: 0
   m_weight: 1
+  m_type:
+    serializedVersion: 2
+    m_Bits: 0
   m_sameSides: 0
-  m_posX: 5s
-  m_negX: 2f
-  m_posY: -s
-  m_negY: 7s
-  m_posZ: 2
-  m_negZ: 5s
   m_neighbours:
-  - m_edge: posX
-    _validOptions: []
-  - m_edge: negX
-    _validOptions: []
-  - m_edge: posY
-    _validOptions: []
-  - m_edge: negY
-    _validOptions: []
-  - m_edge: posZ
-    _validOptions: []
-  - m_edge: negZ
-    _validOptions: []
+  - m_edge: 0
+    m_type: 1
+    _validOptions:
+    - {fileID: 11400000, guid: d393061c97e2d23478825167ea6b9628, type: 2}
+  - m_edge: 1
+    m_type: 2s
+    _validOptions:
+    - {fileID: 11400000, guid: d393061c97e2d23478825167ea6b9628, type: 2}
+    - {fileID: 11400000, guid: 22dcc7d5cb3bb724abc41e6dd9089f52, type: 2}
+    - {fileID: 11400000, guid: cb616a57cc0450f4699539f4bebaf430, type: 2}
+    - {fileID: 11400000, guid: a10c7c4fbc0bd8b43960d46efedba208, type: 2}
+  - m_edge: 2
+    m_type: 2s
+    _validOptions:
+    - {fileID: 11400000, guid: d393061c97e2d23478825167ea6b9628, type: 2}
+  - m_edge: 3
+    m_type: 1f
+    _validOptions:
+    - {fileID: 11400000, guid: d393061c97e2d23478825167ea6b9628, type: 2}
+    - {fileID: 11400000, guid: 22dcc7d5cb3bb724abc41e6dd9089f52, type: 2}
+    - {fileID: 11400000, guid: cb616a57cc0450f4699539f4bebaf430, type: 2}
+    - {fileID: 11400000, guid: a10c7c4fbc0bd8b43960d46efedba208, type: 2}
+  - m_edge: 4
+    m_type: -_0
+    _validOptions:
+    - {fileID: 11400000, guid: b18c6bf7d44fa2845bc3108ced7ea2ff, type: 2}
+    - {fileID: 11400000, guid: cb616a57cc0450f4699539f4bebaf430, type: 2}
+    - {fileID: 11400000, guid: 4377393ba382f5e4fa5d4c23ade4acc5, type: 2}
+  - m_edge: 5
+    m_type: 3_0
+    _validOptions:
+    - {fileID: 11400000, guid: b18c6bf7d44fa2845bc3108ced7ea2ff, type: 2}
+    - {fileID: 11400000, guid: cb616a57cc0450f4699539f4bebaf430, type: 2}
+    - {fileID: 11400000, guid: 4377393ba382f5e4fa5d4c23ade4acc5, type: 2}
