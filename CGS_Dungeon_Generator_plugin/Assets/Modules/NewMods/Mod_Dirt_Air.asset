@@ -22,53 +22,19 @@ MonoBehaviour:
   m_neighbours:
   - m_edge: 0
     m_type: 2s
-    _validOptions:
-    - {fileID: 11400000}
-    - {fileID: 11400000}
-    - {fileID: 11400000, guid: a10c7c4fbc0bd8b43960d46efedba208, type: 2}
-    - {fileID: 11400000, guid: bad6cb1d23bcad24a99fcbf93d3c418d, type: 2}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
+    _validOptions: []
   - m_edge: 1
     m_type: 2s
-    _validOptions:
-    - {fileID: 11400000}
-    - {fileID: 11400000}
-    - {fileID: 11400000, guid: 9bb582bf842fa7e488262913c9db17ab, type: 2}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
+    _validOptions: []
   - m_edge: 2
     m_type: 2s
-    _validOptions:
-    - {fileID: 11400000}
-    - {fileID: 11400000}
-    - {fileID: 11400000, guid: 9bb582bf842fa7e488262913c9db17ab, type: 2}
-    - {fileID: 11400000, guid: 22dcc7d5cb3bb724abc41e6dd9089f52, type: 2}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
+    _validOptions: []
   - m_edge: 3
     m_type: 2s
-    _validOptions:
-    - {fileID: 11400000}
-    - {fileID: 11400000}
-    - {fileID: 11400000, guid: bad6cb1d23bcad24a99fcbf93d3c418d, type: 2}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
+    _validOptions: []
   - m_edge: 4
     m_type: -_X
     _validOptions: []
   - m_edge: 5
     m_type: 0_X
-    _validOptions:
-    - {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-    - {fileID: 11400000, guid: ec17b3cd3cbe2d74a80c224db99b8b36, type: 2}
+    _validOptions: []

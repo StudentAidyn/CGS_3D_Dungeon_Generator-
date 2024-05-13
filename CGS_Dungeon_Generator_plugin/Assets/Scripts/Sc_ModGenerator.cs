@@ -210,13 +210,13 @@ public class Sc_ModGenerator : MonoBehaviour
     {
         if (GENERATE)
         {
+            // Pre-Delete || Just To Prevent Double Ups
+            DELETE = true;
+            DeleteAllVariantsInFolder(); 
+
             foreach (Sc_Module mod in m_modules)
             {
-                if (mod.SameSides())
-                {
-                    AdjustForVariant(mod);
-                }
-                else
+                if (!mod.SameSides())
                 {
                     CreateVariant(mod);
                 }
@@ -296,8 +296,8 @@ public class Sc_ModGenerator : MonoBehaviour
         int rotationAdjust = 0;
         if (index >= 0)
         {
-            val = mod.Substring(index, mod.Length);
-            rotationAdjust = int.TryParse(val, out int rotation) ? rotation + _rotation : 0;
+            val = mod.Substring(index + 1);
+            rotationAdjust = int.TryParse(val, out int rotation) ? (rotation + _rotation) % 4 : 0;
         }
         string result = "_" + rotationAdjust;
         return result;
@@ -332,8 +332,8 @@ public class Sc_ModGenerator : MonoBehaviour
                 {
                     if (!mod.SameSides())
                     {
-                        RemoveRotationStringFromBase(ref mod.GetNeighbour(edge.Y).GetEdgeType());
-                        RemoveRotationStringFromBase(ref mod.GetNeighbour(edge.nY).GetEdgeType());
+                        //RemoveRotationStringFromBase(mod.GetNeighbour(edge.Y).GetEdgeType());
+                        //RemoveRotationStringFromBase(mod.GetNeighbour(edge.nY).GetEdgeType());
                     }
                 }
             }

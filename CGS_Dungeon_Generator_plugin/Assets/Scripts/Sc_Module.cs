@@ -76,7 +76,7 @@ public class Neighbour
     public edge GetEdge() { return m_edge; }
 
     public void SetEdgeType(string _type) { m_type = _type; }
-    public ref string GetEdgeType() { return ref m_type; }
+    public string GetEdgeType() { return m_type; }
 
     // adds new neighbour to valid options
     public void AddNeighbour(Sc_Module _newNeighbour)
