@@ -61,7 +61,8 @@ class Sc_MapGenerator : MonoBehaviour
             {
                 for (int z = 0; z < SIZE_Z; z++)
                 {
-                    m_WFC[x, y, z] = new Sc_MapModule(modules);
+                    m_WFC[x, y, z] = new Sc_MapModule();
+                    m_WFC[x, y, z].ResetOptions(modules);
                 }
             }
         }        
@@ -104,10 +105,12 @@ class Sc_MapGenerator : MonoBehaviour
             ClearGOList();
 
             // picks and generates the first collapsed module
-            int X = Random.Range(0, SIZE_X);
+            int X = 0;
+                //Random.Range(0, SIZE_X);
             int Y = 0;
-                //Random.Range(0, SIZE_Y);
-            int Z = Random.Range(0, SIZE_Z);
+            //Random.Range(0, SIZE_Y);
+            int Z = 0;
+                //Random.Range(0, SIZE_Z);
             bool function = true;
             if (!AttemptBuild(new Vector3(X, Y, Z)))
             {
@@ -233,8 +236,6 @@ class Sc_MapGenerator : MonoBehaviour
             value = temp[0];
         }
 
-        Debug.Log(value + " : with lowest Entropy " + _lowestEntropy);
-
         return value;
     }
 
@@ -242,8 +243,6 @@ class Sc_MapGenerator : MonoBehaviour
     bool AttemptBuild(Vector3 _coords) {
         Sc_MapModule WFCMod = GetVectorModule(_coords);
         GameObject mod = WFCMod.Collapse();
-        Debug.Log(_coords + " : [" + mod + "] on attempt: " + attemptCounter);
-
 
         if(mod == null) {
             FailBuild(_coords); 
@@ -287,7 +286,6 @@ class Sc_MapGenerator : MonoBehaviour
 
         // Compares area around Z last
         Vector3 posY = new Vector3(_coords.x, _coords.y + 1, _coords.z);
-        Debug.Log(posY);
         if (posY.y < SIZE_Y && !IsCollapsed(posY))
         {
             foreach (Sc_Module mod in CompareOptions(mods, posY, edge.Y))

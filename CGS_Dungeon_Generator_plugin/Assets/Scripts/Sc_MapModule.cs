@@ -4,41 +4,40 @@ using UnityEngine;
 
 public class Sc_MapModule
 {
+    // Pathing Based Variables -------------------------------
+
+    //Caluculating the costs
+    public float gScore; // the cost of the tile
+    public float hScore; // the distance to the goal tile
+    public float fScore; // the Combination of the G and H costs
+
+    public Sc_MapModule previousModule;
+
+    // --------------------------------------------------------
+
     // list of possible options that the module could become
-    List<Sc_Module> m_options;
+    List<Sc_Module> m_options = new List<Sc_Module>();
     bool m_collapsed; // to state if the module has already been collapsed
     Sc_Module m_module; // the module it has become when it gets collapsed
 
-    // Constructor w/ List of module Parameter
-    public Sc_MapModule(List<Sc_Module> _options)
-    {
-        SetOptions(_options);
-    }
-
-    public void SetOptions(List<Sc_Module> _options)
-    {
-        m_options = new List<Sc_Module>(_options);
-    }
+    
 
 
     // Getter and Setter for Options
     public void ResetOptions(List<Sc_Module> _options)
     {
         m_options.Clear();
-        SetOptions(_options);
+        m_options = new List<Sc_Module>(_options);
 
         m_collapsed = false;
         m_module = null;
     }
-    public List<Sc_Module> GetOptions()
-    {
-        return m_options;
-    }
+
+    public List<Sc_Module> GetOptions() { return m_options; }
 
 
     // removes option in parameter
-    public void RemoveOption(Sc_Module _mod)
-    {
+    public void RemoveOption(Sc_Module _mod) {
         List<Sc_Module> toRemove = new List<Sc_Module>();
         foreach (Sc_Module mod in m_options)
         {
@@ -72,9 +71,6 @@ public class Sc_MapModule
     // Collapses the current Module into one of the options taking in consideration the weights of the objects
     public GameObject Collapse()
     {
-        Debug.Log(m_options.Count);
-
-
         // Calculate total weight
         float totalWeight = 0;
         foreach (Sc_Module tile in m_options)
@@ -99,48 +95,42 @@ public class Sc_MapModule
         }
 
         //if fails
-        if (m_options.Count > 0)
-        {
-            // collapses the current tile based on the principle that it has the lowest entropy so it must close, if there is more than one ooption apply randomization
-            m_module = m_options[Random.Range(0, m_options.Count)];
-            m_collapsed = true;
-            return m_module.GetMesh();
-        }
         return null;
-
     }
 
     // returns the current Entropy of the object (returns total options) : TODO: change it so the Entropy is effected by the weight
-    public double GetEntropy()
-    {
+    public double GetEntropy() {
+        float totalWeight = 0;
+        foreach (Sc_Module mod in m_options)
+        {
+            totalWeight += mod.GetWeight();
+        }
+
         float sumWeightLogWeight = 0;
         foreach (var tile in m_options)
         {
             sumWeightLogWeight += tile.GetWeight() * Mathf.Log(tile.GetWeight());
         }
 
-        double shannon_entropy_for_module = Mathf.Log(GetTotalWeight()) - (sumWeightLogWeight / GetTotalWeight());
+        double shannon_entropy_for_module = Mathf.Log(totalWeight) - (sumWeightLogWeight / totalWeight);
 
         return shannon_entropy_for_module;
 
     }
 
-    float GetTotalWeight()
+
+    public void SetModuleTypeBasedOnLayer(LayerMask _layer)
     {
-        float weight = 0;
-        foreach (Sc_Module mod in m_options)
-        {
-            weight += mod.GetWeight();
+        List<Sc_Module> toRemove = new List<Sc_Module>();
+
+        // Foreach module possible it checks and confirms the layer type with each module adding it to be removed if not containing the same layer value
+        foreach (Sc_Module option in GetOptions()) {
+            if (option.GetLayerType() != (option.GetLayerType() | (1 << _layer))) {
+                toRemove.Add(option); 
+            }
         }
-        if (weight == 0) { return 1; }
-        return weight;
-    }
 
-    float GetModuleWeight(Sc_Module _mod)
-    {
-        float weight = _mod.GetWeight() / GetTotalWeight();
-
-        return weight;
+        foreach (Sc_Module option in toRemove) { RemoveOption(option); }
     }
 
 }
