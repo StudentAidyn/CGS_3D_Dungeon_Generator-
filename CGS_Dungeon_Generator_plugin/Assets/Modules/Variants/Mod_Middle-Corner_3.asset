@@ -33,8 +33,8 @@ MonoBehaviour:
     m_type: -s
     _validOptions: []
   - m_edge: 4
-    m_type: 1_3
+    m_type: 1_0
     _validOptions: []
   - m_edge: 5
-    m_type: 1_3
+    m_type: 1_0
     _validOptions: []

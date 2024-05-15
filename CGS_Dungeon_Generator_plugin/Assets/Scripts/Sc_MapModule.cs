@@ -7,11 +7,13 @@ public class Sc_MapModule
     // Pathing Based Variables -------------------------------
 
     //Caluculating the costs
-    public float gScore; // the cost of the tile
-    public float hScore; // the distance to the goal tile
-    public float fScore; // the Combination of the G and H costs
+    public int gScore; // the cost of the tile
+    public int hScore; // the distance to the goal tile
+    public int fScore; // the Combination of the G and H costs
 
+    // The Previous Module and the Modules location in the map
     public Sc_MapModule previousModule;
+    public Vector3 mapPos;
 
     // --------------------------------------------------------
 
@@ -21,10 +23,13 @@ public class Sc_MapModule
     Sc_Module m_module; // the module it has become when it gets collapsed
 
     
-
+    public Sc_MapModule(Vector3 _mapPos)
+    {
+        mapPos = _mapPos;
+    }
 
     // Getter and Setter for Options
-    public void ResetOptions(List<Sc_Module> _options)
+    public void ResetModule(List<Sc_Module> _options)
     {
         m_options.Clear();
         m_options = new List<Sc_Module>(_options);
@@ -71,6 +76,8 @@ public class Sc_MapModule
     // Collapses the current Module into one of the options taking in consideration the weights of the objects
     public GameObject Collapse()
     {
+        m_collapsed = true;
+
         // Calculate total weight
         float totalWeight = 0;
         foreach (Sc_Module tile in m_options)
@@ -89,7 +96,6 @@ public class Sc_MapModule
             if (randomValue <= cumulativeWeight)
             {
                 m_module = tile;
-                m_collapsed = true;
                 return tile.GetMesh();
             }
         }
@@ -114,6 +120,8 @@ public class Sc_MapModule
 
         double shannon_entropy_for_module = Mathf.Log(totalWeight) - (sumWeightLogWeight / totalWeight);
 
+        shannon_entropy_for_module = shannon_entropy_for_module <= 0 ? 0 : shannon_entropy_for_module;
+
         return shannon_entropy_for_module;
 
     }
@@ -131,6 +139,27 @@ public class Sc_MapModule
         }
 
         foreach (Sc_Module option in toRemove) { RemoveOption(option); }
+    }
+
+    public void RemoveModuleTypeBasedOnLayer(LayerMask _layer)
+    {
+        List<Sc_Module> toRemove = new List<Sc_Module>();
+
+        // Foreach module possible it checks and confirms the layer type with each module adding it to be removed if not containing the same layer value
+        foreach (Sc_Module option in GetOptions())
+        {
+            if (option.GetLayerType() == (option.GetLayerType() | (1 << _layer)))
+            {
+                toRemove.Add(option);
+            }
+        }
+
+        foreach (Sc_Module option in toRemove) { RemoveOption(option); }
+    }
+
+    public void CalculateFScore()
+    {
+        fScore = gScore + hScore;
     }
 
 }

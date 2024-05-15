@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(Sc_MapGenerator))]
-public class Sc_MapGenEditor : Editor
+[CustomEditor(typeof(Sc_Map))]
+public class MapEditor : Editor
 {
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
 
-        Sc_MapGenerator gen = (Sc_MapGenerator)target;
+        Sc_Map map = (Sc_Map)target;
 
 
-        if (GUILayout.Button("Clear Dungeon"))
+        if (GUILayout.Button("Generate Dungeon"))
         {
-            gen.ClearGOList();
+            map.GenerateMap();
         }
     }
 }
