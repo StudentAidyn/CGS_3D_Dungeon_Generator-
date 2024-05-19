@@ -17,33 +17,55 @@ public class Sc_AstarPathFinding : MonoBehaviour
     List<Sc_MapModule> closedList;
 
     // List of Points to traverse to
-    List<Sc_MapModule> traversalPoints;
+    List<Sc_MapModule> traversalPoints = new List<Sc_MapModule>();
 
     Vector3 mapDimensions;
 
-    public List<Sc_MapModule> GeneratePath(List<Sc_MapModule> _modules, Vector3 _dimensions)
+    public List<Sc_MapModule> GeneratePath(List<Sc_MapModule> _modules, Vector3 _dimensions, int _traversalPoints = 2/*, bool _randomPoints = true */)
     {
+        if(_traversalPoints < 2) return null;
+
+        // Sets the local variables
         Map = _modules;
         mapDimensions = _dimensions;
-        Debug.Log(mapDimensions);
 
-        Vector3 startPos = new Vector3((int)Random.Range(0, mapDimensions.x - 1), 0, (int)Random.Range(0, mapDimensions.z - 1));
-        Sc_MapModule start = Map[ConvertVec3ToListCoord(startPos)];
-        Vector3 endPos = new Vector3((int)Random.Range(0, mapDimensions.x - 1), 0, (int)Random.Range(0, mapDimensions.z - 1));
-        Debug.Log(endPos);
-        Sc_MapModule end = Map[ConvertVec3ToListCoord(endPos)];
-        //Sc_MapModule end = Map[ConvertVec3ToListCoord(new Vector3(mapDimensions.x - 1, 0, mapDimensions.z - 1))];
+        // Points - randomly generated points wihtin the map
+        List<Sc_MapModule> Points = new List<Sc_MapModule>();
 
-        return AstarPathing(start, end);
+        // Generates traversal points based on total number of points
+        for (int i = 0; i < _traversalPoints; i++) {
+            // Generates random  start and end points
+            Vector3 randomPosition = new Vector3((int)Random.Range(0, mapDimensions.x - 1), 0, (int)Random.Range(0, mapDimensions.z - 1));
+            Points.Add(Map[ConvertVec3ToListCoord(randomPosition)]);
+        }
+
+        // Path list - to return
+        List<Sc_MapModule> Path = new List<Sc_MapModule>();
+
+        for (int i = 0; i < _traversalPoints - 1; i++) {
+            List<Sc_MapModule> PathSegment = AstarPathing(Points[i], Points[i + 1]);
+            if (PathSegment != null) {
+                foreach (Sc_MapModule module in PathSegment)
+                {
+                    Path.Add(module);
+                }
+            }
+
+        }
+
+        return Path;
     }
 
 
     //https://www.youtube.com/watch?v=alU04hvz6L4&ab_channel=CodeMonkey 7:15
     List<Sc_MapModule> AstarPathing(Sc_MapModule startNode, Sc_MapModule endNode) { 
 
+        // OpenList to check the area around it
         openList = new List<Sc_MapModule>();
+        // Closed List to check the area already checked
         closedList = new List<Sc_MapModule>();
 
+        // Setting each value within the Mapable Space (so only x and z of the lower layer
         for(int x = 0; x < mapDimensions.x; x++) {
             for(int z = 0; z < mapDimensions.z; z++) {
                 Sc_MapModule mapModule = Map[(int)(x + (z * mapDimensions.x))];

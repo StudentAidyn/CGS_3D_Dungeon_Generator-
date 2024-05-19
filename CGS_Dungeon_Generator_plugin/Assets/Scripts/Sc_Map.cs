@@ -7,6 +7,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class Sc_Map : MonoBehaviour
 {
+    [Header("Map Dimensions")]
     // The Width(X), Height(Y), and Length(Z) of the Map
     [SerializeField] int Width = 5;
     [SerializeField] int Height = 5;
@@ -25,12 +26,13 @@ public class Sc_Map : MonoBehaviour
 
 
     List<Sc_MapModule> LastPath = new List<Sc_MapModule>();
-    
 
+
+    [Header("Variations")]
     // Declarations
     [SerializeField] bool Generate_Shape = false; // Currently not in use
     [SerializeField] bool Generate_Path = false;
-    [SerializeField] bool Generate_LastPath = false;
+    [SerializeField] int Total_Paths = 1;
     [SerializeField] bool Generate_Floor = false;
     
 
@@ -74,6 +76,11 @@ public class Sc_Map : MonoBehaviour
                 }
             }
         }
+        /* Due to the way I am Calculating the positions of the Modules while they are compiled in a string, Y needs to be calculate first then Z and finally X
+            - Y is multiplied by both Z and X's max sizes meaning during the setting phase it will be assigned the least
+            - Z is multiplied by X's max size meaning it will be in the middle and added per Y
+            - X is the base so it will added per X and Z
+         */
         Debug.Log(Map.Count);
 
 
@@ -84,37 +91,39 @@ public class Sc_Map : MonoBehaviour
 
         if (Generate_Path)
         {
-            if (!Generate_LastPath || LastPath == null) {
-                LastPath.Clear();
-                LastPath = AstarPF.GeneratePath(Map, MapDimensions);
-                Debug.Log((LastPath != null) ? "NEW PATH GENERATED: " + LastPath.Count : 0);
-            }
-
-            if(LastPath != null)
+            LastPath = AstarPF.GeneratePath(Map, MapDimensions, Total_Paths + 1);
+            if(LastPath != null || LastPath.Count <= 0)
             {
-                List<Sc_MapModule> Pathing = LastPath;
+                Debug.Log((LastPath != null) ? "NEW PATH GENERATED: " + LastPath.Count : 0);
 
-                foreach (Sc_MapModule module in Pathing)
+                if (LastPath != null)
                 {
-                    module.SetModuleTypeBasedOnLayer(LayerMask.NameToLayer("PATH"));
-                    //MapGen.Propagate(module.mapPos);
-                    //Instantiate(AstarPF.PathDetector, module.mapPos + new Vector3(0, 1, 0), Quaternion.identity, transform);
-                }
+                    List<Sc_MapModule> Pathing = LastPath;
 
-                foreach (Sc_MapModule module in Map)
-                {
-
-                    if (!LastPath.Contains(module))
+                    foreach (Sc_MapModule module in Pathing)
                     {
-                        module.RemoveModuleTypeBasedOnLayer(LayerMask.NameToLayer("PATH"));
+                        module.SetModuleTypeBasedOnLayer(LayerMask.NameToLayer("PATH"));
                         //MapGen.Propagate(module.mapPos);
+                        //Instantiate(AstarPF.PathDetector, module.mapPos + new Vector3(0, 1, 0), Quaternion.identity, transform);
+                    }
+
+                    foreach (Sc_MapModule module in Map)
+                    {
+
+                        if (!LastPath.Contains(module))
+                        {
+                            module.RemoveModuleTypeBasedOnLayer(LayerMask.NameToLayer("PATH"));
+                            //MapGen.Propagate(module.mapPos);
+                        }
                     }
                 }
-            }
+
+            } else { Debug.Log("PATH GEN FAILED"); }
 
         }
 
         MapGen.Generate(Map, MapDimensions);
+
 
     }
 

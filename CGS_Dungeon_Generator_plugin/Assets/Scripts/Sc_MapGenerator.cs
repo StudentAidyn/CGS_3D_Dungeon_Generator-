@@ -25,7 +25,7 @@ class Sc_MapGenerator : MonoBehaviour
     // the Wave Function Collapse 3D List Container
     List<Sc_MapModule> m_map = new List<Sc_MapModule>();
 
-    [SerializeField] List<GameObject> m_Build = new List<GameObject>();
+    [SerializeField] public List<GameObject> m_Build = new List<GameObject>();
 
     [SerializeField] bool GenerateFloor = true;
 
@@ -34,6 +34,24 @@ class Sc_MapGenerator : MonoBehaviour
     /// using overlapping chunks will help with performance and accuracy.
 
 
+    /* The Addition of MultiThreading:
+     To add multiThreading there will need to be 5 total Threads used.
+    4 of the 5 Threads will be based on the selection of each Module; Collapsing a quadrant each of the dungeon/map. 
+    the last thread will be used to scan and rearrange already selected modules to ensure each quadrant is coherent to each other.
+
+    First the map generator function will be adjusted to take 2 vectors, 
+    Vector2 #1 will take the top left corner of a quadrant and... 
+    Vector2 #2 will take the bottom right of a quadrant
+
+    All other sectioning related functions will need to take the 2 Vector2s to declare unmanageable areas.
+
+    Step one of this adjustment process will include just this construction process and only the first 4 threads will be implemented.
+    Secondly a fail safe will need to be added to adjust for maps that do not have 4 separate corners (for example: a map where the X or the Y is 1.)
+    Thirdly, the map would need to be able to continue creation even if it fails or at least restart but not indefinitely as this could cause further issues.
+    Finally, a reduction of the total times a thread needs to search the List for the map would also be necessary....
+    or an adjusted version that would control whether the user can support multithreading
+     */
+
     // Generate Sets up all the default variables
     public void Generate(List<Sc_MapModule> _moduleMap, Vector3 _size) {
         // creates a new array (to hold the map) to this size
@@ -41,6 +59,20 @@ class Sc_MapGenerator : MonoBehaviour
         Debug.Log(m_map.Count + " / " + _moduleMap.Count);
 
         SIZE = _size;
+
+        // Split it into 4 threads:
+        // Split the Map into 4 quadrants
+        
+        
+        Vector2 TopLeft = new Vector2(0, 0);
+        Vector2 TopMiddle = new Vector2((int)SIZE.x/2, (int)SIZE.z/2);
+        // TopRightMiddle is just top left middle but + 1 on the X and same Y
+        Vector2 TopRight = new Vector2(SIZE.x, TopMiddle.y); // it shares the same length as the top Y 
+        
+        Vector2 BottomLeft = new Vector2(TopLeft.x, TopMiddle.y + 1); 
+        Vector2 BottomRight = new Vector2(SIZE.x, SIZE.z);
+
+
 
         // Clears objects in scene
         ClearGOList();

@@ -19,6 +19,7 @@ public class Sc_Module : ScriptableObject
     [Header("Edge Connections")]
 
     [SerializeField] bool m_sameSides = false;
+    [SerializeField] public bool m_removeAfterBuild = false;
 
     public bool SameSides() { return m_sameSides; }
 
