@@ -17,5 +17,10 @@ public class MapEditor : Editor
         {
             map.GenerateMap();
         }
+
+        if (GUILayout.Button("Clear Dungeon"))
+        {
+            map.ClearGOList();
+        }
     }
 }

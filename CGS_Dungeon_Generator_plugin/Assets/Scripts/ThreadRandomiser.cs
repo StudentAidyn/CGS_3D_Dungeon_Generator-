@@ -1,52 +1,78 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 [ExecuteInEditMode]
 public class ThreadRandomiser
 {
-    private static ThreadRandomiser _instance;
+    private long stateLow;
+    private long stateHigh;
 
-    public static ThreadRandomiser Instance
+    public ThreadRandomiser()
     {
-        get
+        stateLow = Thread.CurrentThread.ManagedThreadId.GetHashCode() ^ System.Environment.TickCount;
+        stateHigh = stateLow << DateTime.Now.Millisecond * 19 << 13;
+    }
+
+    public ThreadRandomiser(ulong seed)
+    {
+        stateLow = (long)(seed & 0x7FFFFFFF);
+        stateHigh = (long)(seed >> 32);
+    }
+
+    public float NextFloat()
+    {
+        const float maxUint = uint.MaxValue;
+        return (float)(NextULong() / maxUint);
+    }
+
+    public float NextFloat(float minValue, float maxValue)
+    {
+        if (minValue >= maxValue)
+            throw new System.ArgumentOutOfRangeException("minValue must be less than maxValue");
+
+        float range = maxValue - minValue;
+        float randomFloat01 = (float)(NextULong() / (double)ulong.MaxValue); // Generate float between 0.0 and 1.0
+        return minValue + randomFloat01 * range;
+    }
+
+    public ulong NextULong()
+    {
+        long x;
+        long low;
+        long high;
+
+        do
         {
-            if (_instance == null) _instance = new ThreadRandomiser();
-            return _instance;
-        }
+            low = stateLow;
+            high = stateHigh;
+
+            x = low;
+            x ^= (x << 21);
+            x ^= (x >> 35);
+            x ^= (x << 4);
+        } while (Interlocked.CompareExchange(ref stateLow, x, low) != low);
+
+        Interlocked.Exchange(ref stateHigh, high ^ (high << 21));
+
+        return (ulong)((ulong)(stateHigh ^ (stateHigh >> 35)) << 32 | (ulong)(x & 0x7FFFFFFF));
     }
 
-    private ThreadRandomiser()
+    public int Next(int maxValue)
     {
-        GenerateRandomNumbers();
-        //the constructor is private so that you can't instantiate it
+        if (maxValue <= 0)
+            throw new System.ArgumentOutOfRangeException("maxValue must be greater than zero");
+
+        return (int)(NextULong() % (ulong)maxValue);
     }
 
-    // Variables 
-    public const int TOTAL_RANDOM_NUMBERS = 100;
-    public int m_randomNumberIndex = 0;
-    public List<int> m_randomNumbers = new List<int>();
-
-
-
-    // Methods
-    // Generates random numbers and adds it to the list of random numbers
-    public void GenerateRandomNumbers(int TotalRandomNumbers = TOTAL_RANDOM_NUMBERS)
+    public int Next(int minValue, int maxValue)
     {
-        m_randomNumberIndex = 0;
-        m_randomNumbers.Clear();
-        for (int i = 0; i < TotalRandomNumbers; i++)
-        {
-            m_randomNumbers.Add(UnityEngine.Random.Range(0, Int32.MaxValue));
-        }
-    }
+        if (minValue >= maxValue)
+            throw new System.ArgumentOutOfRangeException("minValue must be less than maxValue");
 
-    public int GetRandomNumber()
-    {
-        int number = m_randomNumbers[m_randomNumberIndex % 100];
-        m_randomNumberIndex++;
-        return number;
+        return minValue + Next(maxValue - minValue);
     }
-
 }

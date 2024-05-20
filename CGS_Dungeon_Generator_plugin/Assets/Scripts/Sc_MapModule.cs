@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Sc_MapModule
 {
-    // Access to the Randomiser ------------------------------
-    ThreadRandomiser random = ThreadRandomiser.Instance;
 
     // Pathing Based Variables -------------------------------
 
@@ -76,7 +74,7 @@ public class Sc_MapModule
     }
 
     // Collapses the current Module into one of the options taking in consideration the weights of the objects
-    public void Collapse()
+    public void Collapse(ThreadRandomiser random)
     {
         m_collapsed = true;
 
@@ -88,7 +86,7 @@ public class Sc_MapModule
         }
 
         // Generate a random value within the range of total weight
-        float randomValue = random.GetRandomNumber() % totalWeight;
+        float randomValue = random.NextFloat(0f, totalWeight);
 
         // Find the tile corresponding to the random value
         float cumulativeWeight = 0;

@@ -342,7 +342,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1864583276}
   - component: {fileID: 1864583275}
-  - component: {fileID: 1864583277}
   - component: {fileID: 1864583278}
   - component: {fileID: 1864583279}
   m_Layer: 0
@@ -407,21 +406,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1864583277
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1864583274}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28971c9f6a8aacf42adf00b27f6c8292, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  FAIL: {fileID: 1578562357491176894, guid: c66f6112b2da20446b60d42fce793410, type: 3}
-  Dungeon: {fileID: 18052367}
-  m_Build: []
 --- !u!114 &1864583278
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -434,13 +418,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c9bf29a186c03340aafb9d4581502dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Width: 50
-  Height: 2
-  Length: 50
+  Width: 20
+  Height: 1
+  Length: 20
+  Dungeon: {fileID: 18052367}
+  m_Build: []
   Generate_Shape: 0
-  Generate_Path: 1
+  Generate_Path: 0
   Total_Paths: 6
-  Generate_Floor: 1
+  Generate_Floor: 0
+  FAIL: {fileID: 1578562357491176894, guid: c66f6112b2da20446b60d42fce793410, type: 3}
 --- !u!114 &1864583279
 MonoBehaviour:
   m_ObjectHideFlags: 0

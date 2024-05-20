@@ -13,31 +13,21 @@ using UnityEditor.Build.Content;
 using System.Collections;
 
 
+
 [ExecuteInEditMode]
 [RequireComponent(typeof(Sc_ModGenerator))]
-class Sc_MapGenerator : MonoBehaviour
+class Sc_MapGenerator
 {
     // Random Number Generator
     ThreadRandomiser random;
 
-    //Fail indicator
-    [SerializeField] GameObject FAIL = null;
-    [SerializeField] GameObject Dungeon = null;
 
-    [Header("Width, Height and Length")]
-    // size x and z will be horizontal and Y will be vertical, basically resembling the total number of floors.
-    Vector3 SIZE;
 
     // the Wave Function Collapse 3D List Container
     List<Sc_MapModule> m_map = new List<Sc_MapModule>();
 
-    [SerializeField] public List<GameObject> m_Build = new List<GameObject>();
 
 
-    Thread TopLeftThread;
-    Thread TopRightThread;
-    Thread BottomLeftThread;
-    Thread BottomRightThread;
 
 
     /// this WFC cycles through the whole array every time,
@@ -63,88 +53,22 @@ class Sc_MapGenerator : MonoBehaviour
      */
 
     // Generate Sets up all the default variables
-    public void Generate(List<Sc_MapModule> _moduleMap, Vector3 _size) {
-        random = ThreadRandomiser.Instance;
-        random.GenerateRandomNumbers(_moduleMap.Count);
-
-
+    public Sc_MapGenerator(List<Sc_MapModule> _moduleMap) {
         // creates a new array (to hold the map) to this size
         m_map = _moduleMap;
         Debug.Log(m_map.Count + " / " + _moduleMap.Count);
 
-        SIZE = _size;
-
-        // Clears objects in scene
-        ClearGOList();
-
-        if (SIZE.x > 15 && SIZE.z > 15)
-        {
-            // Split it into 4 threads:
-            // Split the Map into 4 quadrants
-
-            StartCoroutine(GenerateMultiThreadMap(_size));
-        }
-        else
-        {
-
-
-            GenerateMap(new Vector2(0, 0), new Vector2(SIZE.x, SIZE.z));
-        }
-
-    }
-    private IEnumerator GenerateMultiThreadMap(Vector3 _size)
-    {
-
-        GenerateThreadMapping(_size);
-
-        while (CheckThreadState()) // Check
-        {
-            yield return null;
-        }
-
-        BuildMap();
-    }
-
-    void GenerateThreadMapping(Vector3 _size)
-    {
-        // The Vectors of the Top Left Quadrant
-        //   -> [X][O]
-        //      [O][O]
-
-        Vector2 TopLeft = new Vector2(0, 0);
-        Vector2 BottomRight = new Vector2((int)_size.x / 2, (int)_size.z / 2);
-
-        TopLeftThread = new Thread(() => GenerateMap(TopLeft, BottomRight));
-        TopRightThread = new Thread(() => GenerateMap(new Vector2(BottomRight.x, TopLeft.y), new Vector2(_size.x, BottomRight.y)));
-        BottomLeftThread = new Thread(() => GenerateMap(new Vector2(TopLeft.x, BottomRight.y), new Vector2(BottomRight.x, _size.z)));
-        BottomRightThread = new Thread(() => GenerateMap(new Vector2(BottomRight.x, BottomRight.y), new Vector2(_size.x, _size.z)));
-        //GenerateMap();
-
-        TopLeftThread.Start();
-        TopRightThread.Start();
-        BottomLeftThread.Start();
-        BottomRightThread.Start();   
-
-    }
-
-
-    // The .isAlive property will return TRUE if the current thread is Active, FALSE if the current thread has finished or aborted
-    private bool CheckThreadState()
-    {
-        if (TopLeftThread.IsAlive == true || TopRightThread.IsAlive == true || BottomLeftThread.IsAlive == true || BottomRightThread.IsAlive == true)
-        {
-            return true;
-        }
-        return false;
+        random = new ThreadRandomiser();
     }
 
     // starts generating the map
-    private void GenerateMap(Vector2 TopCorner, Vector2 BottomCorner)
+    public void GenerateMap(Vector2 TopCorner, Vector2 BottomCorner, Vector3 _size)
     {
 
+
         // Loops until the all Modules are collapsed - this is where the loop needs to be freed to properly generate it correctly
-        while (!Collapsed(TopCorner, BottomCorner)) {
-            if (!Iterate(TopCorner, BottomCorner)) {
+        while (!Collapsed(TopCorner, BottomCorner, _size)) {
+            if (!Iterate(TopCorner, BottomCorner, _size)) {
                 Debug.Log("ITERATE FAILED");
                 return;
             }
@@ -153,25 +77,17 @@ class Sc_MapGenerator : MonoBehaviour
         Debug.Log("SUCCESS");
     }
 
-    private void BuildMap()
-    {
-        Debug.Log("BuildMap");
-        foreach (Sc_MapModule module in m_map) {
-            AttemptBuild(module);
-        }
-    }
-
     // Checks if all Modules within a select area are currently collapsed : returns FALSE if they aren't all collapsed and TRUE if they are all collapsed
-    private bool Collapsed(Vector2 TopCorner, Vector2 BottomCorner) {
+    private bool Collapsed(Vector3 _size, Vector2 TopCorner, Vector2 BottomCorner) {
 
 
-        for (int y = 0; y < (int)SIZE.y; y++)
+        for (int y = 0; y < (int)_size.y; y++)
         {
             for (int z = (int)TopCorner.y; z < (int)BottomCorner.y; z++)
             {
                 for (int x = (int)TopCorner.x; x < (int)BottomCorner.x; x++)
                 {
-                    if (!GetVectorModule(new Vector3(x, y, z)).isCollapsed()) return false;
+                    if (!GetVectorModule(new Vector3(x, y, z), _size).isCollapsed()) return false;
                 }
             }
         }
@@ -182,23 +98,23 @@ class Sc_MapGenerator : MonoBehaviour
 
 
     // iterates through the WFC 
-    private bool Iterate(Vector2 TopCorner, Vector2 BottomCorner) {
-        var coords = GetMinEntropyCoords(TopCorner, BottomCorner);
+    private bool Iterate(Vector2 TopCorner, Vector2 BottomCorner, Vector3 _size) {
+        var coords = GetMinEntropyCoords(TopCorner, BottomCorner, _size);
         if(coords == null || coords.x == -1) return false;
 
         // Collapse the current Min Entropy
-        GetVectorModule(coords).Collapse();
+        GetVectorModule(coords, _size).Collapse(random);
 
         //Instantiate(go, new Vector3(coords.x, 0, coords.y), Quaternion.identity);
         // Propagate this Coordinate within these Coordinates
         // Propagate(This Coord, From This Coord, to this Coord)
-        Propagate(coords, TopCorner, BottomCorner);
+        Propagate(coords, TopCorner, BottomCorner, _size);
         return true;
     }
 
     // finds and returns the location of *minimum entropy
     // *if more than 1 it will randomize between modules
-    Vector3 GetMinEntropyCoords(Vector2 TopCorner, Vector2 BottomCorner) {
+    Vector3 GetMinEntropyCoords( Vector2 TopCorner, Vector2 BottomCorner, Vector3 _size) {
         double _lowestEntropy = int.MaxValue; // sets lowest entropy to int Max to ensure the correct lowest entropy selection
 
         //if the entropy is 0 that means it only has 1 option left thus it is certain
@@ -206,13 +122,13 @@ class Sc_MapGenerator : MonoBehaviour
 
         // Checking for lowest Entropy Map Module within a select Area
 
-        for (int y = 0; y < (int)SIZE.y; y++)
+        for (int y = 0; y < (int)_size.y; y++)
         {
             for (int z = (int)TopCorner.y; z < (int)BottomCorner.y; z++)
             {
                 for (int x = (int)TopCorner.x; x < (int)BottomCorner.x; x++)
                 {
-                    Sc_MapModule module = GetVectorModule(new Vector3(x, y, z));
+                    Sc_MapModule module = GetVectorModule(new Vector3(x, y, z), _size);
                     if (!module.isCollapsed())
                     { // filters in only modules that aren't yet collapsed
                         if (module.GetEntropy() < _lowestEntropy)
@@ -233,55 +149,39 @@ class Sc_MapGenerator : MonoBehaviour
         if (lowestEntropyModules.Count > 1)
         {
             // if there is more than one, select one at random
-            return lowestEntropyModules[random.GetRandomNumber() % (lowestEntropyModules.Count - 1)].mapPos;
+            float RandomVal = random.NextFloat(0, lowestEntropyModules.Count - 1);
+            return lowestEntropyModules[(int)RandomVal].mapPos;
         }
         else if (lowestEntropyModules.Count == 0) return new Vector3(-1, -1);
         return lowestEntropyModules[0].mapPos;
     }
 
     // Attempts to build the GameObject, if the object fails it sends back false restarting the whole build
-    bool AttemptBuild(Sc_MapModule _mod) {
-        GameObject mod;
 
-        if (!_mod.isCollapsed())
-        {
-            _mod.Collapse();
-        }
-        if(_mod.GetModule() == null)
-        {
-            FailBuild(_mod.mapPos);
-            return false;
-        }
-        mod = _mod.GetModule().GetMesh();
 
-        GameObject obj = Instantiate(mod, _mod.mapPos, Quaternion.Euler(ModRotation(_mod.GetModule())), Dungeon.transform);
-        m_Build.Add(obj);
-        return true;
-    }
-
-    public void Propagate(Vector3 _coords, Vector2 TopCorner, Vector2 BottomCorner)
+    public void Propagate(Vector3 _coords, Vector2 TopCorner, Vector2 BottomCorner, Vector3 _size)
     {
         // Check around Module  
-        Sc_Module mods = GetVectorModule(_coords).GetModule();
+        Sc_Module mods = GetVectorModule(_coords, _size).GetModule();
     
 
         // Compares the surrounding area around X first
         Vector3 posX = new Vector3(_coords.x + 1, _coords.y, _coords.z);
-        if (posX.x < BottomCorner.x && !IsCollapsed(posX))
+        if (posX.x < BottomCorner.x && !IsCollapsed(posX, _size))
         {
-            foreach (Sc_Module mod in CompareOptions(mods, posX, edge.X))
+            foreach (Sc_Module mod in CompareOptions(mods, posX, edge.X, _size))
             {
-                GetVectorModule(posX).RemoveOption(mod);
+                GetVectorModule(posX, _size).RemoveOption(mod);
             }
             //PropagateSurroundings(posX);
         }
 
         Vector3 negX = new Vector3(_coords.x - 1, _coords.y, _coords.z);
-        if (negX.x >= TopCorner.x && !IsCollapsed(negX))
+        if (negX.x >= TopCorner.x && !IsCollapsed(negX, _size))
         {
-            foreach (Sc_Module mod in CompareOptions(mods, negX, edge.nX))
+            foreach (Sc_Module mod in CompareOptions(mods, negX, edge.nX, _size))
             {
-                GetVectorModule(negX).RemoveOption(mod);
+                GetVectorModule(negX, _size).RemoveOption(mod);
             }
            // PropagateSurroundings(negX);
         }
@@ -290,21 +190,21 @@ class Sc_MapGenerator : MonoBehaviour
 
         // Compares area around Z last
         Vector3 posY = new Vector3(_coords.x, _coords.y + 1, _coords.z);
-        if (posY.y < SIZE.y && !IsCollapsed(posY))
+        if (posY.y < _size.y && !IsCollapsed(posY, _size))
         {
-            foreach (Sc_Module mod in CompareOptions(mods, posY, edge.Y))
+            foreach (Sc_Module mod in CompareOptions(mods, posY, edge.Y, _size))
             {
-                GetVectorModule(posY).RemoveOption(mod);
+                GetVectorModule(posY, _size).RemoveOption(mod);
             }
            // PropagateSurroundings(posY);
         }
 
         Vector3 negY = new Vector3(_coords.x, _coords.y - 1, _coords.z);
-        if (negY.y >= 0 && !IsCollapsed(negY))
+        if (negY.y >= 0 && !IsCollapsed(negY, _size))
         {
-            foreach (Sc_Module mod in CompareOptions(mods, negY, edge.nY))
+            foreach (Sc_Module mod in CompareOptions(mods, negY, edge.nY, _size))
             {
-                GetVectorModule(negY).RemoveOption(mod);
+                GetVectorModule(negY, _size).RemoveOption(mod);
             }
            // PropagateSurroundings(negY);
         }
@@ -312,21 +212,21 @@ class Sc_MapGenerator : MonoBehaviour
 
         // Compares area around Z last
         Vector3 posZ = new Vector3(_coords.x, _coords.y, _coords.z + 1);
-        if (posZ.z < BottomCorner.y && !IsCollapsed(posZ))
+        if (posZ.z < BottomCorner.y && !IsCollapsed(posZ, _size))
         {
-            foreach (Sc_Module mod in CompareOptions(mods, posZ, edge.Z))
+            foreach (Sc_Module mod in CompareOptions(mods, posZ, edge.Z, _size))
             {
-                GetVectorModule(posZ).RemoveOption(mod);
+                GetVectorModule(posZ, _size).RemoveOption(mod);
             }
             //PropagateSurroundings(posZ);
         }
 
         Vector3 negZ = new Vector3(_coords.x, _coords.y, _coords.z - 1);
-        if (negZ.z >= TopCorner.y && !IsCollapsed(negZ))
+        if (negZ.z >= TopCorner.y && !IsCollapsed(negZ, _size))
         {
-            foreach (Sc_Module mod in CompareOptions(mods, negZ, edge.nZ))
+            foreach (Sc_Module mod in CompareOptions(mods, negZ, edge.nZ, _size))
             {
-                GetVectorModule(negZ).RemoveOption(mod);
+                GetVectorModule(negZ, _size).RemoveOption(mod);
             }
            // PropagateSurroundings(negZ);
         }
@@ -336,90 +236,87 @@ class Sc_MapGenerator : MonoBehaviour
     // Propogate the surrounding area near the newly propogated WFCModule, TODO: alter it so it compares all options and passes back a false only if all options fail - CHECK WHAT IS WRONG OR UPDATE PROPOGATE
     void PropagateSurroundings(Vector3 _coords)
     {
-        // Check around Module  
-        Sc_MapModule mods = GetVectorModule(_coords);
+        //// Check around Module  
+        //Sc_MapModule mods = GetVectorModule(_coords);
 
-        // Compares the surrounding area around X first
-        Vector3 posX = new Vector3(_coords.x + 1, _coords.y, _coords.z);
-        if (posX.x < SIZE.x && !IsCollapsed(posX))
-        {
-            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posX, edge.X))
-            {
-                GetVectorModule(posX).RemoveOption(mod);
-            }
-        }
+        //// Compares the surrounding area around X first
+        //Vector3 posX = new Vector3(_coords.x + 1, _coords.y, _coords.z);
+        //if (posX.x < SIZE.x && !IsCollapsed(posX))
+        //{
+        //    foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posX, edge.X))
+        //    {
+        //        GetVectorModule(posX).RemoveOption(mod);
+        //    }
+        //}
 
-        Vector3 negX = new Vector3(_coords.x - 1, _coords.y, _coords.z);
-        if (negX.x >= 0 && !IsCollapsed(negX))
-        {
-            // Main Mod , compared Mod, Edge of Comparison
-            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negX, edge.nX))
-            {
-                GetVectorModule(negX).RemoveOption(mod);
-            }
+        //Vector3 negX = new Vector3(_coords.x - 1, _coords.y, _coords.z);
+        //if (negX.x >= 0 && !IsCollapsed(negX))
+        //{
+        //    // Main Mod , compared Mod, Edge of Comparison
+        //    foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negX, edge.nX))
+        //    {
+        //        GetVectorModule(negX).RemoveOption(mod);
+        //    }
 
-        }
+        //}
 
-        //TODO: Add Comparing Y Coords (UP and DOWN)
+        ////TODO: Add Comparing Y Coords (UP and DOWN)
 
-        // Compares area around Z last
-        Vector3 posY = new Vector3(_coords.x, _coords.y + 1, _coords.z);
-        if (posY.y < SIZE.y && !IsCollapsed(posY))
-        {
-            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posY, edge.Y))
-            {
-                GetVectorModule(posY).RemoveOption(mod);
-            }
+        //// Compares area around Z last
+        //Vector3 posY = new Vector3(_coords.x, _coords.y + 1, _coords.z);
+        //if (posY.y < SIZE.y && !IsCollapsed(posY))
+        //{
+        //    foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posY, edge.Y))
+        //    {
+        //        GetVectorModule(posY).RemoveOption(mod);
+        //    }
 
-        }
+        //}
 
-        Vector3 negY = new Vector3(_coords.x, _coords.y - 1, _coords.z);
-        if (negY.y >= 0 && !IsCollapsed(negY))
-        {
-            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negY, edge.nY))
-            {
-                GetVectorModule(negY).RemoveOption(mod);
-            }
-        }
+        //Vector3 negY = new Vector3(_coords.x, _coords.y - 1, _coords.z);
+        //if (negY.y >= 0 && !IsCollapsed(negY))
+        //{
+        //    foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negY, edge.nY))
+        //    {
+        //        GetVectorModule(negY).RemoveOption(mod);
+        //    }
+        //}
 
 
-        // Compares area around Z last
-        Vector3 posZ = new Vector3(_coords.x, _coords.y, _coords.z + 1);
-        if (posZ.z < SIZE.z && !IsCollapsed(posZ))
-        {
-            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posZ, edge.Z))
-            {
-                GetVectorModule(posZ).RemoveOption(mod);
-            }
-        }
+        //// Compares area around Z last
+        //Vector3 posZ = new Vector3(_coords.x, _coords.y, _coords.z + 1);
+        //if (posZ.z < SIZE.z && !IsCollapsed(posZ))
+        //{
+        //    foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posZ, edge.Z))
+        //    {
+        //        GetVectorModule(posZ).RemoveOption(mod);
+        //    }
+        //}
 
-        Vector3 negZ = new Vector3(_coords.x, _coords.y, _coords.z - 1);
-        if (negZ.z >= 0 && !IsCollapsed(negZ))
-        {
-            foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negZ, edge.nZ))
-            {
-                GetVectorModule(negZ).RemoveOption(mod);
-            }
-        }
+        //Vector3 negZ = new Vector3(_coords.x, _coords.y, _coords.z - 1);
+        //if (negZ.z >= 0 && !IsCollapsed(negZ))
+        //{
+        //    foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negZ, edge.nZ))
+        //    {
+        //        GetVectorModule(negZ).RemoveOption(mod);
+        //    }
+        //}
 
     }
 
-    int ConvertVec3ToListCoord(Vector3 _coord)
+    int ConvertVec3ToListCoord(Vector3 _coord, Vector3 _size)
     {
-        return (int)(_coord.x + (_coord.y * SIZE.x * SIZE.z) + (_coord.z * SIZE.x));
+        return (int)(_coord.x + (_coord.y * _size.x * _size.z) + (_coord.z * _size.x));
     }
 
-    Vector3 ModRotation(Sc_Module _mod)
-    {
-        return new Vector3(0f, _mod.GetRotation() * 90f, 0);
-    }
+
 
     // Passes back option removal list
-    List<Sc_Module> CompareOptions(Sc_Module _mod, Vector3 _coord /*propagated coord*/, edge _edge)
+    List<Sc_Module> CompareOptions(Sc_Module _mod, Vector3 _coord /*propagated coord*/, edge _edge, Vector3 _size)
     {
         List<Sc_Module> toRemove = new List<Sc_Module>();
         // gets the new vector coordinate and compares the options of the new coordinate
-        foreach (Sc_Module mod in GetVectorModule(_coord).GetOptions())
+        foreach (Sc_Module mod in GetVectorModule(_coord, _size).GetOptions())
         {
             // Compared Mod, Main Mod's Neighbours
             if (!Compare(mod, _mod.GetNeighbour(_edge).GetOptions()))
@@ -431,11 +328,11 @@ class Sc_MapGenerator : MonoBehaviour
         return toRemove;
     }
 
-    List<Sc_Module> CompareOptionsAdvanced(Sc_MapModule _mod, Vector3 _coord /*propagated coord*/, edge _edge)
+    List<Sc_Module> CompareOptionsAdvanced(Sc_MapModule _mod, Vector3 _coord /*propagated coord*/, edge _edge, Vector3 _size)
     {
         List<Sc_Module> toRemove = new List<Sc_Module>();
         // gets the new vector coordinate and compares the options of the new coordinate
-        foreach (Sc_Module mod in GetVectorModule(_coord).GetOptions())
+        foreach (Sc_Module mod in GetVectorModule(_coord, _size).GetOptions())
         {
             // Compared Mod, Main Mod's Neighbours
             if (!Compare(mod,GetAllNeighboursAlongAnEdge(_mod.GetOptions(), _edge)))
@@ -475,19 +372,19 @@ class Sc_MapGenerator : MonoBehaviour
 
 
     // returns WFC Module using the Vector2 Coordinates of itself
-    public Sc_MapModule GetVectorModule(Vector3 _coords) {
+    public Sc_MapModule GetVectorModule(Vector3 _coords, Vector3 _size) {
 
-        return m_map[ConvertVec3ToListCoord(_coords)];
+        return m_map[ConvertVec3ToListCoord(_coords, _size)];
     }
 
     // check if a specific coordinate is collapsed
-    bool IsCollapsed(Vector3 _coords)
+    bool IsCollapsed(Vector3 _coords, Vector3 _size)
     {
-        Sc_MapModule wfc = m_map[ConvertVec3ToListCoord(_coords)];
+        Sc_MapModule wfc = m_map[ConvertVec3ToListCoord(_coords, _size)];
         //Debug.Log(wfc.mapPos);
         if (wfc != null)
         {
-            if (m_map[ConvertVec3ToListCoord(_coords)].isCollapsed())
+            if (m_map[ConvertVec3ToListCoord(_coords, _size)].isCollapsed())
             {
                 return true;
             }
@@ -498,39 +395,6 @@ class Sc_MapGenerator : MonoBehaviour
 
 
 
-
-
-
-
-
-    // Clears the GameObject list
-    public void ClearGOList()
-    {
-        if (m_Build.Count < 1) return;
-        foreach (GameObject obj in m_Build)
-        {
-            DestroyObj(obj);
-        }
-
-        m_Build.Clear();
-    }
-
-
-    // destroys objects during edit and play mode
-    void DestroyObj(Object obj)
-    {
-        if (Application.isPlaying)
-            Destroy(obj);
-        else
-            DestroyImmediate(obj);
-    }
-
-
-    void FailBuild(Vector3 _coords)
-    {
-        GameObject fail = Instantiate(FAIL, new Vector3(_coords.x, _coords.y, _coords.z), Quaternion.identity, Dungeon.transform);
-        m_Build.Add(fail);
-    }
 }
 
 /*
