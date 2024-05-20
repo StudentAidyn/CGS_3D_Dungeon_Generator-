@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Sc_MapModule
 {
+    // Access to the Randomiser ------------------------------
+    ThreadRandomiser random = ThreadRandomiser.Instance;
+
     // Pathing Based Variables -------------------------------
 
     //Caluculating the costs
@@ -22,7 +25,6 @@ public class Sc_MapModule
     bool m_collapsed; // to state if the module has already been collapsed
     Sc_Module m_module; // the module it has become when it gets collapsed
 
-    
     public Sc_MapModule(Vector3 _mapPos)
     {
         mapPos = _mapPos;
@@ -74,7 +76,7 @@ public class Sc_MapModule
     }
 
     // Collapses the current Module into one of the options taking in consideration the weights of the objects
-    public GameObject Collapse()
+    public void Collapse()
     {
         m_collapsed = true;
 
@@ -86,7 +88,7 @@ public class Sc_MapModule
         }
 
         // Generate a random value within the range of total weight
-        float randomValue = Random.Range(0f, totalWeight);
+        float randomValue = random.GetRandomNumber() % totalWeight;
 
         // Find the tile corresponding to the random value
         float cumulativeWeight = 0;
@@ -96,12 +98,8 @@ public class Sc_MapModule
             if (randomValue <= cumulativeWeight)
             {
                 m_module = tile;
-                return tile.GetMesh();
             }
         }
-
-        //if fails
-        return null;
     }
 
     // returns the current Entropy of the object (returns total options) : TODO: change it so the Entropy is effected by the weight
@@ -161,5 +159,7 @@ public class Sc_MapModule
     {
         fScore = gScore + hScore;
     }
+
+
 
 }

@@ -8,12 +8,18 @@ using UnityEditor.PackageManager.Requests;
 using UnityEngine.Rendering;
 using static UnityEditor.Progress;
 using static UnityEditor.Experimental.GraphView.GraphView;
+using System.Threading;
+using UnityEditor.Build.Content;
+using System.Collections;
 
 
 [ExecuteInEditMode]
 [RequireComponent(typeof(Sc_ModGenerator))]
 class Sc_MapGenerator : MonoBehaviour
 {
+    // Random Number Generator
+    ThreadRandomiser random;
+
     //Fail indicator
     [SerializeField] GameObject FAIL = null;
     [SerializeField] GameObject Dungeon = null;
@@ -27,7 +33,11 @@ class Sc_MapGenerator : MonoBehaviour
 
     [SerializeField] public List<GameObject> m_Build = new List<GameObject>();
 
-    [SerializeField] bool GenerateFloor = true;
+
+    Thread TopLeftThread;
+    Thread TopRightThread;
+    Thread BottomLeftThread;
+    Thread BottomRightThread;
 
 
     /// this WFC cycles through the whole array every time,
@@ -54,40 +64,87 @@ class Sc_MapGenerator : MonoBehaviour
 
     // Generate Sets up all the default variables
     public void Generate(List<Sc_MapModule> _moduleMap, Vector3 _size) {
+        random = ThreadRandomiser.Instance;
+        random.GenerateRandomNumbers(_moduleMap.Count);
+
+
         // creates a new array (to hold the map) to this size
         m_map = _moduleMap;
         Debug.Log(m_map.Count + " / " + _moduleMap.Count);
 
         SIZE = _size;
 
-        // Split it into 4 threads:
-        // Split the Map into 4 quadrants
-        
-        
-        Vector2 TopLeft = new Vector2(0, 0);
-        Vector2 TopMiddle = new Vector2((int)SIZE.x/2, (int)SIZE.z/2);
-        // TopRightMiddle is just top left middle but + 1 on the X and same Y
-        Vector2 TopRight = new Vector2(SIZE.x, TopMiddle.y); // it shares the same length as the top Y 
-        
-        Vector2 BottomLeft = new Vector2(TopLeft.x, TopMiddle.y + 1); 
-        Vector2 BottomRight = new Vector2(SIZE.x, SIZE.z);
-
-
-
         // Clears objects in scene
         ClearGOList();
 
-        GenerateMap();
+        if (SIZE.x > 15 && SIZE.z > 15)
+        {
+            // Split it into 4 threads:
+            // Split the Map into 4 quadrants
+
+            StartCoroutine(GenerateMultiThreadMap(_size));
+        }
+        else
+        {
+
+
+            GenerateMap(new Vector2(0, 0), new Vector2(SIZE.x, SIZE.z));
+        }
+
+    }
+    private IEnumerator GenerateMultiThreadMap(Vector3 _size)
+    {
+
+        GenerateThreadMapping(_size);
+
+        while (CheckThreadState()) // Check
+        {
+            yield return null;
+        }
+
+        BuildMap();
+    }
+
+    void GenerateThreadMapping(Vector3 _size)
+    {
+        // The Vectors of the Top Left Quadrant
+        //   -> [X][O]
+        //      [O][O]
+
+        Vector2 TopLeft = new Vector2(0, 0);
+        Vector2 BottomRight = new Vector2((int)_size.x / 2, (int)_size.z / 2);
+
+        TopLeftThread = new Thread(() => GenerateMap(TopLeft, BottomRight));
+        TopRightThread = new Thread(() => GenerateMap(new Vector2(BottomRight.x, TopLeft.y), new Vector2(_size.x, BottomRight.y)));
+        BottomLeftThread = new Thread(() => GenerateMap(new Vector2(TopLeft.x, BottomRight.y), new Vector2(BottomRight.x, _size.z)));
+        BottomRightThread = new Thread(() => GenerateMap(new Vector2(BottomRight.x, BottomRight.y), new Vector2(_size.x, _size.z)));
+        //GenerateMap();
+
+        TopLeftThread.Start();
+        TopRightThread.Start();
+        BottomLeftThread.Start();
+        BottomRightThread.Start();   
+
     }
 
 
-    // starts generating the map
-    public void GenerateMap()
+    // The .isAlive property will return TRUE if the current thread is Active, FALSE if the current thread has finished or aborted
+    private bool CheckThreadState()
     {
-        if (GenerateFloor) { SetLevelToType(LayerMask.NameToLayer("FLOOR"), 0); }
+        if (TopLeftThread.IsAlive == true || TopRightThread.IsAlive == true || BottomLeftThread.IsAlive == true || BottomRightThread.IsAlive == true)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    // starts generating the map
+    private void GenerateMap(Vector2 TopCorner, Vector2 BottomCorner)
+    {
+
         // Loops until the all Modules are collapsed - this is where the loop needs to be freed to properly generate it correctly
-        while (!Collapsed()) {
-            if (!Iterate()) {
+        while (!Collapsed(TopCorner, BottomCorner)) {
+            if (!Iterate(TopCorner, BottomCorner)) {
                 Debug.Log("ITERATE FAILED");
                 return;
             }
@@ -96,77 +153,113 @@ class Sc_MapGenerator : MonoBehaviour
         Debug.Log("SUCCESS");
     }
 
-    // Checks if all Modules are currently collapsed : returns FALSE if they aren't all collapsed and TRUE if they are all collapsed
-    private bool Collapsed() {
+    private void BuildMap()
+    {
+        Debug.Log("BuildMap");
+        foreach (Sc_MapModule module in m_map) {
+            AttemptBuild(module);
+        }
+    }
 
-        foreach(Sc_MapModule module in m_map) {
-            if (!module.isCollapsed()) return false;
+    // Checks if all Modules within a select area are currently collapsed : returns FALSE if they aren't all collapsed and TRUE if they are all collapsed
+    private bool Collapsed(Vector2 TopCorner, Vector2 BottomCorner) {
+
+
+        for (int y = 0; y < (int)SIZE.y; y++)
+        {
+            for (int z = (int)TopCorner.y; z < (int)BottomCorner.y; z++)
+            {
+                for (int x = (int)TopCorner.x; x < (int)BottomCorner.x; x++)
+                {
+                    if (!GetVectorModule(new Vector3(x, y, z)).isCollapsed()) return false;
+                }
+            }
         }
 
-        Debug.Log("ALL MODULES ARE COLLAPSED");
         return true;
     }
 
+
+
     // iterates through the WFC 
-    private bool Iterate() {
-        var coords = GetMinEntropyCoords();
+    private bool Iterate(Vector2 TopCorner, Vector2 BottomCorner) {
+        var coords = GetMinEntropyCoords(TopCorner, BottomCorner);
         if(coords == null || coords.x == -1) return false;
 
-        // attempts to build the minimum entropy object
-        if (!AttemptBuild(coords)) return false;
+        // Collapse the current Min Entropy
+        GetVectorModule(coords).Collapse();
 
         //Instantiate(go, new Vector3(coords.x, 0, coords.y), Quaternion.identity);
-        Propagate(coords);
+        // Propagate this Coordinate within these Coordinates
+        // Propagate(This Coord, From This Coord, to this Coord)
+        Propagate(coords, TopCorner, BottomCorner);
         return true;
     }
 
     // finds and returns the location of *minimum entropy
     // *if more than 1 it will randomize between modules
-    Vector3 GetMinEntropyCoords() {
+    Vector3 GetMinEntropyCoords(Vector2 TopCorner, Vector2 BottomCorner) {
         double _lowestEntropy = int.MaxValue; // sets lowest entropy to int Max to ensure the correct lowest entropy selection
 
         //if the entropy is 0 that means it only has 1 option left thus it is certain
         List<Sc_MapModule> lowestEntropyModules = new List<Sc_MapModule>();
 
+        // Checking for lowest Entropy Map Module within a select Area
 
-        foreach (Sc_MapModule module in m_map) {
-            if (!module.isCollapsed()) { // filters in only modules that aren't yet collapsed
-                if (module.GetEntropy() < _lowestEntropy) { // finding the newest lowest entropy
-                    lowestEntropyModules.Clear();
-                    _lowestEntropy = module.GetEntropy();
-                }
-                if (module.GetEntropy() == _lowestEntropy) { // Checking for any modules with the same entropy
-                    lowestEntropyModules.Add(module);
+        for (int y = 0; y < (int)SIZE.y; y++)
+        {
+            for (int z = (int)TopCorner.y; z < (int)BottomCorner.y; z++)
+            {
+                for (int x = (int)TopCorner.x; x < (int)BottomCorner.x; x++)
+                {
+                    Sc_MapModule module = GetVectorModule(new Vector3(x, y, z));
+                    if (!module.isCollapsed())
+                    { // filters in only modules that aren't yet collapsed
+                        if (module.GetEntropy() < _lowestEntropy)
+                        { // finding the newest lowest entropy
+                            lowestEntropyModules.Clear();
+                            _lowestEntropy = module.GetEntropy();
+                        }
+                        if (module.GetEntropy() == _lowestEntropy)
+                        { // Checking for any modules with the same entropy
+                            lowestEntropyModules.Add(module);
+                        }
+                    }
                 }
             }
         }
 
-        // choosing on random if needed the returned module
+        //choosing on random if needed the returned module
         if (lowestEntropyModules.Count > 1)
         {
             // if there is more than one, select one at random
-            return lowestEntropyModules[Random.Range(0, lowestEntropyModules.Count - 1)].mapPos;
+            return lowestEntropyModules[random.GetRandomNumber() % (lowestEntropyModules.Count - 1)].mapPos;
         }
-        else if(lowestEntropyModules.Count == 0) return new Vector3 (-1, -1);
+        else if (lowestEntropyModules.Count == 0) return new Vector3(-1, -1);
         return lowestEntropyModules[0].mapPos;
     }
 
     // Attempts to build the GameObject, if the object fails it sends back false restarting the whole build
-    bool AttemptBuild(Vector3 _coords) {
-        Sc_MapModule WFCMod = GetVectorModule(_coords);
-        GameObject mod = WFCMod.Collapse();
+    bool AttemptBuild(Sc_MapModule _mod) {
+        GameObject mod;
 
-        if(mod == null) {
-            FailBuild(_coords); 
+        if (!_mod.isCollapsed())
+        {
+            _mod.Collapse();
+        }
+        if(_mod.GetModule() == null)
+        {
+            FailBuild(_mod.mapPos);
             return false;
         }
+        mod = _mod.GetModule().GetMesh();
 
-        GameObject obj = Instantiate(mod, WFCMod.mapPos, Quaternion.Euler(ModRotation(WFCMod.GetModule())), Dungeon.transform);
+        GameObject obj = Instantiate(mod, _mod.mapPos, Quaternion.Euler(ModRotation(_mod.GetModule())), Dungeon.transform);
         m_Build.Add(obj);
         return true;
     }
 
-    public void Propagate(Vector3 _coords)
+    public void Propagate(Vector3 _coords, Vector2 TopCorner, Vector2 BottomCorner)
     {
         // Check around Module  
         Sc_Module mods = GetVectorModule(_coords).GetModule();
@@ -174,7 +267,7 @@ class Sc_MapGenerator : MonoBehaviour
 
         // Compares the surrounding area around X first
         Vector3 posX = new Vector3(_coords.x + 1, _coords.y, _coords.z);
-        if (posX.x < SIZE.x && !IsCollapsed(posX))
+        if (posX.x < BottomCorner.x && !IsCollapsed(posX))
         {
             foreach (Sc_Module mod in CompareOptions(mods, posX, edge.X))
             {
@@ -184,7 +277,7 @@ class Sc_MapGenerator : MonoBehaviour
         }
 
         Vector3 negX = new Vector3(_coords.x - 1, _coords.y, _coords.z);
-        if (negX.x >= 0 && !IsCollapsed(negX))
+        if (negX.x >= TopCorner.x && !IsCollapsed(negX))
         {
             foreach (Sc_Module mod in CompareOptions(mods, negX, edge.nX))
             {
@@ -219,7 +312,7 @@ class Sc_MapGenerator : MonoBehaviour
 
         // Compares area around Z last
         Vector3 posZ = new Vector3(_coords.x, _coords.y, _coords.z + 1);
-        if (posZ.z < SIZE.z && !IsCollapsed(posZ))
+        if (posZ.z < BottomCorner.y && !IsCollapsed(posZ))
         {
             foreach (Sc_Module mod in CompareOptions(mods, posZ, edge.Z))
             {
@@ -229,7 +322,7 @@ class Sc_MapGenerator : MonoBehaviour
         }
 
         Vector3 negZ = new Vector3(_coords.x, _coords.y, _coords.z - 1);
-        if (negZ.z >= 0 && !IsCollapsed(negZ))
+        if (negZ.z >= TopCorner.y && !IsCollapsed(negZ))
         {
             foreach (Sc_Module mod in CompareOptions(mods, negZ, edge.nZ))
             {
@@ -382,7 +475,8 @@ class Sc_MapGenerator : MonoBehaviour
 
 
     // returns WFC Module using the Vector2 Coordinates of itself
-    Sc_MapModule GetVectorModule(Vector3 _coords) {
+    public Sc_MapModule GetVectorModule(Vector3 _coords) {
+
         return m_map[ConvertVec3ToListCoord(_coords)];
     }
 
@@ -404,40 +498,9 @@ class Sc_MapGenerator : MonoBehaviour
 
 
 
-    void SetLevelToType(LayerMask _layer, int _level)
-    {
-        foreach (Sc_MapModule mod in GetModulesFromLevel(_level))
-        {
-            List<Sc_Module> toRemove = new List<Sc_Module>();
-            foreach(Sc_Module option in mod.GetOptions())
-            {
-                if(option.GetLayerType() != (option.GetLayerType() | (1 << _layer)))
-                {
-                    toRemove.Add(option);
-                }
-            }
 
-            foreach(Sc_Module option in toRemove)
-            {
-                mod.RemoveOption(option);
-            }
-        }
-    }
 
-    List<Sc_MapModule> GetModulesFromLevel(int _level)
-    {
-        List<Sc_MapModule> modules = new List<Sc_MapModule>();
 
-        for (int x = 0; x < SIZE.x; x++)
-        {
-            for (int z = 0; z < SIZE.z; z++)
-            {
-                modules.Add(GetVectorModule(new Vector3(x, _level, z)));
-            }
-        }
-
-        return modules;
-    }
 
 
     // Clears the GameObject list

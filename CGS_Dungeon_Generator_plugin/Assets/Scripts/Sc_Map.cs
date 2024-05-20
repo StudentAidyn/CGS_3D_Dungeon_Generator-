@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 
@@ -122,9 +123,62 @@ public class Sc_Map : MonoBehaviour
 
         }
 
+
+
+        if (Generate_Floor) { SetLevelToType(LayerMask.NameToLayer("FLOOR"), 0); }
+
         MapGen.Generate(Map, MapDimensions);
 
 
     }
 
+    void SetLevelToType(LayerMask _layer, int _level)
+    {
+        foreach (Sc_MapModule mod in GetModulesFromLevel(_level))
+        {
+            List<Sc_Module> toRemove = new List<Sc_Module>();
+            foreach (Sc_Module option in mod.GetOptions())
+            {
+                if (option.GetLayerType() != (option.GetLayerType() | (1 << _layer)))
+                {
+                    toRemove.Add(option);
+                }
+            }
+
+            foreach (Sc_Module option in toRemove)
+            {
+                mod.RemoveOption(option);
+            }
+        }
+    }
+
+
+    List<Sc_MapModule> GetModulesFromLevel(int _level)
+    {
+        List<Sc_MapModule> modules = new List<Sc_MapModule>();
+
+        for (int z = 0; z < MapDimensions.z; z++)     
+        {
+            for (int x = 0; x < MapDimensions.x; x++)
+            {
+                modules.Add(GetVectorModule(new Vector3(x, _level, z)));
+            }
+        }
+
+        return modules;
+    }
+
+    public Sc_MapModule GetVectorModule(Vector3 _coords)
+    {
+
+        return Map[ConvertVec3ToListCoord(_coords)];
+    }
+
+    int ConvertVec3ToListCoord(Vector3 _coord)
+    {
+        return (int)(_coord.x + (_coord.y * MapDimensions.x * MapDimensions.z) + (_coord.z * MapDimensions.x));
+    }
+
 }
+
+

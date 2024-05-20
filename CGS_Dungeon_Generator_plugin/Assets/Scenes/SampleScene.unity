@@ -419,10 +419,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28971c9f6a8aacf42adf00b27f6c8292, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FAIL: {fileID: 919132149155446097, guid: feb088747f777634497bb4d3bc5cdc47, type: 3}
+  FAIL: {fileID: 1578562357491176894, guid: c66f6112b2da20446b60d42fce793410, type: 3}
   Dungeon: {fileID: 18052367}
   m_Build: []
-  GenerateFloor: 0
 --- !u!114 &1864583278
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -435,13 +434,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c9bf29a186c03340aafb9d4581502dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Width: 10
+  Width: 50
   Height: 2
-  Length: 10
+  Length: 50
   Generate_Shape: 0
-  Generate_Path: 0
-  Total_Paths: 3
-  Generate_Floor: 0
+  Generate_Path: 1
+  Total_Paths: 6
+  Generate_Floor: 1
 --- !u!114 &1864583279
 MonoBehaviour:
   m_ObjectHideFlags: 0

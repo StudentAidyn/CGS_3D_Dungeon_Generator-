@@ -35,7 +35,7 @@ public class Sc_AstarPathFinding : MonoBehaviour
         // Generates traversal points based on total number of points
         for (int i = 0; i < _traversalPoints; i++) {
             // Generates random  start and end points
-            Vector3 randomPosition = new Vector3((int)Random.Range(0, mapDimensions.x - 1), 0, (int)Random.Range(0, mapDimensions.z - 1));
+            Vector3 randomPosition = new Vector3((int)Random.Range(0, mapDimensions.x), 0, (int)Random.Range(0, mapDimensions.z));
             Points.Add(Map[ConvertVec3ToListCoord(randomPosition)]);
         }
 
