@@ -45,10 +45,7 @@ public class Sc_MapModule
     // removes option in parameter
     public void RemoveOption(Sc_Module _mod) {
         List<Sc_Module> toRemove = new List<Sc_Module>();
-        if(m_options.Count == 0)
-        {
-            return;
-        }
+        
         for (int i = 0; i < m_options.Count; i++)
         {
             if (m_options[i] == _mod)
@@ -57,18 +54,12 @@ public class Sc_MapModule
             }
         }
 
-        if(toRemove.Count == 0)
-        {
-            return;
-        }
+        if(m_options.Count <= 0) return;
 
         for (int i = 0; i < toRemove.Count; i++)
         {
             m_options.Remove(toRemove[i]);
         }
-
-
-
     }
 
     // returns module it has collapsed to
@@ -85,7 +76,7 @@ public class Sc_MapModule
     }
 
     // Collapses the current Module into one of the options taking in consideration the weights of the objects
-    public void Collapse(ThreadRandomiser random)
+    public void Collapse(ThreadRandomiser random, int _threadType = 0)
     {
         m_collapsed = true;
 
@@ -97,7 +88,7 @@ public class Sc_MapModule
         }
          if (totalWeight == 0) { return; }
         // Generate a random value within the range of total weight
-        float randomValue = random.NextFloat(0f, totalWeight);
+        float randomValue = random.GetRandomNumber(_threadType) % totalWeight;
 
         // Find the tile corresponding to the random value
         float cumulativeWeight = 0;

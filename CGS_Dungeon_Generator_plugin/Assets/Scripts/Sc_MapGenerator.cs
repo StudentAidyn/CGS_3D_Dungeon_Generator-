@@ -27,6 +27,7 @@ class Sc_MapGenerator
     // the Wave Function Collapse 3D List Container
     Sc_MapModule[,,] Map;
 
+    int ThreadType = 0;
 
 
 
@@ -54,17 +55,28 @@ class Sc_MapGenerator
      */
 
     // Generate Sets up all the default variables
-    public Sc_MapGenerator(Sc_MapModule[,,] _map)
+    public Sc_MapGenerator(Sc_MapModule[,,] _map, int _threadType = 0)
     { // see if size is needed Vector3 _size
-        Map = _map;
+        Map = new Sc_MapModule[_map.GetLength(0), _map.GetLength(1), _map.GetLength(2)];
+
+        for (int y = 0; y < _map.GetLength(1); y++)
+        {
+            for (int z = 0; z < _map.GetLength(2); z++)
+            {
+                for (int x = 0; x < _map.GetLength(0); x++)
+                {
+                    Map[x, y, z] = _map[x, y, z];
+                }
+            }
+        }
+
+        ThreadType = _threadType;
+        random = ThreadRandomiser.Instance;
     }
 
     // starts generating the map
     public void GenerateMap(Vector2 TopCorner, Vector2 BottomCorner, Vector3 _size)
     {
-        random = new ThreadRandomiser();
-        Debug.Log(_size);
-
         // Loops until the all Modules are collapsed - this is where the loop needs to be freed to properly generate it correctly
         while (!Collapsed(TopCorner, BottomCorner, _size)) {
             if (!Iterate(TopCorner, BottomCorner, _size)) {
@@ -101,7 +113,7 @@ class Sc_MapGenerator
         if(coords == null || coords.x == -1) return false;
 
         // Collapse the current Min Entropy
-        GetVectorModule(coords).Collapse(random);
+        GetVectorModule(coords).Collapse(random, ThreadType);
 
         //Instantiate(go, new Vector3(coords.x, 0, coords.y), Quaternion.identity);
         // Propagate this Coordinate within these Coordinates
@@ -147,7 +159,7 @@ class Sc_MapGenerator
         if (lowestEntropyModules.Count > 1)
         {
             // if there is more than one, select one at random
-            float RandomVal = random.NextFloat(0, lowestEntropyModules.Count - 1);
+            float RandomVal = random.GetRandomNumber(ThreadType) % lowestEntropyModules.Count;
             return lowestEntropyModules[(int)RandomVal];
         }
         else if (lowestEntropyModules.Count == 0) return new Vector3(-1, -1);
@@ -279,22 +291,9 @@ class Sc_MapGenerator
         return returningModuleList;
     }
 
-    // add compare function to check if the the compare function does not include any of the following
-    bool Compare(Sc_Module _mod, List<Sc_Module> _compare) {
-        foreach (Sc_Module comp in _compare) {
-            if(_mod == comp) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
 
     // returns WFC Module using the Vector2 Coordinates of itself
     public Sc_MapModule GetVectorModule(Vector3 _coords) {
-        if (_coords.y == 1) 
-            Debug.Log("ERROR");
         return Map[(int)_coords.x, (int)_coords.y, (int)_coords.z];
     }
 

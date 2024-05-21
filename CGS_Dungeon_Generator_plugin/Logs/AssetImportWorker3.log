@@ -9,11 +9,11 @@ C:\Program Files\Unity\2021.3.31f1\Editor\Unity.exe
 -batchMode
 -noUpm
 -name
-AssetImportWorker0
+AssetImportWorker3
 -projectPath
 D:/AIE Projects/GitClones/CGS_3D_Dungeon_Generator-/CGS_Dungeon_Generator_plugin
 -logFile
-Logs/AssetImportWorker0.log
+Logs/AssetImportWorker3.log
 -srvPort
 63594
 Successfully changed project path to: D:/AIE Projects/GitClones/CGS_3D_Dungeon_Generator-/CGS_Dungeon_Generator_plugin
@@ -47,12 +47,12 @@ D:/AIE Projects/GitClones/CGS_3D_Dungeon_Generator-/CGS_Dungeon_Generator_plugin
     "memorysetup-temp-allocator-size-cloud-worker=32768"
     "memorysetup-temp-allocator-size-gi-baking-worker=262144"
     "memorysetup-temp-allocator-size-gfx=262144"
-Player connection [30284] Host "[IP] 192.168.0.191 [Port] 0 [Flags] 2 [Guid] 3079416826 [EditorId] 3079416826 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-32BS7FE) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" joined multi-casting on [225.0.0.222:54997]...
+Player connection [51900] Host "[IP] 192.168.0.191 [Port] 0 [Flags] 2 [Guid] 2415485541 [EditorId] 2415485541 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-32BS7FE) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" joined multi-casting on [225.0.0.222:54997]...
 
-Player connection [30284] Host "[IP] 192.168.0.191 [Port] 0 [Flags] 2 [Guid] 3079416826 [EditorId] 3079416826 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-32BS7FE) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" joined alternative multi-casting on [225.0.0.222:34997]...
+Player connection [51900] Host "[IP] 192.168.0.191 [Port] 0 [Flags] 2 [Guid] 2415485541 [EditorId] 2415485541 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-32BS7FE) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" joined alternative multi-casting on [225.0.0.222:34997]...
 
 [Physics::Module] Initialized MultithreadedJobDispatcher with {0} workers.
-Refreshing native plugins compatible for Editor in 75.71 ms, found 3 plugins.
+Refreshing native plugins compatible for Editor in 86.71 ms, found 3 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Initialize engine version: 2021.3.31f1 (3409e2af086f)
 [Subsystems] Discovering subsystems at path C:/Program Files/Unity/2021.3.31f1/Editor/Data/Resources/UnitySubsystems
@@ -68,100 +68,100 @@ Initialize mono
 Mono path[0] = 'C:/Program Files/Unity/2021.3.31f1/Editor/Data/Managed'
 Mono path[1] = 'C:/Program Files/Unity/2021.3.31f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
 Mono config path = 'C:/Program Files/Unity/2021.3.31f1/Editor/Data/MonoBleedingEdge/etc'
-Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56992
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56920
 Begin MonoManager ReloadAssembly
 Registering precompiled unity dll's ...
 Register platform support module: C:/Program Files/Unity/2021.3.31f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
 Register platform support module: C:/Program Files/Unity/2021.3.31f1/Editor/Data/PlaybackEngines/AndroidPlayer/UnityEditor.Android.Extensions.dll
 Register platform support module: C:/Program Files/Unity/2021.3.31f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
 Register platform support module: C:/Program Files/Unity/2021.3.31f1/Editor/Data/PlaybackEngines/MetroSupport/UnityEditor.UWP.Extensions.dll
-Registered in 0.014406 seconds.
+Registered in 0.013052 seconds.
 Native extension for UWP target not found
 Native extension for WindowsStandalone target not found
 Native extension for Android target not found
-Android Extension - Scanning For ADB Devices 433 ms
+Android Extension - Scanning For ADB Devices 378 ms
 Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 83.39 ms, found 3 plugins.
+Refreshing native plugins compatible for Editor in 86.54 ms, found 3 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Mono: successfully reloaded assembly
-- Completed reload, in  1.274 seconds
+- Completed reload, in  1.236 seconds
 Domain Reload Profiling:
-	ReloadAssembly (1274ms)
-		BeginReloadAssembly (123ms)
+	ReloadAssembly (1237ms)
+		BeginReloadAssembly (125ms)
 			ExecutionOrderSort (0ms)
 			DisableScriptedObjects (0ms)
 			BackupInstance (0ms)
 			ReleaseScriptingObjects (0ms)
 			CreateAndSetChildDomain (1ms)
-		EndReloadAssembly (1020ms)
-			LoadAssemblies (120ms)
+		EndReloadAssembly (988ms)
+			LoadAssemblies (123ms)
 			RebuildTransferFunctionScriptingTraits (0ms)
-			SetupTypeCache (134ms)
+			SetupTypeCache (139ms)
 			ReleaseScriptCaches (0ms)
-			RebuildScriptCaches (35ms)
-			SetupLoadedEditorAssemblies (794ms)
+			RebuildScriptCaches (40ms)
+			SetupLoadedEditorAssemblies (753ms)
 				LogAssemblyErrors (0ms)
-				InitializePlatformSupportModulesInManaged (562ms)
+				InitializePlatformSupportModulesInManaged (513ms)
 				SetLoadedEditorAssemblies (0ms)
-				RefreshPlugins (83ms)
+				RefreshPlugins (87ms)
 				BeforeProcessingInitializeOnLoad (2ms)
-				ProcessInitializeOnLoadAttributes (101ms)
-				ProcessInitializeOnLoadMethodAttributes (46ms)
+				ProcessInitializeOnLoadAttributes (96ms)
+				ProcessInitializeOnLoadMethodAttributes (55ms)
 				AfterProcessingInitializeOnLoad (0ms)
 				EditorAssembliesLoaded (0ms)
 			ExecutionOrderSort2 (0ms)
 			AwakeInstancesAfterBackupRestoration (0ms)
 Platform modules already initialized, skipping
 Registering precompiled user dll's ...
-Registered in 0.006047 seconds.
+Registered in 0.005730 seconds.
 Begin MonoManager ReloadAssembly
 Native extension for UWP target not found
 Native extension for WindowsStandalone target not found
 Native extension for Android target not found
 Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 0.79 ms, found 3 plugins.
+Refreshing native plugins compatible for Editor in 0.75 ms, found 3 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Package Manager log level set to [2]
 [Package Manager] Server::EnsureServerProcessIsRunning -- launch failed, reason: Unity was launched with the -noUpm command-line argument
 [Package Manager] Cannot connect to Unity Package Manager local server
 Mono: successfully reloaded assembly
-- Completed reload, in  1.671 seconds
+- Completed reload, in  1.654 seconds
 Domain Reload Profiling:
-	ReloadAssembly (1672ms)
-		BeginReloadAssembly (161ms)
+	ReloadAssembly (1655ms)
+		BeginReloadAssembly (173ms)
 			ExecutionOrderSort (0ms)
 			DisableScriptedObjects (7ms)
 			BackupInstance (0ms)
 			ReleaseScriptingObjects (0ms)
 			CreateAndSetChildDomain (28ms)
-		EndReloadAssembly (1376ms)
-			LoadAssemblies (118ms)
+		EndReloadAssembly (1352ms)
+			LoadAssemblies (127ms)
 			RebuildTransferFunctionScriptingTraits (0ms)
-			SetupTypeCache (315ms)
+			SetupTypeCache (334ms)
 			ReleaseScriptCaches (1ms)
-			RebuildScriptCaches (67ms)
-			SetupLoadedEditorAssemblies (846ms)
+			RebuildScriptCaches (70ms)
+			SetupLoadedEditorAssemblies (810ms)
 				LogAssemblyErrors (0ms)
-				InitializePlatformSupportModulesInManaged (30ms)
-				SetLoadedEditorAssemblies (1ms)
+				InitializePlatformSupportModulesInManaged (26ms)
+				SetLoadedEditorAssemblies (0ms)
 				RefreshPlugins (1ms)
-				BeforeProcessingInitializeOnLoad (99ms)
-				ProcessInitializeOnLoadAttributes (681ms)
+				BeforeProcessingInitializeOnLoad (94ms)
+				ProcessInitializeOnLoadAttributes (655ms)
 				ProcessInitializeOnLoadMethodAttributes (23ms)
-				AfterProcessingInitializeOnLoad (12ms)
+				AfterProcessingInitializeOnLoad (11ms)
 				EditorAssembliesLoaded (0ms)
 			ExecutionOrderSort2 (0ms)
-			AwakeInstancesAfterBackupRestoration (8ms)
+			AwakeInstancesAfterBackupRestoration (6ms)
 Platform modules already initialized, skipping
 ========================================================================
 Worker process is ready to serve import requests
-Launched and connected shader compiler UnityShaderCompiler.exe after 0.07 seconds
-Refreshing native plugins compatible for Editor in 1.31 ms, found 3 plugins.
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.05 seconds
+Refreshing native plugins compatible for Editor in 0.92 ms, found 3 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Unloading 3077 Unused Serialized files (Serialized files now loaded: 0)
 Unloading 23 unused Assets / (46.3 KB). Loaded Objects now: 3540.
 Memory consumption went from 114.2 MB to 114.1 MB.
-Total: 9.728100 ms (FindLiveObjects: 0.751400 ms CreateObjectMapping: 0.318800 ms MarkObjects: 8.539500 ms  DeleteObjects: 0.116900 ms)
+Total: 3.430800 ms (FindLiveObjects: 0.440000 ms CreateObjectMapping: 0.096200 ms MarkObjects: 2.789300 ms  DeleteObjects: 0.104100 ms)
 
 AssetImportParameters requested are different than current active one (requested -> active):
   custom:video-decoder-ogg-theora: a1e56fd34408186e4bbccfd4996cb3dc -> 
@@ -177,52 +177,76 @@ AssetImportParameters requested are different than current active one (requested
   custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
 ========================================================================
 Received Import Request.
-  Time since last request: 162281.896838 seconds.
-  path: Assets/Modules/Variants/Mod_Corner_Turn_Right_1.asset
-  artifactKey: Guid(ece5a4f583787134a91af0f1b88846a1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+  Time since last request: 162281.761879 seconds.
+  path: Assets/Modules/Variants/Mod_Edge_Corner_Right_3.asset
+  artifactKey: Guid(141d9abb7a5e3e84481478d0dc6ee191) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
 Number of updated assets reloaded before import = 0
-Start importing Assets/Modules/Variants/Mod_Corner_Turn_Right_1.asset using Guid(ece5a4f583787134a91af0f1b88846a1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9693de2243465e4b00b106bbd257cf20') in 0.047078 seconds 
-Number of asset objects unloaded after import = 38
-========================================================================
-Received Import Request.
-  Time since last request: 0.000030 seconds.
-  path: Assets/Modules/Variants/Mod_Top_Wall_Turn_1.asset
-  artifactKey: Guid(cf0b0c2e86a43a24ebec5a34f95d7ee9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Number of updated assets reloaded before import = 0
-Start importing Assets/Modules/Variants/Mod_Top_Wall_Turn_1.asset using Guid(cf0b0c2e86a43a24ebec5a34f95d7ee9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '585cd048ea0e7bd3e1a6b1e34ad1d86a') in 0.012400 seconds 
-Number of asset objects unloaded after import = 24
-========================================================================
-Received Import Request.
-  Time since last request: 0.000024 seconds.
-  path: Assets/Modules/Variants/Mod_Right-Half_Turn_Wall_1.asset
-  artifactKey: Guid(43a7ce4f6ad23ba41b965505f03b04a5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Number of updated assets reloaded before import = 0
-Start importing Assets/Modules/Variants/Mod_Right-Half_Turn_Wall_1.asset using Guid(43a7ce4f6ad23ba41b965505f03b04a5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f7967d2e89faf92d612f1dee68675fd9') in 0.010650 seconds 
-Number of asset objects unloaded after import = 22
-========================================================================
-Received Import Request.
-  Time since last request: 0.000037 seconds.
-  path: Assets/Modules/Variants/Mod_Edge_Corner_Right_2.asset
-  artifactKey: Guid(e0b36dc193c77f8419d4cb4d490a41f3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Number of updated assets reloaded before import = 0
-Start importing Assets/Modules/Variants/Mod_Edge_Corner_Right_2.asset using Guid(e0b36dc193c77f8419d4cb4d490a41f3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9a5607faa30c8fc26c5f353394e8890a') in 0.012493 seconds 
+Start importing Assets/Modules/Variants/Mod_Edge_Corner_Right_3.asset using Guid(141d9abb7a5e3e84481478d0dc6ee191) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6e78a2bc36f5f522e66537aa640818d6') in 0.066148 seconds 
 Number of asset objects unloaded after import = 23
 ========================================================================
 Received Import Request.
-  Time since last request: 0.000020 seconds.
-  path: Assets/Modules/Variants/Mod_Edge_Corner_Left_2.asset
-  artifactKey: Guid(a1269062a83c1d244b86d527917543d0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+  Time since last request: 0.000032 seconds.
+  path: Assets/Modules/Variants/Mod_Corner_Turn_Right_3.asset
+  artifactKey: Guid(5b77111003764e3429c69f7480341261) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
 Number of updated assets reloaded before import = 0
-Start importing Assets/Modules/Variants/Mod_Edge_Corner_Left_2.asset using Guid(a1269062a83c1d244b86d527917543d0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'af2397b1ddb524ec2680c9f4a2f594a0') in 0.011200 seconds 
-Number of asset objects unloaded after import = 25
+Start importing Assets/Modules/Variants/Mod_Corner_Turn_Right_3.asset using Guid(5b77111003764e3429c69f7480341261) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '92300263e075c6b89c633167012528e4') in 0.015981 seconds 
+Number of asset objects unloaded after import = 38
 ========================================================================
 Received Import Request.
-  Time since last request: 0.000024 seconds.
-  path: Assets/Modules/Variants/Mod_Top_Turn_Corner_3.asset
-  artifactKey: Guid(f5b1770bf7e265b4e8f7c6fffa6fab83) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+  Time since last request: 0.000891 seconds.
+  path: Assets/Modules/Variants/Mod_Middle_Wall_Turn_2.asset
+  artifactKey: Guid(e96976e28965a69439a85ae2f849ad79) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
 Number of updated assets reloaded before import = 0
-Start importing Assets/Modules/Variants/Mod_Top_Turn_Corner_3.asset using Guid(f5b1770bf7e265b4e8f7c6fffa6fab83) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1c9210d2f14d7f5f59ba7aa6dfa7d05d') in 0.010796 seconds 
+Start importing Assets/Modules/Variants/Mod_Middle_Wall_Turn_2.asset using Guid(e96976e28965a69439a85ae2f849ad79) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ca27bd6bbd8ce593198af0f94bd40260') in 0.012481 seconds 
+Number of asset objects unloaded after import = 22
+========================================================================
+Received Import Request.
+  Time since last request: 0.000029 seconds.
+  path: Assets/Modules/Variants/Mod_Dirt_Wall_Turn_1.asset
+  artifactKey: Guid(95f875b73a7af244ca6d2dd58a7cd87e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Modules/Variants/Mod_Dirt_Wall_Turn_1.asset using Guid(95f875b73a7af244ca6d2dd58a7cd87e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2bdb00924710312fca71f51277ad1d65') in 0.026705 seconds 
+Number of asset objects unloaded after import = 30
+========================================================================
+Received Import Request.
+  Time since last request: 0.000022 seconds.
+  path: Assets/Modules/Variants/Mod_Dirt_Wall_Edge_2.asset
+  artifactKey: Guid(d008e4e26d97db44f84c6444f088bdf2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Modules/Variants/Mod_Dirt_Wall_Edge_2.asset using Guid(d008e4e26d97db44f84c6444f088bdf2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f60c6b795f8ed587ac94ca16007d590e') in 0.010694 seconds 
+Number of asset objects unloaded after import = 18
+========================================================================
+Received Import Request.
+  Time since last request: 0.000029 seconds.
+  path: Assets/Modules/Variants/Mod_Dirt_Wall_Corner_2.asset
+  artifactKey: Guid(8a4eaec17ecfe164aad74e0c5b87d00f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Modules/Variants/Mod_Dirt_Wall_Corner_2.asset using Guid(8a4eaec17ecfe164aad74e0c5b87d00f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'baad8091466d9577c3073f057b6b6a4b') in 0.011622 seconds 
+Number of asset objects unloaded after import = 24
+========================================================================
+Received Import Request.
+  Time since last request: 0.000022 seconds.
+  path: Assets/Modules/Variants/Mod_Dirt_Wall_Corner_1.asset
+  artifactKey: Guid(083f65a4beb4d2548a8503ac47b8d4f8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Modules/Variants/Mod_Dirt_Wall_Corner_1.asset using Guid(083f65a4beb4d2548a8503ac47b8d4f8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8fe64cc5ad62f2f15b3a267b6c1d4ccb') in 0.010585 seconds 
+Number of asset objects unloaded after import = 24
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/Modules/Variants/Mod_Corner_Turn_Right_2.asset
+  artifactKey: Guid(2fbb0b574e045b94196cb54bd3ffebdc) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Modules/Variants/Mod_Corner_Turn_Right_2.asset using Guid(2fbb0b574e045b94196cb54bd3ffebdc) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '00c8c7778f860c9c48b173b44158829b') in 0.012214 seconds 
 Number of asset objects unloaded after import = 38
+========================================================================
+Received Import Request.
+  Time since last request: 0.000021 seconds.
+  path: Assets/Modules/Variants/Mod_Top-Edge_3.asset
+  artifactKey: Guid(d64b907375bc44f43a488855efcc10b9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Number of updated assets reloaded before import = 0
+Start importing Assets/Modules/Variants/Mod_Top-Edge_3.asset using Guid(d64b907375bc44f43a488855efcc10b9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '23ee0694920fee68ae892ac444f4a982') in 0.012273 seconds 
+Number of asset objects unloaded after import = 9
 Editor requested this worker to shutdown with reason: Scaling down because of idle timeout
 AssetImportWorker is now disconnected from the server
 Process exiting

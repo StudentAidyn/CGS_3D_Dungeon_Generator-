@@ -124,10 +124,11 @@ public class Sc_Map : MonoBehaviour
         AstarPF = GetComponent<Sc_AstarPathFinding>();
         if (AstarPF == null) return;
 
-        MapGen = new Sc_MapGenerator(Map);
-        if (MapGen == null) return;
 
-        random = new ThreadRandomiser();
+
+        random = ThreadRandomiser.Instance;
+        Debug.Log(Map.Length);
+        random.GenerateRandomNumbers(Map.Length);
 
 
         /* Due to the way I am Calculating the positions of the Modules while they are compiled in a string, Y needs to be calculate first then Z and finally X
@@ -184,13 +185,11 @@ public class Sc_Map : MonoBehaviour
 
         if (MapDimensions.x > 15 && MapDimensions.z > 15)
         {
-
-
-            GenerateThreadMapping(MapDimensions);
             StartCoroutine(GenerateMultiThreadMap(MapDimensions));
         }
         else
         {
+            MapGen = new Sc_MapGenerator(Map);
             MapGen.GenerateMap(new Vector2(0, 0), new Vector2(MapDimensions.x, MapDimensions.z), MapDimensions);
             BuildMap();
         }
@@ -265,17 +264,19 @@ public class Sc_Map : MonoBehaviour
         FillQuadrantArray(ref BottomRightMapQuadrant, new Vector2(BottomRight.x, BottomRight.y), new Vector2(_size.x, _size.z), BottomRight);
 
 
-        MapGenThread1 = new Sc_MapGenerator(TopLeftMapQuadrant);
-        MapGenThread2 = new Sc_MapGenerator(TopRightMapQuadrant);
-        MapGenThread3 = new Sc_MapGenerator(BottomLeftMapQuadrant);
-        MapGenThread4 = new Sc_MapGenerator(BottomRightMapQuadrant);
+        MapGenThread1 = new Sc_MapGenerator(TopLeftMapQuadrant, 0);
+        MapGenThread2 = new Sc_MapGenerator(TopRightMapQuadrant, 1);
+        MapGenThread3 = new Sc_MapGenerator(BottomLeftMapQuadrant, 2);
+        MapGenThread4 = new Sc_MapGenerator(BottomRightMapQuadrant, 3);
 
         Vector3 size = _size - new Vector3(1, 0, 1);
 
-        TopLeftThread = new Thread(() => MapGenThread1.GenerateMap(TopLeft, BottomRight, size));
-        TopRightThread = new Thread(() => MapGenThread2.GenerateMap(TopLeft, BottomRight, size));
-        BottomLeftThread = new Thread(() => MapGenThread3.GenerateMap(TopLeft, BottomRight, size));
-        BottomRightThread = new Thread(() => MapGenThread4.GenerateMap(TopLeft, BottomRight, size));
+        // Adjust Values if odd number
+
+        TopLeftThread       = new Thread(() => MapGenThread1.GenerateMap(TopLeft, BottomRight, size));
+        TopRightThread      = new Thread(() => MapGenThread2.GenerateMap(TopLeft + new Vector2(1, 0), BottomRight, size));
+        BottomLeftThread    = new Thread(() => MapGenThread3.GenerateMap(TopLeft + new Vector2(0, 1), BottomRight, size));
+        BottomRightThread   = new Thread(() => MapGenThread4.GenerateMap(TopLeft + new Vector2(1, 1), BottomRight, size));
 
 
         TopLeftThread.Start();
@@ -312,8 +313,8 @@ public class Sc_Map : MonoBehaviour
         }
 
         RebuildArrayMap(ref TopLeftMapQuadrant, TopLeft, BottomRight, BottomRight);
-        RebuildArrayMap(ref TopRightMapQuadrant, new Vector2(BottomRight.x, TopLeft.y), new Vector2(_size.x, BottomRight.y - 1), BottomRight);
-        RebuildArrayMap(ref BottomLeftMapQuadrant, new Vector2(TopLeft.x, BottomRight.y - 1), new Vector2(BottomRight.x - 1, _size.z), BottomRight);
+        RebuildArrayMap(ref TopRightMapQuadrant, new Vector2(BottomRight.x, TopLeft.y), new Vector2(_size.x, BottomRight.y), BottomRight);
+        RebuildArrayMap(ref BottomLeftMapQuadrant, new Vector2(TopLeft.x, BottomRight.y), new Vector2(BottomRight.x , _size.z), BottomRight);
         RebuildArrayMap(ref BottomRightMapQuadrant, new Vector2(BottomRight.x, BottomRight.y), new Vector2(_size.x, _size.z), BottomRight);
 
         BuildMap();
@@ -333,9 +334,9 @@ public class Sc_Map : MonoBehaviour
         
         for(int y = 0; y<MapDimensions.y; y++)
         {
-            for (int z = (int) TopLeft.y; z<BottomRight.y; z++)
+            for (int z = (int) TopLeft.y; z < BottomRight.y; z++)
             {
-                for (int x = (int) TopLeft.x; x<BottomRight.x; x++)
+                for (int x = (int) TopLeft.x; x < BottomRight.x; x++)
                 {
                     Map[x, y, z] = _moduleQuadrant[x % (int)Max.x, y, z % (int)Max.y];
                 }
