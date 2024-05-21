@@ -24,7 +24,7 @@ public class Sc_Map : MonoBehaviour
     // 2). Path Finding
     // 3). Map Generator
     //only Visible during This Construction Phase
-    List<Sc_MapModule> Map = new List<Sc_MapModule>();
+    Sc_MapModule[,,] Map;
     List<Sc_Module> modules = new List<Sc_Module>();
 
     [Header("Final Build")]
@@ -58,11 +58,28 @@ public class Sc_Map : MonoBehaviour
     Sc_MapGenerator MapGen;
 
 
+    // Thread Quadrant sizes
+    Vector2 TopLeft;
+    Vector2 BottomRight;
+
     // Threads for Multi Threading 
     Thread TopLeftThread;
     Thread TopRightThread;
     Thread BottomLeftThread;
     Thread BottomRightThread;
+
+    // Map Quadrants
+    Sc_MapModule[,,] TopLeftMapQuadrant;
+    Sc_MapModule[,,] TopRightMapQuadrant;
+    Sc_MapModule[,,] BottomLeftMapQuadrant;
+    Sc_MapModule[,,] BottomRightMapQuadrant;
+
+
+    // Map Gens for multi threading
+    Sc_MapGenerator MapGenThread1;
+    Sc_MapGenerator MapGenThread2;
+    Sc_MapGenerator MapGenThread3;
+    Sc_MapGenerator MapGenThread4;
 
 
     // Randomiser
@@ -85,7 +102,7 @@ public class Sc_Map : MonoBehaviour
         // Sets the dimensions of the Map into a Vector 3
         MapDimensions = new Vector3(Width, Height, Length);
 
-        Map.Clear();
+        Map = new Sc_MapModule[Width, Height, Length];
 
         // creates new Wave Function Collapse Modules with Size and Modules List
         for (int y = 0; y < Height; y++)
@@ -97,7 +114,7 @@ public class Sc_Map : MonoBehaviour
                     //Creates new Module with modules
                     Sc_MapModule mod = new Sc_MapModule(new Vector3(x, y, z));
                     mod.ResetModule(modules);
-                    Map.Add(mod);
+                    Map[x, y, z] = mod;
                 }
             }
         }
@@ -118,7 +135,6 @@ public class Sc_Map : MonoBehaviour
             - Z is multiplied by X's max size meaning it will be in the middle and added per Y
             - X is the base so it will added per X and Z
          */
-        Debug.Log(Map.Count);
 
 
         if (Generate_Shape)
@@ -168,6 +184,8 @@ public class Sc_Map : MonoBehaviour
 
         if (MapDimensions.x > 15 && MapDimensions.z > 15)
         {
+
+
             GenerateThreadMapping(MapDimensions);
             StartCoroutine(GenerateMultiThreadMap(MapDimensions));
         }
@@ -216,8 +234,7 @@ public class Sc_Map : MonoBehaviour
 
     public Sc_MapModule GetVectorModule(Vector3 _coords)
     {
-
-        return Map[ConvertVec3ToListCoord(_coords)];
+        return Map[(int)_coords.x, (int)_coords.y, (int)_coords.z];
     }
 
     int ConvertVec3ToListCoord(Vector3 _coord)
@@ -233,14 +250,32 @@ public class Sc_Map : MonoBehaviour
         //   -> [X][O]
         //      [O][O]
 
-        Vector2 TopLeft = new Vector2(0, 0);
-        Vector2 BottomRight = new Vector2((int)_size.x / 2, (int)_size.z / 2);
+        TopLeft = new Vector2(0, 0);
+        BottomRight = new Vector2((int)_size.x / 2, (int)_size.z / 2);
 
 
-        TopLeftThread = new Thread(() => MapGen.GenerateMap(TopLeft, BottomRight, _size));
-        TopRightThread = new Thread(() => MapGen.GenerateMap(new Vector2(BottomRight.x, TopLeft.y), new Vector2(_size.x, BottomRight.y), _size));
-        BottomLeftThread = new Thread(() => MapGen.GenerateMap(new Vector2(TopLeft.x, BottomRight.y), new Vector2(BottomRight.x, _size.z), _size));
-        BottomRightThread = new Thread(() => MapGen.GenerateMap(new Vector2(BottomRight.x, BottomRight.y), new Vector2(_size.x, _size.z), _size));
+        TopLeftMapQuadrant     = new Sc_MapModule[(int)BottomRight.x, (int)_size.y, (int)BottomRight.y];
+        TopRightMapQuadrant    = new Sc_MapModule[(int)BottomRight.x, (int)_size.y, (int)BottomRight.y];
+        BottomLeftMapQuadrant  = new Sc_MapModule[(int)BottomRight.x, (int)_size.y, (int)BottomRight.y];
+        BottomRightMapQuadrant = new Sc_MapModule[(int)BottomRight.x, (int)_size.y, (int)BottomRight.y];
+
+        FillQuadrantArray(ref TopLeftMapQuadrant, TopLeft, BottomRight, BottomRight);
+        FillQuadrantArray(ref TopRightMapQuadrant, new Vector2(BottomRight.x, TopLeft.y), new Vector2(_size.x, BottomRight.y ), BottomRight);
+        FillQuadrantArray(ref BottomLeftMapQuadrant, new Vector2(TopLeft.x, BottomRight.y), new Vector2(BottomRight.x, _size.z), BottomRight);
+        FillQuadrantArray(ref BottomRightMapQuadrant, new Vector2(BottomRight.x, BottomRight.y), new Vector2(_size.x, _size.z), BottomRight);
+
+
+        MapGenThread1 = new Sc_MapGenerator(TopLeftMapQuadrant);
+        MapGenThread2 = new Sc_MapGenerator(TopRightMapQuadrant);
+        MapGenThread3 = new Sc_MapGenerator(BottomLeftMapQuadrant);
+        MapGenThread4 = new Sc_MapGenerator(BottomRightMapQuadrant);
+
+        Vector3 size = _size - new Vector3(1, 0, 1);
+
+        TopLeftThread = new Thread(() => MapGenThread1.GenerateMap(TopLeft, BottomRight, size));
+        TopRightThread = new Thread(() => MapGenThread2.GenerateMap(TopLeft, BottomRight, size));
+        BottomLeftThread = new Thread(() => MapGenThread3.GenerateMap(TopLeft, BottomRight, size));
+        BottomRightThread = new Thread(() => MapGenThread4.GenerateMap(TopLeft, BottomRight, size));
 
 
         TopLeftThread.Start();
@@ -248,6 +283,22 @@ public class Sc_Map : MonoBehaviour
         BottomLeftThread.Start();
         BottomRightThread.Start();
 
+        
+    }
+
+    // fills a quadrant of the main map
+    void FillQuadrantArray(ref Sc_MapModule[,,] _moduleQuadrant, Vector2 TopLeft, Vector2 BottomRight, Vector2 Max) {
+        
+        for(int y = 0; y < MapDimensions.y; y++)
+        {
+            for (int z = (int)TopLeft.y; z < BottomRight.y; z++)
+            {
+                for (int x = (int)TopLeft.x; x < BottomRight.x; x++)
+                {
+                    _moduleQuadrant[x % (int)Max.x, y, z % (int)Max.y] = Map[x, y, z];
+                }
+            }
+        }
         
     }
 
@@ -260,6 +311,11 @@ public class Sc_Map : MonoBehaviour
             yield return null;
         }
 
+        RebuildArrayMap(ref TopLeftMapQuadrant, TopLeft, BottomRight, BottomRight);
+        RebuildArrayMap(ref TopRightMapQuadrant, new Vector2(BottomRight.x, TopLeft.y), new Vector2(_size.x, BottomRight.y - 1), BottomRight);
+        RebuildArrayMap(ref BottomLeftMapQuadrant, new Vector2(TopLeft.x, BottomRight.y - 1), new Vector2(BottomRight.x - 1, _size.z), BottomRight);
+        RebuildArrayMap(ref BottomRightMapQuadrant, new Vector2(BottomRight.x, BottomRight.y), new Vector2(_size.x, _size.z), BottomRight);
+
         BuildMap();
     }
 
@@ -271,6 +327,21 @@ public class Sc_Map : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    void RebuildArrayMap(ref Sc_MapModule[,,] _moduleQuadrant, Vector2 TopLeft, Vector2 BottomRight, Vector2 Max) {
+        
+        for(int y = 0; y<MapDimensions.y; y++)
+        {
+            for (int z = (int) TopLeft.y; z<BottomRight.y; z++)
+            {
+                for (int x = (int) TopLeft.x; x<BottomRight.x; x++)
+                {
+                    Map[x, y, z] = _moduleQuadrant[x % (int)Max.x, y, z % (int)Max.y];
+                }
+            }
+        }
+        
     }
 
     private void BuildMap()

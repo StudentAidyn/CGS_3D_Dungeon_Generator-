@@ -34,7 +34,7 @@ public class ThreadRandomiser
             throw new System.ArgumentOutOfRangeException("minValue must be less than maxValue");
 
         float range = maxValue - minValue;
-        float randomFloat01 = (float)(NextULong() / (double)ulong.MaxValue); // Generate float between 0.0 and 1.0
+        float randomFloat01 = (float)(NextULong() / (float)ulong.MaxValue); // Generate float between 0.0 and 1.0
         return minValue + randomFloat01 * range;
     }
 
@@ -57,7 +57,7 @@ public class ThreadRandomiser
 
         Interlocked.Exchange(ref stateHigh, high ^ (high << 21));
 
-        return (ulong)((ulong)(stateHigh ^ (stateHigh >> 35)) << 32 | (ulong)(x & 0x7FFFFFFF));
+        return ((ulong)(stateHigh ^ (stateHigh >> 35)) << 32 | (ulong)(x & 0x7FFFFFFF));
     }
 
     public int Next(int maxValue)

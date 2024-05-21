@@ -23,6 +23,7 @@ public class Sc_MapModule
     bool m_collapsed; // to state if the module has already been collapsed
     Sc_Module m_module; // the module it has become when it gets collapsed
 
+
     public Sc_MapModule(Vector3 _mapPos)
     {
         mapPos = _mapPos;
@@ -31,33 +32,43 @@ public class Sc_MapModule
     // Getter and Setter for Options
     public void ResetModule(List<Sc_Module> _options)
     {
-        m_options.Clear();
         m_options = new List<Sc_Module>(_options);
 
         m_collapsed = false;
         m_module = null;
     }
 
-    public List<Sc_Module> GetOptions() { return m_options; }
+    public List<Sc_Module> GetOptions() {
+        return m_options; }
 
 
     // removes option in parameter
     public void RemoveOption(Sc_Module _mod) {
         List<Sc_Module> toRemove = new List<Sc_Module>();
-        foreach (Sc_Module mod in m_options)
+        if(m_options.Count == 0)
         {
-            if (mod == _mod)
+            return;
+        }
+        for (int i = 0; i < m_options.Count; i++)
+        {
+            if (m_options[i] == _mod)
             {
-                toRemove.Add(mod);
+                toRemove.Add(m_options[i]);
             }
         }
 
-        foreach (Sc_Module mod in toRemove)
+        if(toRemove.Count == 0)
         {
-            m_options.Remove(mod);
+            return;
         }
 
-        toRemove.Clear();
+        for (int i = 0; i < toRemove.Count; i++)
+        {
+            m_options.Remove(toRemove[i]);
+        }
+
+
+
     }
 
     // returns module it has collapsed to
@@ -84,7 +95,7 @@ public class Sc_MapModule
         {
             totalWeight += tile.GetWeight();
         }
-
+         if (totalWeight == 0) { return; }
         // Generate a random value within the range of total weight
         float randomValue = random.NextFloat(0f, totalWeight);
 
@@ -96,6 +107,7 @@ public class Sc_MapModule
             if (randomValue <= cumulativeWeight)
             {
                 m_module = tile;
+                return;
             }
         }
     }
@@ -103,15 +115,15 @@ public class Sc_MapModule
     // returns the current Entropy of the object (returns total options) : TODO: change it so the Entropy is effected by the weight
     public double GetEntropy() {
         float totalWeight = 0;
-        foreach (Sc_Module mod in m_options)
+        for (int i = 0; i < m_options.Count; i++)
         {
-            totalWeight += mod.GetWeight();
+            totalWeight += m_options[i].GetWeight();
         }
 
         float sumWeightLogWeight = 0;
-        foreach (var tile in m_options)
+        for (int i = 0; i < m_options.Count; i++)
         {
-            sumWeightLogWeight += tile.GetWeight() * Mathf.Log(tile.GetWeight());
+            sumWeightLogWeight += m_options[i].GetWeight() * Mathf.Log(m_options[i].GetWeight());
         }
 
         double shannon_entropy_for_module = Mathf.Log(totalWeight) - (sumWeightLogWeight / totalWeight);

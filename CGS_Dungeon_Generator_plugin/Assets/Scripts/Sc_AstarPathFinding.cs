@@ -10,7 +10,7 @@ public class Sc_AstarPathFinding : MonoBehaviour
     // Generate Path Exact Or Branching
 
     // Array Path
-    List<Sc_MapModule> Map;
+    Sc_MapModule[,,] Map;
 
     // Open and Closed Lists
     List<Sc_MapModule> openList;
@@ -21,12 +21,12 @@ public class Sc_AstarPathFinding : MonoBehaviour
 
     Vector3 mapDimensions;
 
-    public List<Sc_MapModule> GeneratePath(List<Sc_MapModule> _modules, Vector3 _dimensions, int _traversalPoints = 2/*, bool _randomPoints = true */)
+    public List<Sc_MapModule> GeneratePath(Sc_MapModule[,,] _map, Vector3 _dimensions, int _traversalPoints = 2/*, bool _randomPoints = true */)
     {
         if(_traversalPoints < 2) return null;
 
         // Sets the local variables
-        Map = _modules;
+        Map = _map;
         mapDimensions = _dimensions;
 
         // Points - randomly generated points wihtin the map
@@ -36,7 +36,7 @@ public class Sc_AstarPathFinding : MonoBehaviour
         for (int i = 0; i < _traversalPoints; i++) {
             // Generates random  start and end points
             Vector3 randomPosition = new Vector3((int)Random.Range(0, mapDimensions.x), 0, (int)Random.Range(0, mapDimensions.z));
-            Points.Add(Map[ConvertVec3ToListCoord(randomPosition)]);
+            Points.Add(GetVectorModule(randomPosition));
         }
 
         // Path list - to return
@@ -68,7 +68,7 @@ public class Sc_AstarPathFinding : MonoBehaviour
         // Setting each value within the Mapable Space (so only x and z of the lower layer
         for(int x = 0; x < mapDimensions.x; x++) {
             for(int z = 0; z < mapDimensions.z; z++) {
-                Sc_MapModule mapModule = Map[(int)(x + (z * mapDimensions.x))];
+                Sc_MapModule mapModule = GetVectorModule(new Vector3(x, 0, z));
                 mapModule.gScore = int.MaxValue;
                 mapModule.CalculateFScore();
 
@@ -123,26 +123,27 @@ public class Sc_AstarPathFinding : MonoBehaviour
 
 
         if(_mod.mapPos.x - 1 > 0) {
-            neighbours.Add(Map[ConvertVec3ToListCoord(_mod.mapPos - new Vector3(1, 0, 0))]);
+            neighbours.Add(GetVectorModule(_mod.mapPos - new Vector3(1, 0, 0)));
         }
         if (_mod.mapPos.x + 1 < mapDimensions.x)
         {
-            neighbours.Add(Map[ConvertVec3ToListCoord(_mod.mapPos + new Vector3(1, 0, 0))]);
+            neighbours.Add(GetVectorModule(_mod.mapPos + new Vector3(1, 0, 0)));
         }
         if (_mod.mapPos.z - 1 > 0)
         {
-            neighbours.Add(Map[ConvertVec3ToListCoord(_mod.mapPos - new Vector3(0, 0, 1))]);
+            neighbours.Add(GetVectorModule(_mod.mapPos - new Vector3(0, 0, 1)));
         }
         if (_mod.mapPos.z + 1 < mapDimensions.z)
         {
-            neighbours.Add(Map[ConvertVec3ToListCoord(_mod.mapPos + new Vector3(0, 0, 1))]);
+            neighbours.Add(GetVectorModule(_mod.mapPos + new Vector3(0, 0, 1)));
         }
 
         return neighbours;
     }
 
-    int ConvertVec3ToListCoord(Vector3 _coord) {
-        return (int)(_coord.x + (_coord.y * mapDimensions.x * mapDimensions.z) + (_coord.z * mapDimensions.x));
+    public Sc_MapModule GetVectorModule(Vector3 _coords)
+    {
+        return Map[(int)_coords.x, (int)_coords.y, (int)_coords.z];
     }
 
     private List<Sc_MapModule> CalculatePath(Sc_MapModule _endMod) {

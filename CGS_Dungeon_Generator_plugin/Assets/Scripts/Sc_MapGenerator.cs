@@ -11,6 +11,7 @@ using static UnityEditor.Experimental.GraphView.GraphView;
 using System.Threading;
 using UnityEditor.Build.Content;
 using System.Collections;
+using System.Drawing;
 
 
 
@@ -24,7 +25,7 @@ class Sc_MapGenerator
 
 
     // the Wave Function Collapse 3D List Container
-    List<Sc_MapModule> m_map = new List<Sc_MapModule>();
+    Sc_MapModule[,,] Map;
 
 
 
@@ -53,18 +54,16 @@ class Sc_MapGenerator
      */
 
     // Generate Sets up all the default variables
-    public Sc_MapGenerator(List<Sc_MapModule> _moduleMap) {
-        // creates a new array (to hold the map) to this size
-        m_map = _moduleMap;
-        Debug.Log(m_map.Count + " / " + _moduleMap.Count);
-
-        random = new ThreadRandomiser();
+    public Sc_MapGenerator(Sc_MapModule[,,] _map)
+    { // see if size is needed Vector3 _size
+        Map = _map;
     }
 
     // starts generating the map
     public void GenerateMap(Vector2 TopCorner, Vector2 BottomCorner, Vector3 _size)
     {
-
+        random = new ThreadRandomiser();
+        Debug.Log(_size);
 
         // Loops until the all Modules are collapsed - this is where the loop needs to be freed to properly generate it correctly
         while (!Collapsed(TopCorner, BottomCorner, _size)) {
@@ -78,16 +77,15 @@ class Sc_MapGenerator
     }
 
     // Checks if all Modules within a select area are currently collapsed : returns FALSE if they aren't all collapsed and TRUE if they are all collapsed
-    private bool Collapsed(Vector3 _size, Vector2 TopCorner, Vector2 BottomCorner) {
-
+    private bool Collapsed(Vector2 TopCorner, Vector2 BottomCorner, Vector3 _size) {
 
         for (int y = 0; y < (int)_size.y; y++)
         {
-            for (int z = (int)TopCorner.y; z < (int)BottomCorner.y; z++)
+            for (int z = 0; z < (int)BottomCorner.y; z++)
             {
-                for (int x = (int)TopCorner.x; x < (int)BottomCorner.x; x++)
+                for (int x = 0; x < (int)BottomCorner.x; x++)
                 {
-                    if (!GetVectorModule(new Vector3(x, y, z), _size).isCollapsed()) return false;
+                    if (!GetVectorModule(new Vector3(x, y, z)).isCollapsed()) { return false; }
                 }
             }
         }
@@ -103,7 +101,7 @@ class Sc_MapGenerator
         if(coords == null || coords.x == -1) return false;
 
         // Collapse the current Min Entropy
-        GetVectorModule(coords, _size).Collapse(random);
+        GetVectorModule(coords).Collapse(random);
 
         //Instantiate(go, new Vector3(coords.x, 0, coords.y), Quaternion.identity);
         // Propagate this Coordinate within these Coordinates
@@ -118,17 +116,17 @@ class Sc_MapGenerator
         double _lowestEntropy = int.MaxValue; // sets lowest entropy to int Max to ensure the correct lowest entropy selection
 
         //if the entropy is 0 that means it only has 1 option left thus it is certain
-        List<Sc_MapModule> lowestEntropyModules = new List<Sc_MapModule>();
+        List<Vector3> lowestEntropyModules = new List<Vector3>();
 
         // Checking for lowest Entropy Map Module within a select Area
 
         for (int y = 0; y < (int)_size.y; y++)
         {
-            for (int z = (int)TopCorner.y; z < (int)BottomCorner.y; z++)
+            for (int z = 0; z < (int)BottomCorner.y; z++)
             {
-                for (int x = (int)TopCorner.x; x < (int)BottomCorner.x; x++)
+                for (int x = 0; x < (int)BottomCorner.x; x++)
                 {
-                    Sc_MapModule module = GetVectorModule(new Vector3(x, y, z), _size);
+                    Sc_MapModule module = GetVectorModule(new Vector3(x, y, z));
                     if (!module.isCollapsed())
                     { // filters in only modules that aren't yet collapsed
                         if (module.GetEntropy() < _lowestEntropy)
@@ -138,7 +136,7 @@ class Sc_MapGenerator
                         }
                         if (module.GetEntropy() == _lowestEntropy)
                         { // Checking for any modules with the same entropy
-                            lowestEntropyModules.Add(module);
+                            lowestEntropyModules.Add(new Vector3(x, y, z));
                         }
                     }
                 }
@@ -150,10 +148,10 @@ class Sc_MapGenerator
         {
             // if there is more than one, select one at random
             float RandomVal = random.NextFloat(0, lowestEntropyModules.Count - 1);
-            return lowestEntropyModules[(int)RandomVal].mapPos;
+            return lowestEntropyModules[(int)RandomVal];
         }
         else if (lowestEntropyModules.Count == 0) return new Vector3(-1, -1);
-        return lowestEntropyModules[0].mapPos;
+        return lowestEntropyModules[0];
     }
 
     // Attempts to build the GameObject, if the object fails it sends back false restarting the whole build
@@ -161,203 +159,125 @@ class Sc_MapGenerator
 
     public void Propagate(Vector3 _coords, Vector2 TopCorner, Vector2 BottomCorner, Vector3 _size)
     {
-        // Check around Module  
-        Sc_Module mods = GetVectorModule(_coords, _size).GetModule();
-    
+        // New Propagation Model
 
-        // Compares the surrounding area around X first
-        Vector3 posX = new Vector3(_coords.x + 1, _coords.y, _coords.z);
-        if (posX.x < BottomCorner.x && !IsCollapsed(posX, _size))
-        {
-            foreach (Sc_Module mod in CompareOptions(mods, posX, edge.X, _size))
-            {
-                GetVectorModule(posX, _size).RemoveOption(mod);
-            }
-            //PropagateSurroundings(posX);
-        }
+        // Create open list
+        List<Vector3> OpenList = new List<Vector3>();
+        OpenList.Add(_coords);
 
-        Vector3 negX = new Vector3(_coords.x - 1, _coords.y, _coords.z);
-        if (negX.x >= TopCorner.x && !IsCollapsed(negX, _size))
-        {
-            foreach (Sc_Module mod in CompareOptions(mods, negX, edge.nX, _size))
-            {
-                GetVectorModule(negX, _size).RemoveOption(mod);
-            }
-           // PropagateSurroundings(negX);
-        }
-
-        //TODO: Add Comparing Y Coords (UP and DOWN)
-
-        // Compares area around Z last
-        Vector3 posY = new Vector3(_coords.x, _coords.y + 1, _coords.z);
-        if (posY.y < _size.y && !IsCollapsed(posY, _size))
-        {
-            foreach (Sc_Module mod in CompareOptions(mods, posY, edge.Y, _size))
-            {
-                GetVectorModule(posY, _size).RemoveOption(mod);
-            }
-           // PropagateSurroundings(posY);
-        }
-
-        Vector3 negY = new Vector3(_coords.x, _coords.y - 1, _coords.z);
-        if (negY.y >= 0 && !IsCollapsed(negY, _size))
-        {
-            foreach (Sc_Module mod in CompareOptions(mods, negY, edge.nY, _size))
-            {
-                GetVectorModule(negY, _size).RemoveOption(mod);
-            }
-           // PropagateSurroundings(negY);
-        }
+        // While the OpenList is empty Propagate
+        while(OpenList.Count > 0) {
+            // set a local variable and POP first element off openList
+            var currentVec = OpenList[0];
+            OpenList.RemoveAt(0);
 
 
-        // Compares area around Z last
-        Vector3 posZ = new Vector3(_coords.x, _coords.y, _coords.z + 1);
-        if (posZ.z < BottomCorner.y && !IsCollapsed(posZ, _size))
-        {
-            foreach (Sc_Module mod in CompareOptions(mods, posZ, edge.Z, _size))
-            {
-                GetVectorModule(posZ, _size).RemoveOption(mod);
-            }
-            //PropagateSurroundings(posZ);
-        }
+            // Check around Module  
+            Sc_MapModule currentMod = GetVectorModule(currentVec);
 
-        Vector3 negZ = new Vector3(_coords.x, _coords.y, _coords.z - 1);
-        if (negZ.z >= TopCorner.y && !IsCollapsed(negZ, _size))
-        {
-            foreach (Sc_Module mod in CompareOptions(mods, negZ, edge.nZ, _size))
-            {
-                GetVectorModule(negZ, _size).RemoveOption(mod);
-            }
-           // PropagateSurroundings(negZ);
+            if (CheckModuleEdge(currentMod, currentVec.x + 1, currentVec + new Vector3(1, 0, 0), edge.X, TopCorner.x, BottomCorner.x)) OpenList.Add(currentVec + new Vector3(1, 0, 0));
+            if (CheckModuleEdge(currentMod, currentVec.x - 1, currentVec - new Vector3(1, 0, 0), edge.nX, TopCorner.x, BottomCorner.x)) OpenList.Add(currentVec - new Vector3(1, 0, 0));
+            if (CheckModuleEdge(currentMod, currentVec.y + 1, currentVec + new Vector3(0, 1, 0), edge.Y, 0, _size.y)) OpenList.Add(currentVec + new Vector3(0, 1, 0));
+            if (CheckModuleEdge(currentMod, currentVec.y - 1, currentVec - new Vector3(0, 1, 0), edge.nY, 0, _size.y)) OpenList.Add(currentVec - new Vector3(0, 1, 0));
+            if (CheckModuleEdge(currentMod, currentVec.z + 1, currentVec + new Vector3(0, 0, 1), edge.Z, TopCorner.y, BottomCorner.y)) OpenList.Add(currentVec + new Vector3(0, 0, 1));
+            if (CheckModuleEdge(currentMod, currentVec.z - 1, currentVec - new Vector3(0, 0, 1), edge.nZ, TopCorner.y, BottomCorner.y)) OpenList.Add(currentVec - new Vector3(0, 0, 1));
         }
 
     }
 
-    // Propogate the surrounding area near the newly propogated WFCModule, TODO: alter it so it compares all options and passes back a false only if all options fail - CHECK WHAT IS WRONG OR UPDATE PROPOGATE
-    void PropagateSurroundings(Vector3 _coords)
+
+    private bool CheckModuleEdge(Sc_MapModule currentMod, float _comparedAxis, Vector3 _comparedCoord, edge _comparingEdge, float _min, float _max)
     {
-        //// Check around Module  
-        //Sc_MapModule mods = GetVectorModule(_coords);
+        if ((_comparedAxis >= _min && _comparedAxis < _max) && !IsCollapsed(_comparedCoord))
+        {
+            bool removed = false;
+            List<Sc_Module> modules = new List<Sc_Module>(CompareModulesOptions(currentMod, GetVectorModule(_comparedCoord), _comparingEdge));
 
-        //// Compares the surrounding area around X first
-        //Vector3 posX = new Vector3(_coords.x + 1, _coords.y, _coords.z);
-        //if (posX.x < SIZE.x && !IsCollapsed(posX))
-        //{
-        //    foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posX, edge.X))
-        //    {
-        //        GetVectorModule(posX).RemoveOption(mod);
-        //    }
-        //}
+            for(int i = 0; i < modules.Count; i++) //(Sc_Module mod in )
+            {
+                removed = true;
+                GetVectorModule(_comparedCoord).RemoveOption(modules[i]);
+            }
+            if (removed)
+            {
+                return true;
+            }
+        }
 
-        //Vector3 negX = new Vector3(_coords.x - 1, _coords.y, _coords.z);
-        //if (negX.x >= 0 && !IsCollapsed(negX))
-        //{
-        //    // Main Mod , compared Mod, Edge of Comparison
-        //    foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negX, edge.nX))
-        //    {
-        //        GetVectorModule(negX).RemoveOption(mod);
-        //    }
-
-        //}
-
-        ////TODO: Add Comparing Y Coords (UP and DOWN)
-
-        //// Compares area around Z last
-        //Vector3 posY = new Vector3(_coords.x, _coords.y + 1, _coords.z);
-        //if (posY.y < SIZE.y && !IsCollapsed(posY))
-        //{
-        //    foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posY, edge.Y))
-        //    {
-        //        GetVectorModule(posY).RemoveOption(mod);
-        //    }
-
-        //}
-
-        //Vector3 negY = new Vector3(_coords.x, _coords.y - 1, _coords.z);
-        //if (negY.y >= 0 && !IsCollapsed(negY))
-        //{
-        //    foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negY, edge.nY))
-        //    {
-        //        GetVectorModule(negY).RemoveOption(mod);
-        //    }
-        //}
-
-
-        //// Compares area around Z last
-        //Vector3 posZ = new Vector3(_coords.x, _coords.y, _coords.z + 1);
-        //if (posZ.z < SIZE.z && !IsCollapsed(posZ))
-        //{
-        //    foreach (Sc_Module mod in CompareOptionsAdvanced(mods, posZ, edge.Z))
-        //    {
-        //        GetVectorModule(posZ).RemoveOption(mod);
-        //    }
-        //}
-
-        //Vector3 negZ = new Vector3(_coords.x, _coords.y, _coords.z - 1);
-        //if (negZ.z >= 0 && !IsCollapsed(negZ))
-        //{
-        //    foreach (Sc_Module mod in CompareOptionsAdvanced(mods, negZ, edge.nZ))
-        //    {
-        //        GetVectorModule(negZ).RemoveOption(mod);
-        //    }
-        //}
-
-    }
-
-    int ConvertVec3ToListCoord(Vector3 _coord, Vector3 _size)
-    {
-        return (int)(_coord.x + (_coord.y * _size.x * _size.z) + (_coord.z * _size.x));
+        return false;
     }
 
 
 
-    // Passes back option removal list
-    List<Sc_Module> CompareOptions(Sc_Module _mod, Vector3 _coord /*propagated coord*/, edge _edge, Vector3 _size)
+
+
+
+
+    List<Sc_Module> CompareModulesOptions(Sc_MapModule _mainModule, Sc_MapModule _comparedModule /*propagated coord*/, edge _edge)
     {
+        // List to return that will be removed
         List<Sc_Module> toRemove = new List<Sc_Module>();
-        // gets the new vector coordinate and compares the options of the new coordinate
-        foreach (Sc_Module mod in GetVectorModule(_coord, _size).GetOptions())
-        {
-            // Compared Mod, Main Mod's Neighbours
-            if (!Compare(mod, _mod.GetNeighbour(_edge).GetOptions()))
+
+        // turns the Compared module's into a list
+        List<Sc_Module> comparedModules = new List<Sc_Module>(_comparedModule.GetOptions());
+
+        // creates list of modules options OR modules options neighbours options depending if it is Collapsed refering to if it is the main collapsed tile
+        List<Sc_Module> mainModules = new List<Sc_Module>((_mainModule.isCollapsed() && _mainModule.GetModule() != null) ? GetCollapsedModuleList(_mainModule, _edge) : GetOpenModuleList(_mainModule, _edge));
+
+        // looks through the compared modules list
+        for(int i = 0; i < comparedModules.Count; i++) {
+            // Checks if main module contains any modules from the comparedModules list, if it does then it will do nothing if it DOES NOT then it will add it to the remove list
+            if (!mainModules.Contains(comparedModules[i]))
             {
-                toRemove.Add(mod);
+                toRemove.Add(comparedModules[i]);
             }
         }
-
         return toRemove;
     }
 
-    List<Sc_Module> CompareOptionsAdvanced(Sc_MapModule _mod, Vector3 _coord /*propagated coord*/, edge _edge, Vector3 _size)
+    // #0 will get the current Options based on the module already selected
+    // #1 will get the options of an open object
+    // #2 will get the options of those open object options
+
+    // RETURNS LIST OF MODULES FROM THE MAIN MODULE'S LIST OPTIONS' NEIGHBOURS OPTIONS LIST - BASED ON AN EDGE & MAP_MODULE
+    List<Sc_Module> GetOpenModuleList(Sc_MapModule _mod, edge _edge)
     {
-        List<Sc_Module> toRemove = new List<Sc_Module>();
-        // gets the new vector coordinate and compares the options of the new coordinate
-        foreach (Sc_Module mod in GetVectorModule(_coord, _size).GetOptions())
+        // List to contain the returning modules
+        List<Sc_Module> returningModuleList = new List<Sc_Module>();
+
+        List<Sc_Module> options = new List<Sc_Module>(_mod.GetOptions());
+
+
+        // For each module in the open module's options, get all options based on an options edge
+        for (int o = 0; o < options.Count; o++ )
         {
-            // Compared Mod, Main Mod's Neighbours
-            if (!Compare(mod,GetAllNeighboursAlongAnEdge(_mod.GetOptions(), _edge)))
+            List<Sc_Module> modules = new List<Sc_Module>(options[o].GetNeighbour(_edge).GetOptions());
+            // for each module in the neighbour's edge specific options add it to the main returning list
+            for (int m = 0; m < modules.Count; m++)
             {
-                toRemove.Add(mod);
+                returningModuleList.Add(modules[m]);
             }
         }
 
-        return toRemove;
+        // return all the modules that have been found in the module options edge options.
+        return returningModuleList;
     }
 
-    List<Sc_Module> GetAllNeighboursAlongAnEdge(List<Sc_Module> _mod, edge _edge)
-    {
-        List<Sc_Module> neighbours = new List<Sc_Module>();
-        foreach (Sc_Module mod in _mod)
+    // RETURNS LIST OF MODULES FROM THE MAIN MODULE'S OPTIONS LIST - BASED ON AN EDGE & MAP_MODULE
+    List<Sc_Module> GetCollapsedModuleList(Sc_MapModule _mod, edge _edge)
+    { 
+        // List to contain the returning modules
+        List<Sc_Module> returningModuleList = new List<Sc_Module>();
+
+        // gets all the options on a single edge of a singular module
+        foreach(Sc_Module module in _mod.GetModule().GetNeighbour(_edge).GetOptions())
         {
-            foreach(Sc_Module neighMod in mod.GetNeighbour(_edge).GetOptions())
-            {
-                neighbours.Add(neighMod);
-            }
+            returningModuleList.Add(module);
         }
 
-        return neighbours;
+        // returns list of modules that are within the passed in module
+        return returningModuleList;
     }
-
 
     // add compare function to check if the the compare function does not include any of the following
     bool Compare(Sc_Module _mod, List<Sc_Module> _compare) {
@@ -372,19 +292,20 @@ class Sc_MapGenerator
 
 
     // returns WFC Module using the Vector2 Coordinates of itself
-    public Sc_MapModule GetVectorModule(Vector3 _coords, Vector3 _size) {
-
-        return m_map[ConvertVec3ToListCoord(_coords, _size)];
+    public Sc_MapModule GetVectorModule(Vector3 _coords) {
+        if (_coords.y == 1) 
+            Debug.Log("ERROR");
+        return Map[(int)_coords.x, (int)_coords.y, (int)_coords.z];
     }
 
     // check if a specific coordinate is collapsed
-    bool IsCollapsed(Vector3 _coords, Vector3 _size)
+    bool IsCollapsed(Vector3 _coords)
     {
-        Sc_MapModule wfc = m_map[ConvertVec3ToListCoord(_coords, _size)];
+        Sc_MapModule wfc = GetVectorModule(_coords);
         //Debug.Log(wfc.mapPos);
         if (wfc != null)
         {
-            if (m_map[ConvertVec3ToListCoord(_coords, _size)].isCollapsed())
+            if (wfc.isCollapsed())
             {
                 return true;
             }
@@ -392,9 +313,6 @@ class Sc_MapGenerator
 
         return false;
     }
-
-
-
 }
 
 /*
