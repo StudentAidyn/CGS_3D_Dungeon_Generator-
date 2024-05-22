@@ -33,7 +33,7 @@ public class ThreadRandomiser
     {
         RandomNumberIndex = 0;
         RandomNumbers.Clear();
-        for(int i = 0; i < _totalRandomNumbers; i++)
+        for(int i = 0; i < _totalRandomNumbers * 2; i++)
         {
             RandomNumbers.Add(UnityEngine.Random.Range(0, int.MaxValue));
         }

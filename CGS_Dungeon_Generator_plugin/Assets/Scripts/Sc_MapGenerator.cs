@@ -252,7 +252,7 @@ class Sc_MapGenerator
     // #2 will get the options of those open object options
 
     // RETURNS LIST OF MODULES FROM THE MAIN MODULE'S LIST OPTIONS' NEIGHBOURS OPTIONS LIST - BASED ON AN EDGE & MAP_MODULE
-    List<Sc_Module> GetOpenModuleList(Sc_MapModule _mod, edge _edge)
+    public List<Sc_Module> GetOpenModuleList(Sc_MapModule _mod, edge _edge)
     {
         // List to contain the returning modules
         List<Sc_Module> returningModuleList = new List<Sc_Module>();
