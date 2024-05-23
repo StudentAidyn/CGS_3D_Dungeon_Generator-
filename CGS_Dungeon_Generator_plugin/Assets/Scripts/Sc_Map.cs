@@ -29,7 +29,9 @@ public class Sc_Map : MonoBehaviour
 
     [Header("Final Build")]
     [SerializeField] GameObject Dungeon = null;
+    [SerializeField] GameObject REFACTOR = null;
     [SerializeField] public List<GameObject> m_Build = new List<GameObject>();
+   
 
 
 
@@ -325,20 +327,27 @@ public class Sc_Map : MonoBehaviour
         RebuildArrayMap(ref BottomLeftMapQuadrant, new Vector2(TopLeft.x, BottomRight.y), new Vector2(BottomRight.x , _size.z), BottomRight);
         RebuildArrayMap(ref BottomRightMapQuadrant, new Vector2(BottomRight.x, BottomRight.y), new Vector2(_size.x, _size.z), BottomRight);
 
-        StartCoroutine(RefactorThreadMap());
+        BuildMap();
+
+        //StartCoroutine(RefactorThreadMap());
+        RefactorThreadMap();
     }
 
 
-    private IEnumerator RefactorThreadMap()
+    private void RefactorThreadMap()
     {
-        RefactorThread = new Thread(() => FixMap());
+        Debug.Log("REFACTORING MAP");
 
-        while (CheckThreadState()) // Check
-        {
-            yield return null;
-        }
+        FixMap();
 
-        BuildMap();
+        //RefactorThread = new Thread(() => FixMap());
+
+        //while (RefactorThread.IsAlive) // Check this thread properly
+        //{
+        //    yield return null;
+        //}
+        
+        BuildMap(true);
     }
     // The .isAlive property will return TRUE if the current thread is Active, FALSE if the current thread has finished or aborted
     private bool CheckThreadState()
@@ -373,30 +382,30 @@ public class Sc_Map : MonoBehaviour
      * #3 Fail Safe reboot => if it fails to recoup the section it will reset a 3x3x3 area around the effected module, RESET => PROPAGATE => REGENERATE
      */
     void FixMap() {
-        for (int z = 0; z < BottomRight.y; z++) {
+        for (int z = 0; z < MapDimensions.z; z++) {
             for (int y = 0; y < MapDimensions.y; y++) {
-                for (int x = 0; x < BottomRight.x; x++) {
+                for (int x = 0; x < MapDimensions.x; x++) {
 
                     Sc_MapModule current = GetVectorModule(new Vector3(x, y, z));
+
                     // #1 success - check connections
-                    if (Map[x, y, z].GetModule() != null)
+                    if (current.GetModule() != null)
                     {
                         // Check if the current Module is one of its neigbouring modules' neighbours if so then it passes
-                        // OR it could check if the current module's options are it's neighbours
                         
-                        if(!CheckModule(current, new Vector3(x, y, z), x - 1, edge.X, MapDimensions.x) ||
-                        !CheckModule(current, new Vector3(x, y, z), y - 1, edge.Y, MapDimensions.y) ||
-                        !CheckModule(current, new Vector3(x, y, z), z - 1, edge.Z, MapDimensions.z))
+                        if (!CheckModule(current, new Vector3(x, y, z) - new Vector3(1,0,0), x - 1, edge.X, MapDimensions.x) ||
+                            !CheckModule(current, new Vector3(x, y, z) - new Vector3(0,1,0), y - 1, edge.Y, MapDimensions.y) ||
+                            !CheckModule(current, new Vector3(x, y, z) - new Vector3(0,0,1), z - 1, edge.Z, MapDimensions.z)) 
                         {
                             // #3 if it fails to refactor the current module then it will apply the fail safe refactoration of the area
-                            if (!AttemptToRefactorModule(current)) RefactorFailSafe(current);
+                            if (!AttemptToRefactorModule(ref current)) RefactorFailSafe(current);
                         }
                     }
                     // #1 fail - Correct the current module by checking the surrounding modules
                     else
                     {
                         // #3 if it fails to refactor the current module then it will apply the fail safe refactoration of the area
-                        if (!AttemptToRefactorModule(current)) RefactorFailSafe(current);
+                        if (!AttemptToRefactorModule(ref current)) RefactorFailSafe(current);
                     }
                 }
             }
@@ -408,31 +417,39 @@ public class Sc_Map : MonoBehaviour
     // Param: Map Module current, Vector3 compared module coordinate, float compared axis value, the edge being checked, the Max Value of the map 
     private bool CheckModule(Sc_MapModule currentMod, Vector3 comparedCoord,float _comparedAxis, edge _edge, float _max)
     {
-        if ((_comparedAxis >= 0 && _comparedAxis < _max) && GetVectorModule(comparedCoord).GetModule() == null)
+        if ((_comparedAxis >= 0 && _comparedAxis < _max) && GetVectorModule(comparedCoord).GetModule() != null)
         {
-            return GetVectorModule(comparedCoord).GetModule().GetNeighbour(_edge).GetOptions().Contains(currentMod.GetModule());
+            bool result = GetVectorModule(comparedCoord).GetModule().GetNeighbour(_edge).GetOptions().Contains(currentMod.GetModule());
+            //Debug.Log(currentMod.GetModule() + " at " + currentMod.mapPos + " is " + (result ? "" : "NOT") + " Contained in " + GetVectorModule(comparedCoord).GetModule() + "'s edge: " + _edge);
+            return result;
         }
-
         return true;
     }
 
     // Attempts to refactor module
-    private bool AttemptToRefactorModule(Sc_MapModule _module)
+    private bool AttemptToRefactorModule(ref Sc_MapModule _module)
     {
+        
 
         // sets a local vector of the current module map position 
         Vector3 currentVec = _module.mapPos;
+        
+
+        Debug.Log("Attempting to REFACTOR: " + _module.mapPos + " as: " + _module.GetModule());
+
+        _module.ResetModule(modules);
 
         // Checks each coherent edge and removes unrelated options from the current module
         // since this is refactoring a singular module AND it is the centre module comparing being compared by its surrounding modules module options
-        RefactorModuleOptions(_module, currentVec.x + 1, _module.mapPos + new Vector3(1, 0, 0), edge.nX,     0, MapDimensions.x);
-        RefactorModuleOptions(_module, currentVec.x - 1, _module.mapPos - new Vector3(1, 0, 0), edge.X,    0, MapDimensions.x);
-        RefactorModuleOptions(_module, currentVec.y + 1, _module.mapPos + new Vector3(0, 1, 0), edge.nY,     0, MapDimensions.y);
-        RefactorModuleOptions(_module, currentVec.y - 1, _module.mapPos - new Vector3(0, 1, 0), edge.Y,    0, MapDimensions.y);
-        RefactorModuleOptions(_module, currentVec.z + 1, _module.mapPos + new Vector3(0, 0, 1), edge.nZ,     0, MapDimensions.z);
-        RefactorModuleOptions(_module, currentVec.z - 1, _module.mapPos - new Vector3(0, 0, 1), edge.Z,    0, MapDimensions.z);
+        // due to the nature of the refactorisation the refactoring will only consider the connections below a module as considering the top could cause further issues
+        RefactorModuleOptions(_module, currentVec.x + 1, currentVec + new Vector3(1, 0, 0), edge.nX,     0, MapDimensions.x);
+        RefactorModuleOptions(_module, currentVec.x - 1, currentVec - new Vector3(1, 0, 0), edge.X,    0, MapDimensions.x);
+        //RefactorModuleOptions(_module, currentVec.y + 1, _module.mapPos + new Vector3(0, 1, 0), edge.nY,     0, MapDimensions.y);
+        RefactorModuleOptions(_module, currentVec.y - 1, currentVec - new Vector3(0, 1, 0), edge.Y,    0, MapDimensions.y);
+        RefactorModuleOptions(_module, currentVec.z + 1, currentVec + new Vector3(0, 0, 1), edge.nZ,     0, MapDimensions.z);
+        RefactorModuleOptions(_module, currentVec.z - 1, currentVec - new Vector3(0, 0, 1), edge.Z,    0, MapDimensions.z);
 
-
+        Debug.Log(_module.GetOptions().Count);
         _module.Collapse(random);
         return _module.GetModule();
     }
@@ -443,15 +460,16 @@ public class Sc_Map : MonoBehaviour
         // check if it is within the maps limitations and if it has a module selected
         if ((_comparedAxis >= _min && _comparedAxis < _max) && GetVectorModule(_comparedCoord).GetModule())
         {
+            Debug.Log(_comparingEdge);
             List<Sc_Module> toRemove = new List<Sc_Module>();
 
             // gets list of options from the compared modules module options (based on edge)
-            List<Sc_Module> modules = new List<Sc_Module>(MapGen.GetOpenModuleList(GetVectorModule(_comparedCoord), _comparingEdge));
-
+            List<Sc_Module> comparisonModules = new List<Sc_Module>(MapGen.GetOpenModuleList(GetVectorModule(_comparedCoord), _comparingEdge));
+            Debug.Log("Open Module list: " + comparisonModules.Count);
             //compare each option against the current Mods options
             for (int i = 0; i < currentMod.GetOptions().Count; i++)
             {
-                if (!modules.Contains(currentMod.GetOptions()[i])) toRemove.Add(currentMod.GetOptions()[i]);
+                if (!comparisonModules.Contains(currentMod.GetOptions()[i])) toRemove.Add(currentMod.GetOptions()[i]);
             }
 
             for (int i = 0; i < toRemove.Count; i++) //(Sc_Module mod in )
@@ -463,20 +481,21 @@ public class Sc_Map : MonoBehaviour
     }
 
     void RefactorFailSafe(Sc_MapModule currentModule) {
+        Debug.Log("REFACTOR FAIL SAFE: " + currentModule.mapPos);
         // does a breakdown of a 3x3x3 area around the current module paramater and refactors the whole 3x3x3 space
     }
 
 
-    private void BuildMap()
+    private void BuildMap(bool refact = false)
     {
         Debug.Log("BuildMap");
         foreach (Sc_MapModule module in Map)
         {
-            AttemptBuild(module);
+            AttemptBuild(module, refact);
         }
     }
 
-    public bool AttemptBuild(Sc_MapModule _mod)
+    public bool AttemptBuild(Sc_MapModule _mod, bool refact = false)
     {
         GameObject mod;
 
@@ -491,7 +510,7 @@ public class Sc_Map : MonoBehaviour
         }
         mod = _mod.GetModule().GetMesh();
 
-        GameObject obj = Instantiate(mod, _mod.mapPos, Quaternion.Euler(ModRotation(_mod.GetModule())), Dungeon.transform);
+        GameObject obj = Instantiate(mod, _mod.mapPos, Quaternion.Euler(ModRotation(_mod.GetModule())), refact ? REFACTOR.transform : Dungeon.transform);
         m_Build.Add(obj);
         return true;
     }
