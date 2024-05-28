@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_mesh: {fileID: 3218529666003124816, guid: 639a11cded8f3df4ba27d6e2fc718276, type: 3}
   m_rotation: 0
-  m_weight: 1
+  m_weight: 10
   m_type:
     serializedVersion: 2
     m_Bits: 64

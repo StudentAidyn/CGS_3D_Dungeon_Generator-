@@ -17,6 +17,9 @@ public class Sc_Map : MonoBehaviour
     [SerializeField] int Height = 5;
     [SerializeField] int Length = 5;
 
+    [Range(0, 5)]
+    public int cool = 5;
+
     Vector3 MapDimensions;
 
     // Map list, this is the main list that all the processes use
@@ -465,7 +468,7 @@ public class Sc_Map : MonoBehaviour
 
             // gets list of options from the compared modules module options (based on edge)
             List<Sc_Module> comparisonModules = new List<Sc_Module>(MapGen.GetOpenModuleList(GetVectorModule(_comparedCoord), _comparingEdge));
-            Debug.Log("Open Module list: " + comparisonModules.Count);
+            //Debug.Log("Open Module list: " + comparisonModules.Count);
             //compare each option against the current Mods options
             for (int i = 0; i < currentMod.GetOptions().Count; i++)
             {
@@ -483,6 +486,153 @@ public class Sc_Map : MonoBehaviour
     void RefactorFailSafe(Sc_MapModule currentModule) {
         Debug.Log("REFACTOR FAIL SAFE: " + currentModule.mapPos);
         // does a breakdown of a 3x3x3 area around the current module paramater and refactors the whole 3x3x3 space
+
+
+
+
+        //Get 3D plus formation first:
+        Vector3 currentVectorPosition = currentModule.mapPos;
+
+        // the centre vector has to exist and will be collapsed first:
+        GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z)).ResetModule(modules);
+        // Checking X sides - X sides will check in a H format
+        if (currentVectorPosition.x - 1 >= 0) {
+            GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y, currentVectorPosition.z)).ResetModule(modules);
+
+
+            if (currentVectorPosition.z + 1 < MapDimensions.z)
+            {
+                GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y, currentVectorPosition.z + 1)).ResetModule(modules);
+                if (currentVectorPosition.y + 1 < MapDimensions.y)
+                {
+                    GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y + 1, currentVectorPosition.z + 1)).ResetModule(modules);
+                }
+                if (currentVectorPosition.y - 1 >= 0)
+                {
+                    GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y - 1, currentVectorPosition.z + 1)).ResetModule(modules);
+                }
+            }
+
+            if (currentVectorPosition.z - 1 >= 0)
+            {
+                GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y, currentVectorPosition.z - 1)).ResetModule(modules);
+                if (currentVectorPosition.y + 1 < MapDimensions.y)
+                {
+                    GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y + 1, currentVectorPosition.z - 1)).ResetModule(modules);
+                }
+                if (currentVectorPosition.y - 1 >= 0)
+                {
+                    GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y - 1, currentVectorPosition.z - 1)).ResetModule(modules);
+                }
+            }
+
+        }
+        if (currentVectorPosition.x + 1 < MapDimensions.x) {
+            GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y, currentVectorPosition.z)).ResetModule(modules);
+
+            if (currentVectorPosition.z + 1 < MapDimensions.z)
+            {
+                GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y, currentVectorPosition.z + 1)).ResetModule(modules);
+                if (currentVectorPosition.y + 1 < MapDimensions.y)
+                {
+                    GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y + 1, currentVectorPosition.z + 1)).ResetModule(modules);
+                }
+                if (currentVectorPosition.y - 1 >= 0)
+                {
+                    GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y - 1, currentVectorPosition.z + 1)).ResetModule(modules);
+                }
+            }
+
+            if (currentVectorPosition.z - 1 >= 0)
+            {
+                GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y, currentVectorPosition.z + 1)).ResetModule(modules);
+                if (currentVectorPosition.y + 1 < MapDimensions.y)
+                {
+                    GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y + 1, currentVectorPosition.z - 1)).ResetModule(modules);
+                }
+                if (currentVectorPosition.y - 1 >= 0)
+                {
+                    GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y - 1, currentVectorPosition.z - 1)).ResetModule(modules);
+                }
+            }
+
+        }
+
+
+        // Checking Y sides - Y checks in a + pattern
+        if (currentVectorPosition.y - 1 >= 0)
+        {
+            GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y - 1, currentVectorPosition.z)).ResetModule(modules);
+            // Checking X --
+            if (currentVectorPosition.x - 1 >= 0)
+            {
+                GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y - 1, currentVectorPosition.z)).ResetModule(modules);
+            }
+            if (currentVectorPosition.x + 1 < MapDimensions.x)
+            {
+                GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y - 1, currentVectorPosition.z)).ResetModule(modules);
+            }
+            // Checking Z |
+            if (currentVectorPosition.z - 1 >= 0)
+            {
+                GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y - 1, currentVectorPosition.z - 1)).ResetModule(modules);
+            }
+            if (currentVectorPosition.z + 1 < MapDimensions.z)
+            {
+                GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y - 1, currentVectorPosition.z + 1)).ResetModule(modules);
+            }
+            // Both Checked X and Z Checked -|-
+        }
+
+
+        if (currentVectorPosition.y + 1 < MapDimensions.y)
+        {
+            GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y + 1, currentVectorPosition.z)).ResetModule(modules);
+            // Checking X --
+            if (currentVectorPosition.x - 1 >= 0)
+            {
+                GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y + 1, currentVectorPosition.z)).ResetModule(modules);
+            }
+            if (currentVectorPosition.x + 1 < MapDimensions.x)
+            {
+                GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y + 1, currentVectorPosition.z)).ResetModule(modules);
+            }
+            // Checking Z |
+            if (currentVectorPosition.z - 1 >= 0)
+            {
+                GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y + 1, currentVectorPosition.z - 1)).ResetModule(modules);
+            }
+            if (currentVectorPosition.z + 1 < MapDimensions.z)
+            {
+                GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y + 1, currentVectorPosition.z + 1)).ResetModule(modules);
+            }
+            // Both Checked X and Z Checked -|-
+        }
+
+        // Checking Z sides
+        if (currentVectorPosition.z - 1 >= 0)
+        {
+            GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z - 1)).ResetModule(modules);
+
+        }
+
+        if (currentVectorPosition.z + 1 < MapDimensions.z)
+        {
+            GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z + 1)).ResetModule(modules);
+
+        }
+
+
+        // Coords, top, bottom corner, 
+        MapGen.Propagate(
+            (currentVectorPosition.y - 1 >= 0 ? currentVectorPosition - new Vector3(0, 1, 0) : currentVectorPosition), 
+            new Vector2(0, 0), 
+            new Vector2(MapDimensions.x, MapDimensions.z), 
+            MapDimensions);
+
+        MapGen.GenerateMap(new Vector2(0, 0),
+            new Vector2(MapDimensions.x, MapDimensions.z),
+            MapDimensions);
     }
 
 

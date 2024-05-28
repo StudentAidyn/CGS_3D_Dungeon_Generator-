@@ -94,6 +94,7 @@ public class Sc_MapModule
         float cumulativeWeight = 0;
         foreach (Sc_Module tile in m_options)
         {
+            // Increasing weight of each tile until it hits a corresponding tile
             cumulativeWeight += tile.GetWeight();
             if (randomValue <= cumulativeWeight)
             {
@@ -101,6 +102,7 @@ public class Sc_MapModule
                 return;
             }
         }
+        // if it fails it already has a procedure for failed tiles
     }
 
     // returns the current Entropy of the object (returns total options) : TODO: change it so the Entropy is effected by the weight

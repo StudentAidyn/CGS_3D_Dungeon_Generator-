@@ -298,7 +298,12 @@ public class Sc_ModGenerator : MonoBehaviour
         {
             val = mod.Substring(index + 1);
             rotationAdjust = int.TryParse(val, out int rotation) ? (rotation + _rotation) % 4 : 0;
+
+
+                
+
         }
+        
         string result = "_" + rotationAdjust;
         return result;
     }
