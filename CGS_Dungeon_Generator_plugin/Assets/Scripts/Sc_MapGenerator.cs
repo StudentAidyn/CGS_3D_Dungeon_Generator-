@@ -276,7 +276,7 @@ class Sc_MapGenerator
     }
 
     // RETURNS LIST OF MODULES FROM THE MAIN MODULE'S OPTIONS LIST - BASED ON AN EDGE & MAP_MODULE
-    List<Sc_Module> GetCollapsedModuleList(Sc_MapModule _mod, edge _edge)
+    public List<Sc_Module> GetCollapsedModuleList(Sc_MapModule _mod, edge _edge)
     { 
         // List to contain the returning modules
         List<Sc_Module> returningModuleList = new List<Sc_Module>();

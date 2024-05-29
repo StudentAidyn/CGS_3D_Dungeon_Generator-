@@ -6,6 +6,7 @@ using UnityEngine;
 public class Sc_AstarPathFinding : MonoBehaviour
 {
     private int DEFAULT_MOVEMENT_COST = 10;
+    private int DIAGONAL_MOVEMENT_COST = 14;
 
     // Generate Path Exact Or Branching
 
@@ -124,10 +125,26 @@ public class Sc_AstarPathFinding : MonoBehaviour
 
         if(_mod.mapPos.x - 1 > 0) {
             neighbours.Add(GetVectorModule(_mod.mapPos - new Vector3(1, 0, 0)));
+            if (_mod.mapPos.z - 1 > 0)
+            {
+                neighbours.Add(GetVectorModule(_mod.mapPos - new Vector3(1, 0, 1)));
+            }
+            if (_mod.mapPos.z + 1 < mapDimensions.z)
+            {
+                neighbours.Add(GetVectorModule(_mod.mapPos + new Vector3(-1, 0, 1)));
+            }
         }
         if (_mod.mapPos.x + 1 < mapDimensions.x)
         {
             neighbours.Add(GetVectorModule(_mod.mapPos + new Vector3(1, 0, 0)));
+            if (_mod.mapPos.z - 1 > 0)
+            {
+                neighbours.Add(GetVectorModule(_mod.mapPos - new Vector3(-1, 0, 1)));
+            }
+            if (_mod.mapPos.z + 1 < mapDimensions.z)
+            {
+                neighbours.Add(GetVectorModule(_mod.mapPos + new Vector3(1, 0, 1)));
+            }
         }
         if (_mod.mapPos.z - 1 > 0)
         {
@@ -163,7 +180,7 @@ public class Sc_AstarPathFinding : MonoBehaviour
         int xDistance = (int)Mathf.Abs(_mod.mapPos.x - _other.mapPos.x);
         int zDistance = (int)Mathf.Abs(_mod.mapPos.z - _other.mapPos.z);
         int remaining = Mathf.Abs(xDistance - zDistance);
-        return DEFAULT_MOVEMENT_COST * remaining;
+        return DIAGONAL_MOVEMENT_COST * Mathf.Min(xDistance, zDistance) + DEFAULT_MOVEMENT_COST * remaining;
     }
 
     private Sc_MapModule GetLowestFScoreMod(List<Sc_MapModule> modList) {

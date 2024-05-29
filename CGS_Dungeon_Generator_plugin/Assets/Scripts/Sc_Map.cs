@@ -172,13 +172,13 @@ public class Sc_Map : MonoBehaviour
                         MapGen.Propagate(module.mapPos, new Vector2(0, 0), MapDimensions, MapDimensions);
                     }
 
-                    // sets all NON path modules in the map to not include "PATH" specific modules
+                    //// sets all NON path modules in the map to not include "PATH" specific modules
                     foreach (Sc_MapModule module in Map)
                     {
                         if (!LastPath.Contains(module))
                         {
                             module.RemoveModuleTypeBasedOnLayer(LayerMask.NameToLayer("PATH"));
-                            MapGen.Propagate(module.mapPos, new Vector2(0, 0), MapDimensions, MapDimensions);
+
                         }
                     }
                 }
@@ -241,9 +241,9 @@ public class Sc_Map : MonoBehaviour
         return modules;
     }
 
-    public Sc_MapModule GetVectorModule(Vector3 _coords)
+    public ref Sc_MapModule GetVectorModule(Vector3 _coords)
     {
-        return Map[(int)_coords.x, (int)_coords.y, (int)_coords.z];
+        return ref Map[(int)_coords.x, (int)_coords.y, (int)_coords.z];
     }
 
 
@@ -343,6 +343,7 @@ public class Sc_Map : MonoBehaviour
 
         FixMap();
 
+
         //RefactorThread = new Thread(() => FixMap());
 
         //while (RefactorThread.IsAlive) // Check this thread properly
@@ -397,22 +398,39 @@ public class Sc_Map : MonoBehaviour
                         // Check if the current Module is one of its neigbouring modules' neighbours if so then it passes
                         
                         if (!CheckModule(current, new Vector3(x, y, z) - new Vector3(1,0,0), x - 1, edge.X, MapDimensions.x) ||
+                            !CheckModule(current, new Vector3(x, y, z) + new Vector3(1,0,0), x + 1, edge.nX, MapDimensions.x) ||
                             !CheckModule(current, new Vector3(x, y, z) - new Vector3(0,1,0), y - 1, edge.Y, MapDimensions.y) ||
-                            !CheckModule(current, new Vector3(x, y, z) - new Vector3(0,0,1), z - 1, edge.Z, MapDimensions.z)) 
+                            !CheckModule(current, new Vector3(x, y, z) + new Vector3(0,1,0), y + 1, edge.nY, MapDimensions.y) ||
+                            !CheckModule(current, new Vector3(x, y, z) - new Vector3(0,0,1), z - 1, edge.Z, MapDimensions.z) ||
+                            !CheckModule(current, new Vector3(x, y, z) + new Vector3(0,0,1), z + 1, edge.nZ, MapDimensions.z)) 
                         {
                             // #3 if it fails to refactor the current module then it will apply the fail safe refactoration of the area
-                            if (!AttemptToRefactorModule(ref current)) RefactorFailSafe(current);
+                            if (!AttemptToRefactorModule(ref current))
+                            {
+                                RefactorFailSafe(current);
+                                //MapGen.GenerateMap(new Vector2(0, 0), new Vector2(MapDimensions.x, MapDimensions.z), MapDimensions);
+                            }
                         }
                     }
                     // #1 fail - Correct the current module by checking the surrounding modules
                     else
                     {
                         // #3 if it fails to refactor the current module then it will apply the fail safe refactoration of the area
-                        if (!AttemptToRefactorModule(ref current)) RefactorFailSafe(current);
+                        if (!AttemptToRefactorModule(ref current))
+                        {
+                            RefactorFailSafe(current);
+                            
+                        }
+
                     }
+
+
                 }
             }
         }
+
+
+
     }
 
 
@@ -420,11 +438,14 @@ public class Sc_Map : MonoBehaviour
     // Param: Map Module current, Vector3 compared module coordinate, float compared axis value, the edge being checked, the Max Value of the map 
     private bool CheckModule(Sc_MapModule currentMod, Vector3 comparedCoord,float _comparedAxis, edge _edge, float _max)
     {
-        if ((_comparedAxis >= 0 && _comparedAxis < _max) && GetVectorModule(comparedCoord).GetModule() != null)
+        if (_comparedAxis >= 0 && _comparedAxis < _max)
         {
-            bool result = GetVectorModule(comparedCoord).GetModule().GetNeighbour(_edge).GetOptions().Contains(currentMod.GetModule());
-            //Debug.Log(currentMod.GetModule() + " at " + currentMod.mapPos + " is " + (result ? "" : "NOT") + " Contained in " + GetVectorModule(comparedCoord).GetModule() + "'s edge: " + _edge);
-            return result;
+            if (GetVectorModule(comparedCoord).GetModule())
+            {
+                bool result = GetVectorModule(comparedCoord).GetModule().GetNeighbour(_edge).GetOptions().Contains(currentMod.GetModule());
+                //Debug.Log(currentMod.GetModule() + " at " + currentMod.mapPos + " is " + (result ? "" : "NOT") + " Contained in " + GetVectorModule(comparedCoord).GetModule() + "'s edge: " + _edge);
+                return result;
+            }
         }
         return true;
     }
@@ -438,7 +459,7 @@ public class Sc_Map : MonoBehaviour
         Vector3 currentVec = _module.mapPos;
         
 
-        Debug.Log("Attempting to REFACTOR: " + _module.mapPos + " as: " + _module.GetModule());
+        //Debug.Log("Attempting to REFACTOR: " + _module.mapPos + " as: " + _module.GetModule());
 
         _module.ResetModule(modules);
 
@@ -447,12 +468,11 @@ public class Sc_Map : MonoBehaviour
         // due to the nature of the refactorisation the refactoring will only consider the connections below a module as considering the top could cause further issues
         RefactorModuleOptions(_module, currentVec.x + 1, currentVec + new Vector3(1, 0, 0), edge.nX,     0, MapDimensions.x);
         RefactorModuleOptions(_module, currentVec.x - 1, currentVec - new Vector3(1, 0, 0), edge.X,    0, MapDimensions.x);
-        //RefactorModuleOptions(_module, currentVec.y + 1, _module.mapPos + new Vector3(0, 1, 0), edge.nY,     0, MapDimensions.y);
         RefactorModuleOptions(_module, currentVec.y - 1, currentVec - new Vector3(0, 1, 0), edge.Y,    0, MapDimensions.y);
         RefactorModuleOptions(_module, currentVec.z + 1, currentVec + new Vector3(0, 0, 1), edge.nZ,     0, MapDimensions.z);
         RefactorModuleOptions(_module, currentVec.z - 1, currentVec - new Vector3(0, 0, 1), edge.Z,    0, MapDimensions.z);
 
-        Debug.Log(_module.GetOptions().Count);
+        //Debug.Log(_module.GetOptions().Count);
         _module.Collapse(random);
         return _module.GetModule();
     }
@@ -460,179 +480,105 @@ public class Sc_Map : MonoBehaviour
     // removes options from the current module based on the compared modules input
     private void RefactorModuleOptions(Sc_MapModule currentMod, float _comparedAxis, Vector3 _comparedCoord, edge _comparingEdge, float _min, float _max)
     {
+        
         // check if it is within the maps limitations and if it has a module selected
-        if ((_comparedAxis >= _min && _comparedAxis < _max) && GetVectorModule(_comparedCoord).GetModule())
+        if (_comparedAxis >= _min && _comparedAxis < _max)
         {
-            Debug.Log(_comparingEdge);
-            List<Sc_Module> toRemove = new List<Sc_Module>();
-
-            // gets list of options from the compared modules module options (based on edge)
-            List<Sc_Module> comparisonModules = new List<Sc_Module>(MapGen.GetOpenModuleList(GetVectorModule(_comparedCoord), _comparingEdge));
-            //Debug.Log("Open Module list: " + comparisonModules.Count);
-            //compare each option against the current Mods options
-            for (int i = 0; i < currentMod.GetOptions().Count; i++)
+            Sc_MapModule comparedModule = GetVectorModule(_comparedCoord);
+            if (comparedModule.GetModule() != null)
             {
-                if (!comparisonModules.Contains(currentMod.GetOptions()[i])) toRemove.Add(currentMod.GetOptions()[i]);
+                //Debug.Log(_comparingEdge);
+                List<Sc_Module> toRemove = new List<Sc_Module>();
+
+                // gets list of options from the compared modules module options (based on edge)
+                List<Sc_Module> comparisonModules = new List<Sc_Module>(MapGen.GetCollapsedModuleList(comparedModule, _comparingEdge));
+                //Debug.Log("Open Module list: " + comparisonModules.Count);
+                //compare each option against the current Mods options
+                for (int i = 0; i < currentMod.GetOptions().Count; i++)
+                {
+                    if (!comparisonModules.Contains(currentMod.GetOptions()[i])) toRemove.Add(currentMod.GetOptions()[i]);
+                }
+
+                for (int i = 0; i < toRemove.Count; i++) //(Sc_Module mod in )
+                {
+                    currentMod.RemoveOption(toRemove[i]);
+                }
             }
 
-            for (int i = 0; i < toRemove.Count; i++) //(Sc_Module mod in )
-            {
-                currentMod.RemoveOption(toRemove[i]);
-            }
         }
 
     }
 
     void RefactorFailSafe(Sc_MapModule currentModule) {
-        Debug.Log("REFACTOR FAIL SAFE: " + currentModule.mapPos);
+        
         // does a breakdown of a 3x3x3 area around the current module paramater and refactors the whole 3x3x3 space
-
-
 
 
         //Get 3D plus formation first:
         Vector3 currentVectorPosition = currentModule.mapPos;
 
+        List<Sc_MapModule> resetModules = new List<Sc_MapModule>();
+
         // the centre vector has to exist and will be collapsed first:
         GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z)).ResetModule(modules);
         // Checking X sides - X sides will check in a H format
         if (currentVectorPosition.x - 1 >= 0) {
-            GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y, currentVectorPosition.z)).ResetModule(modules);
-
-
-            if (currentVectorPosition.z + 1 < MapDimensions.z)
-            {
-                GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y, currentVectorPosition.z + 1)).ResetModule(modules);
-                if (currentVectorPosition.y + 1 < MapDimensions.y)
-                {
-                    GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y + 1, currentVectorPosition.z + 1)).ResetModule(modules);
-                }
-                if (currentVectorPosition.y - 1 >= 0)
-                {
-                    GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y - 1, currentVectorPosition.z + 1)).ResetModule(modules);
-                }
-            }
-
-            if (currentVectorPosition.z - 1 >= 0)
-            {
-                GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y, currentVectorPosition.z - 1)).ResetModule(modules);
-                if (currentVectorPosition.y + 1 < MapDimensions.y)
-                {
-                    GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y + 1, currentVectorPosition.z - 1)).ResetModule(modules);
-                }
-                if (currentVectorPosition.y - 1 >= 0)
-                {
-                    GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y - 1, currentVectorPosition.z - 1)).ResetModule(modules);
-                }
-            }
+            Sc_MapModule module = GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y, currentVectorPosition.z));
+            module.ResetModule(modules);
+            resetModules.Add(module);
 
         }
         if (currentVectorPosition.x + 1 < MapDimensions.x) {
-            GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y, currentVectorPosition.z)).ResetModule(modules);
-
-            if (currentVectorPosition.z + 1 < MapDimensions.z)
-            {
-                GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y, currentVectorPosition.z + 1)).ResetModule(modules);
-                if (currentVectorPosition.y + 1 < MapDimensions.y)
-                {
-                    GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y + 1, currentVectorPosition.z + 1)).ResetModule(modules);
-                }
-                if (currentVectorPosition.y - 1 >= 0)
-                {
-                    GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y - 1, currentVectorPosition.z + 1)).ResetModule(modules);
-                }
-            }
-
-            if (currentVectorPosition.z - 1 >= 0)
-            {
-                GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y, currentVectorPosition.z + 1)).ResetModule(modules);
-                if (currentVectorPosition.y + 1 < MapDimensions.y)
-                {
-                    GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y + 1, currentVectorPosition.z - 1)).ResetModule(modules);
-                }
-                if (currentVectorPosition.y - 1 >= 0)
-                {
-                    GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y - 1, currentVectorPosition.z - 1)).ResetModule(modules);
-                }
-            }
-
+            Sc_MapModule module = GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y, currentVectorPosition.z));
+            module.ResetModule(modules);
+            resetModules.Add(module);
         }
 
 
         // Checking Y sides - Y checks in a + pattern
         if (currentVectorPosition.y - 1 >= 0)
         {
-            GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y - 1, currentVectorPosition.z)).ResetModule(modules);
-            // Checking X --
-            if (currentVectorPosition.x - 1 >= 0)
-            {
-                GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y - 1, currentVectorPosition.z)).ResetModule(modules);
-            }
-            if (currentVectorPosition.x + 1 < MapDimensions.x)
-            {
-                GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y - 1, currentVectorPosition.z)).ResetModule(modules);
-            }
-            // Checking Z |
-            if (currentVectorPosition.z - 1 >= 0)
-            {
-                GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y - 1, currentVectorPosition.z - 1)).ResetModule(modules);
-            }
-            if (currentVectorPosition.z + 1 < MapDimensions.z)
-            {
-                GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y - 1, currentVectorPosition.z + 1)).ResetModule(modules);
-            }
-            // Both Checked X and Z Checked -|-
+            Sc_MapModule module = GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y - 1, currentVectorPosition.z));
+            module.ResetModule(modules);
+            resetModules.Add(module);
         }
 
 
         if (currentVectorPosition.y + 1 < MapDimensions.y)
         {
-            GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y + 1, currentVectorPosition.z)).ResetModule(modules);
-            // Checking X --
-            if (currentVectorPosition.x - 1 >= 0)
-            {
-                GetVectorModule(new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y + 1, currentVectorPosition.z)).ResetModule(modules);
-            }
-            if (currentVectorPosition.x + 1 < MapDimensions.x)
-            {
-                GetVectorModule(new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y + 1, currentVectorPosition.z)).ResetModule(modules);
-            }
-            // Checking Z |
-            if (currentVectorPosition.z - 1 >= 0)
-            {
-                GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y + 1, currentVectorPosition.z - 1)).ResetModule(modules);
-            }
-            if (currentVectorPosition.z + 1 < MapDimensions.z)
-            {
-                GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y + 1, currentVectorPosition.z + 1)).ResetModule(modules);
-            }
-            // Both Checked X and Z Checked -|-
+            Sc_MapModule module = GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y + 1, currentVectorPosition.z));
+            module.ResetModule(modules);
+            resetModules.Add(module);
         }
 
         // Checking Z sides
         if (currentVectorPosition.z - 1 >= 0)
         {
-            GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z - 1)).ResetModule(modules);
-
+            Sc_MapModule module = GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z - 1));
+            module.ResetModule(modules);
+            resetModules.Add(module);
         }
 
         if (currentVectorPosition.z + 1 < MapDimensions.z)
         {
-            GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z + 1)).ResetModule(modules);
-
+            Sc_MapModule module = GetVectorModule(new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z + 1));
+            module.ResetModule(modules);
+            resetModules.Add(module);
         }
 
+        for (int i = 0; i < resetModules.Count; i++)
+        {
+            var module = resetModules[i];
+            AttemptToRefactorModule(ref module);
+            resetModules[i] = module;
+        }
 
-        // Coords, top, bottom corner, 
-        MapGen.Propagate(
-            (currentVectorPosition.y - 1 >= 0 ? currentVectorPosition - new Vector3(0, 1, 0) : currentVectorPosition), 
-            new Vector2(0, 0), 
-            new Vector2(MapDimensions.x, MapDimensions.z), 
-            MapDimensions);
+        AttemptToRefactorModule(ref currentModule);
 
-        MapGen.GenerateMap(new Vector2(0, 0),
-            new Vector2(MapDimensions.x, MapDimensions.z),
-            MapDimensions);
+        currentModule.Collapse(random);
+
+        RebuildMap();
+
     }
 
 
@@ -675,6 +621,14 @@ public class Sc_Map : MonoBehaviour
         }
 
         m_Build.Clear();
+    }
+
+    void RebuildMap()
+    {
+        if (Generate_Floor) { SetLevelToType(LayerMask.NameToLayer("FLOOR"), 0); }
+        MapGen.GenerateMap(new Vector2(0, 0),
+    new Vector2(MapDimensions.x, MapDimensions.z),
+    MapDimensions);
     }
 
 
