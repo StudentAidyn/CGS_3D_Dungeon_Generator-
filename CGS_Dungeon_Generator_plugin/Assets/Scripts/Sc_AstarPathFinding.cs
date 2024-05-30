@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
-public class Sc_AstarPathFinding : MonoBehaviour
+public class Sc_AstarPathFinding
 {
     private int DEFAULT_MOVEMENT_COST = 10;
     private int DIAGONAL_MOVEMENT_COST = 14;

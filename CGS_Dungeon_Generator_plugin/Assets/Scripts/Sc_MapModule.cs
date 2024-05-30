@@ -70,7 +70,7 @@ public class Sc_MapModule
 
 
     // Checks if the current Module has been collapsed
-    public bool isCollapsed()
+    public bool IsCollapsed()
     {
         return m_collapsed;
     }

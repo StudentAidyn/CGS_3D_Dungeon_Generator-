@@ -11,6 +11,7 @@ public class MapEditor : Editor
         DrawDefaultInspector();
 
         Sc_Map map = (Sc_Map)target;
+        Helper helper = Helper.Instance;
 
 
         if (GUILayout.Button("Generate Dungeon"))
@@ -20,7 +21,7 @@ public class MapEditor : Editor
 
         if (GUILayout.Button("Clear Dungeon"))
         {
-            map.ClearGOList();
+            helper.ClearGOList();
         }
     }
 }
