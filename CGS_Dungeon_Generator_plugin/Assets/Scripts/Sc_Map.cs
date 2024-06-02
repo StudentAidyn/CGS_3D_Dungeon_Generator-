@@ -11,18 +11,12 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class Sc_Map : MonoBehaviour
 {
-    // Helper
-    Helper helper = Helper.Instance;
-
 
     [Header("Map Dimensions")]
     // The Width(X), Height(Y), and Length(Z) of the Map
     [SerializeField] int Width = 5;
     [SerializeField] int Height = 5;
     [SerializeField] int Length = 5;
-
-    [Range(0, 5)]
-    public int cool = 5;
 
     Vector3 MapDimensions;
 
@@ -44,6 +38,11 @@ public class Sc_Map : MonoBehaviour
     [SerializeField] bool Generate_Floor = false;
 
 
+    [Header("Final Build")]
+    [SerializeField] GameObject Dungeon = null;
+    [SerializeField] GameObject REFACTOR = null;
+
+    [SerializeField] List<GameObject> Build = new List<GameObject>();
 
 
     // Scripts that are combined in this
@@ -52,61 +51,17 @@ public class Sc_Map : MonoBehaviour
 
     // Multi Thread Map Builder
     MapMultiThreader MultiThreadMap;
-
-    // Randomiser
-    ThreadRandomiser random;
+    
+    public void ClearMap()
+    {
+        Helper.Instance.SetBuildList(ref Build);
+        Helper.Instance.ClearGOList();
+    }
 
     // Generates map based on initial inputs
     public void GenerateMap()
     {
-
-        helper.GetModules();
-        if (helper.GetModules() == null || helper.GetModules().Count == 0) return;
-
-        if (Width <= 0 || Height <= 0 || Length <= 0)
-        {
-            Debug.LogError("1 OR more MAP SIZES are 0 OR negative");
-            return;
-        }
-
-        // Sets the dimensions of the Map into a Vector 3
-        MapDimensions = new Vector3(Width, Height, Length);
-
-        Map = new Sc_MapModule[Width, Height, Length];
-
-        // creates new Wave Function Collapse Modules with Size and Modules List
-        for (int y = 0; y < Height; y++)
-        {
-            for (int z = 0; z < Length; z++)
-            {
-                for (int x = 0; x < Width; x++)
-                {
-                    //Creates new Module with modules
-                    Sc_MapModule mod = new Sc_MapModule(new Vector3(x, y, z));
-                    mod.ResetModule(helper.GetModules());
-                    Map[x, y, z] = mod;
-                }
-            }
-        }
-
-
-        // Pre Checks before Creation
-        AstarPF = new Sc_AstarPathFinding();
-        if (AstarPF == null) return;
-
-        MapGen = new Sc_MapGenerator(Map);
-
-
-        random = ThreadRandomiser.Instance;
-        Debug.Log(Map.Length);
-        random.GenerateRandomNumbers(Map.Length);
-
-
-        /* Due to the way I am Calculating the positions of the Modules while they are compiled in a string, Y needs to be calculate first then Z and finally X
-            - Y is multiplied by both Z and X's max sizes meaning during the setting phase it will be assigned the least
-            - Z is multiplied by X's max size meaning it will be in the middle and added per Y
-            - X is the base so it will added per X and Z
-         */
+        if (!SetupForGeneration()) return;
 
 
         if (Generate_Shape)
@@ -131,7 +86,7 @@ public class Sc_Map : MonoBehaviour
                         // sets module to only include "PATH" type modules
                         module.SetModuleTypeBasedOnLayer(LayerMask.NameToLayer("PATH"));
                         // Propagate the path
-                        MapGen.Propagate(module.mapPos, MapDimensions, MapDimensions);
+                        MapGen.Propagate(module.mapPos, MapDimensions);
                     }
 
                     //// sets all NON path modules in the map to not include "PATH" specific modules
@@ -145,71 +100,84 @@ public class Sc_Map : MonoBehaviour
                     }
                 }
 
+               
+
             } else { Debug.Log("PATH GEN FAILED"); }
+
+            
 
         }
 
-
-
-        if (Generate_Floor) { SetLevelToType(LayerMask.NameToLayer("FLOOR"), 0); }
+        Helper.Instance.SetGenerateFloor(Generate_Floor);
+        if (Generate_Floor) Helper.Instance.SetLevelToType(ref Map, LayerMask.NameToLayer("FLOOR"), 0);
 
         // Clears objects in scene
-        helper.ClearGOList();
+        Helper.Instance.ClearGOList();
 
         if (MapDimensions.x > 15 && MapDimensions.z > 15)
         {
+            MultiThreadMap = new MapMultiThreader(ref Map, ref MapGen, ref MapDimensions);
             StartCoroutine(MultiThreadMap.GenerateMultiThreadMap(MapDimensions));
         }
         else
         {
-            MapGen.GenerateMap(new Vector2(MapDimensions.x, MapDimensions.z), MapDimensions);
+            MapGen.GenerateMap(MapDimensions);
             // Builds map based on map's modules
-            helper.BuildMap(ref Map); 
+            Helper.Instance.BuildMap(ref Map); 
         }
     }
 
-    void SetLevelToType(LayerMask _layer, int _level)
+
+    // Setup Generation 
+    bool SetupForGeneration()
     {
-        foreach (Sc_MapModule mod in GetModulesFromLevel(_level))
+        if (Sc_ModGenerator.Instance.GetModules() == null || Sc_ModGenerator.Instance.GetModules().Count == 0) return false;
+
+        if (Width <= 0 || Height <= 0 || Length <= 0)
         {
-            List<Sc_Module> toRemove = new List<Sc_Module>();
-            foreach (Sc_Module option in mod.GetOptions())
+            Debug.LogError("1 OR more MAP SIZES are 0 OR negative");
+            return false;
+        }
+
+        // Sets the dimensions of the Map into a Vector 3
+        MapDimensions = new Vector3(Width, Height, Length);
+
+        Map = new Sc_MapModule[Width, Height, Length];
+
+        // creates new Wave Function Collapse Modules with Size and Modules List
+        for (int y = 0; y < Height; y++)
+        {
+            for (int z = 0; z < Length; z++)
             {
-                if (option.GetLayerType() != (option.GetLayerType() | (1 << _layer)))
+                for (int x = 0; x < Width; x++)
                 {
-                    toRemove.Add(option);
+                    //Creates new Module with modules
+                    Sc_MapModule mod = new Sc_MapModule(new Vector3(x, y, z));
+                    mod.ResetModule(Sc_ModGenerator.Instance.GetModules());
+                    Map[x, y, z] = mod;
                 }
             }
-
-            foreach (Sc_Module option in toRemove)
-            {
-                mod.RemoveOption(option);
-            }
-        }
-    }
-
-
-    List<Sc_MapModule> GetModulesFromLevel(int _level)
-    {
-        List<Sc_MapModule> modules = new List<Sc_MapModule>();
-
-        for (int z = 0; z < MapDimensions.z; z++)     
-        {
-            for (int x = 0; x < MapDimensions.x; x++)
-            {
-                modules.Add(helper.GetModule(ref Map, new Vector3(x, _level, z)));
-            }
         }
 
-        return modules;
+        // Set up / Generate Randoms based on the maps size
+        ThreadRandomiser.Instance.GenerateRandomNumbers(Map.Length);
+
+        // Set up Helpers connections
+        Helper.Instance.SetMapBuildParent(Dungeon, REFACTOR);
+        Helper.Instance.SetBuildList(ref Build);
+
+        // Pre Checks before Creation
+        AstarPF = new Sc_AstarPathFinding();
+        if (AstarPF == null) return false;
+
+        MapGen = new Sc_MapGenerator(ref Map);
+
+        return true;
     }
 
 
-    void RebuildMap()
-    {
-        if (Generate_Floor) { SetLevelToType(LayerMask.NameToLayer("FLOOR"), 0); }
-        MapGen.GenerateMap(new Vector2(MapDimensions.x, MapDimensions.z), MapDimensions);
-    }
+
+
 
 }
 

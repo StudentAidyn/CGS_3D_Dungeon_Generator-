@@ -76,7 +76,7 @@ public class Sc_MapModule
     }
 
     // Collapses the current Module into one of the options taking in consideration the weights of the objects
-    public void Collapse(ThreadRandomiser random, int _threadType = 0)
+    public void Collapse(int _threadType = 0)
     {
         m_collapsed = true;
 
@@ -88,7 +88,7 @@ public class Sc_MapModule
         }
          if (totalWeight == 0) { return; }
         // Generate a random value within the range of total weight
-        float randomValue = random.GetRandomNumber(_threadType) % totalWeight;
+        float randomValue = ThreadRandomiser.Instance.GetRandomNumber(_threadType) % totalWeight;
 
         // Find the tile corresponding to the random value
         float cumulativeWeight = 0;

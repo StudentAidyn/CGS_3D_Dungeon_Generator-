@@ -17,6 +17,32 @@ and to not check rotation on objects that have all sides the same
 [ExecuteInEditMode]
 public class Sc_ModGenerator : MonoBehaviour
 {
+
+    private static Sc_ModGenerator _instance;
+
+    // Private constructor to prevent instantiation
+    private Sc_ModGenerator() { }
+
+    public static Sc_ModGenerator Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindObjectOfType<Sc_ModGenerator>();
+
+                if (_instance == null)
+                {
+                    GameObject singletonObject = new GameObject("Sc_ModGenerator");
+                    _instance = singletonObject.AddComponent<Sc_ModGenerator>();
+                    DontDestroyOnLoad(singletonObject);
+                }
+            }
+            return _instance;
+        }
+    }
+
+
     // list of all the possible modules
     [SerializeField] List<Sc_Module> m_modules = new List<Sc_Module>();
     public List<Sc_Module> GetModules() { return m_modules; }

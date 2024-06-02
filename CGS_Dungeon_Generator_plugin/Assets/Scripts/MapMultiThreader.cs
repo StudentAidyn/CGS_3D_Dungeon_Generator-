@@ -37,46 +37,54 @@ public class MapMultiThreader
     Sc_MapGenerator MapGenThread4;
 
 
-    // Randomiser Reference
-    ThreadRandomiser random;
-
-    // Local Helper
-    Helper helper = Helper.Instance;
-
-    MapMultiThreader(Sc_MapModule[,,] _map, Sc_MapGenerator _mapGen, Vector3 _mapDimensions)
+    public MapMultiThreader(ref Sc_MapModule[,,] _map, ref Sc_MapGenerator _mapGen, ref Vector3 _mapDimensions)
     {
         Map = _map;
         MapGen = _mapGen;
         MapDimensions = _mapDimensions;
     }
 
-    public void GenerateThreadMapping(Vector3 _size)
+    public void GenerateThreadMapping(Vector3 _mapSize)
     {
+
+        // if one section is a negative then it won't work correctly, to prevent gaps an additional pass will be added to fix it
+
+        LocalSize = new Vector3((int)_mapSize.x / 2, (int)_mapSize.y, (int)_mapSize.z / 2);
+
+
+        TopLeftMapQuadrant = new Sc_MapModule[(int)LocalSize.x, (int)LocalSize.y, (int)LocalSize.z];
+        TopRightMapQuadrant = new Sc_MapModule[(int)LocalSize.x, (int)LocalSize.y, (int)LocalSize.z];
+        BottomLeftMapQuadrant = new Sc_MapModule[(int)LocalSize.x, (int)LocalSize.y, (int)LocalSize.z];
+        BottomRightMapQuadrant = new Sc_MapModule[(int)LocalSize.x, (int)LocalSize.y, (int)LocalSize.z];
+
         // The Vectors of the Top Left Quadrant
         //   -> [X][O]
         //      [O][O]
-        // if one section is a negative then it won't work correctly, to prevent gaps an additional pass will be added to fix it
-
-        LocalSize = new Vector3((int)_size.x / 2, (int)_size.y, (int)_size.z / 2);
-
-
-        TopLeftMapQuadrant = new Sc_MapModule[(int)LocalSize.x, (int)_size.y, (int)LocalSize.y];
-        TopRightMapQuadrant = new Sc_MapModule[(int)LocalSize.x, (int)_size.y, (int)LocalSize.y];
-        BottomLeftMapQuadrant = new Sc_MapModule[(int)LocalSize.x, (int)_size.y, (int)LocalSize.y];
-        BottomRightMapQuadrant = new Sc_MapModule[(int)LocalSize.x, (int)_size.y, (int)LocalSize.y];
 
         FillQuadrantArray(ref TopLeftMapQuadrant, new Vector3(0, 0, 0), LocalSize, LocalSize);
-        FillQuadrantArray(ref TopRightMapQuadrant, new Vector3(LocalSize.x, 0), new Vector3(_size.x, LocalSize.y), LocalSize);
-        FillQuadrantArray(ref BottomLeftMapQuadrant, new Vector3(0, LocalSize.y), new Vector3(LocalSize.x, _size.z), LocalSize);
-        FillQuadrantArray(ref BottomRightMapQuadrant, new Vector3(LocalSize.x, LocalSize.y), new Vector3(_size.x, _size.z), LocalSize);
+
+        // The Vectors of the Top Right Quadrant
+        //   -> [O][X]
+        //      [O][O]
+        FillQuadrantArray(ref TopRightMapQuadrant, new Vector3(LocalSize.x, 0, 0), new Vector3(_mapSize.x, _mapSize.y, LocalSize.z), LocalSize);
+
+        // The Vectors of the Bottom Left Quadrant
+        //   -> [O][O]
+        //      [X][O]
+        FillQuadrantArray(ref BottomLeftMapQuadrant, new Vector3(0, 0, LocalSize.z), new Vector3(LocalSize.x, _mapSize.y, _mapSize.z), LocalSize);
+
+        // The Vectors of the Bottom Right Quadrant
+        //   -> [O][O]
+        //      [O][X]
+        FillQuadrantArray(ref BottomRightMapQuadrant, new Vector3(LocalSize.x, 0, LocalSize.z), _mapSize, LocalSize);
 
 
-        MapGenThread1 = new Sc_MapGenerator(TopLeftMapQuadrant, 0);
-        MapGenThread2 = new Sc_MapGenerator(TopRightMapQuadrant, 1);
-        MapGenThread3 = new Sc_MapGenerator(BottomLeftMapQuadrant, 2);
-        MapGenThread4 = new Sc_MapGenerator(BottomRightMapQuadrant, 3);
+        MapGenThread1 = new Sc_MapGenerator(ref TopLeftMapQuadrant, 0);
+        MapGenThread2 = new Sc_MapGenerator(ref TopRightMapQuadrant, 1);
+        MapGenThread3 = new Sc_MapGenerator(ref BottomLeftMapQuadrant, 2);
+        MapGenThread4 = new Sc_MapGenerator(ref BottomRightMapQuadrant, 3);
 
-        Vector3 size = _size - new Vector3(1, 0, 1);
+        Vector3 size = _mapSize - new Vector3(1, 0, 1);
 
         // Adjust Values if odd number
 
@@ -88,10 +96,10 @@ public class MapMultiThreader
          
          */
 
-        TopLeftThread = new Thread(() => MapGenThread1.GenerateMap(LocalSize, size));
-        TopRightThread = new Thread(() => MapGenThread2.GenerateMap(LocalSize, size));
-        BottomLeftThread = new Thread(() => MapGenThread3.GenerateMap(LocalSize, size));
-        BottomRightThread = new Thread(() => MapGenThread4.GenerateMap(LocalSize, size));
+        TopLeftThread = new Thread(() => MapGenThread1.GenerateMap(LocalSize));
+        TopRightThread = new Thread(() => MapGenThread2.GenerateMap(LocalSize));
+        BottomLeftThread = new Thread(() => MapGenThread3.GenerateMap(LocalSize));
+        BottomRightThread = new Thread(() => MapGenThread4.GenerateMap(LocalSize));
 
 
         TopLeftThread.Start();
@@ -112,7 +120,7 @@ public class MapMultiThreader
             {
                 for (int x = (int)_topLeftOfQuadrant.x; x < _bottomRightOfQuadrant.x; x++)
                 {
-                    _moduleQuadrant[x % (int)_maxQuadrantSize.x, y, z % (int)_maxQuadrantSize.y] = Map[x, y, z];
+                    _moduleQuadrant[x % (int)_maxQuadrantSize.x, y, z % (int)_maxQuadrantSize.z] = Map[x, y, z];
                 }
             }
         }
@@ -129,12 +137,12 @@ public class MapMultiThreader
         }
 
         // Map Quadrant Array || Minimum Corner (Vector3) || Maximum Corner (Vector3)
-        RebuildArrayMap(ref TopLeftMapQuadrant, new Vector3(), LocalSize);
+        RebuildArrayMap(ref TopLeftMapQuadrant, new Vector3(0, 0, 0), LocalSize);
         RebuildArrayMap(ref TopRightMapQuadrant, new Vector3(LocalSize.x, 0, 0), new Vector3(_size.x, LocalSize.y, LocalSize.z));
         RebuildArrayMap(ref BottomLeftMapQuadrant, new Vector3(0, 0, LocalSize.z), new Vector3(LocalSize.x, LocalSize.y, _size.z));
         RebuildArrayMap(ref BottomRightMapQuadrant, new Vector3(LocalSize.x, 0, LocalSize.z), _size);
 
-        helper.BuildMap(ref Map);
+        Helper.Instance.BuildMap(ref Map);
 
         //StartCoroutine(RefactorThreadMap());
         RefactorThreadMap();
@@ -146,6 +154,8 @@ public class MapMultiThreader
         Debug.Log("REFACTORING MAP");
 
         FixMap();
+
+        Helper.Instance.BuildMap(ref Map, true);
 
     }
     // The .isAlive property will return TRUE if the current thread is Active, FALSE if the current thread has finished or aborted
@@ -167,7 +177,7 @@ public class MapMultiThreader
             {
                 for (int x = (int)TopLeft.x; x < BottomRight.x; x++)
                 {
-                    Map[x, y, z] = _moduleQuadrant[x % (int)LocalSize.x, y, z % (int)LocalSize.y];
+                    Map[x, y, z] = _moduleQuadrant[x % (int)LocalSize.x, y, z % (int)LocalSize.z];
                 }
             }
         }
@@ -190,7 +200,7 @@ public class MapMultiThreader
                 for (int x = 0; x < MapDimensions.x; x++)
                 {
 
-                    Sc_MapModule current = helper.GetModule(ref Map, new Vector3(x, y, z));
+                    Sc_MapModule current = Helper.Instance.GetModule(ref Map, new Vector3(x, y, z));
 
                     // #1 success - check connections
                     if (current.GetModule() != null)
@@ -240,9 +250,9 @@ public class MapMultiThreader
     {
         if (_comparedAxis >= 0 && _comparedAxis < _max)
         {
-            if (helper.GetModule(ref Map, comparedCoord).GetModule())
+            if (Helper.Instance.GetModule(ref Map, comparedCoord).GetModule())
             {
-                bool result = helper.GetModule(ref Map, comparedCoord).GetModule().GetNeighbour(_edge).GetOptions().Contains(currentMod.GetModule());
+                bool result = Helper.Instance.GetModule(ref Map, comparedCoord).GetModule().GetNeighbour(_edge).GetOptions().Contains(currentMod.GetModule());
                 //Debug.Log(currentMod.GetModule() + " at " + currentMod.mapPos + " is " + (result ? "" : "NOT") + " Contained in " + GetVectorModule(comparedCoord).GetModule() + "'s edge: " + _edge);
                 return result;
             }
@@ -261,7 +271,7 @@ public class MapMultiThreader
 
         //Debug.Log("Attempting to REFACTOR: " + _module.mapPos + " as: " + _module.GetModule());
 
-        _module.ResetModule(helper.GetModules());
+        _module.ResetModule(Sc_ModGenerator.Instance.GetModules());
 
         // Checks each coherent edge and removes unrelated options from the current module
         // since this is refactoring a singular module AND it is the centre module comparing being compared by its surrounding modules module options
@@ -273,7 +283,7 @@ public class MapMultiThreader
         RefactorModuleOptions(_module, currentVec.z - 1, currentVec - new Vector3(0, 0, 1), edge.Z, 0, MapDimensions.z);
 
         //Debug.Log(_module.GetOptions().Count);
-        _module.Collapse(random);
+        _module.Collapse();
         return _module.GetModule();
     }
 
@@ -284,7 +294,7 @@ public class MapMultiThreader
         // check if it is within the maps limitations and if it has a module selected
         if (_comparedAxis >= _min && _comparedAxis < _max)
         {
-            Sc_MapModule comparedModule = helper.GetModule(ref Map, _comparedCoord);
+            Sc_MapModule comparedModule = Helper.Instance.GetModule(ref Map, _comparedCoord);
             if (comparedModule.GetModule() != null)
             {
                 //Debug.Log(_comparingEdge);
@@ -321,19 +331,19 @@ public class MapMultiThreader
         List<Sc_MapModule> resetModules = new List<Sc_MapModule>();
 
         // the centre vector has to exist and will be collapsed first:
-        helper.GetModule(ref Map, new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z)).ResetModule(helper.GetModules());
+        Helper.Instance.GetModule(ref Map, new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z)).ResetModule(Sc_ModGenerator.Instance.GetModules());
         // Checking X sides - X sides will check in a H format
         if (currentVectorPosition.x - 1 >= 0)
         {
-            Sc_MapModule module = helper.GetModule(ref Map, new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y, currentVectorPosition.z));
-            module.ResetModule(helper.GetModules());
+            Sc_MapModule module = Helper.Instance.GetModule(ref Map, new Vector3(currentVectorPosition.x - 1, currentVectorPosition.y, currentVectorPosition.z));
+            module.ResetModule(Sc_ModGenerator.Instance.GetModules());
             resetModules.Add(module);
 
         }
         if (currentVectorPosition.x + 1 < MapDimensions.x)
         {
-            Sc_MapModule module = helper.GetModule(ref Map, new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y, currentVectorPosition.z));
-            module.ResetModule(helper.GetModules());
+            Sc_MapModule module = Helper.Instance.GetModule(ref Map, new Vector3(currentVectorPosition.x + 1, currentVectorPosition.y, currentVectorPosition.z));
+            module.ResetModule(Sc_ModGenerator.Instance.GetModules());
             resetModules.Add(module);
         }
 
@@ -341,31 +351,31 @@ public class MapMultiThreader
         // Checking Y sides - Y checks in a + pattern
         if (currentVectorPosition.y - 1 >= 0)
         {
-            Sc_MapModule module = helper.GetModule(ref Map, new Vector3(currentVectorPosition.x, currentVectorPosition.y - 1, currentVectorPosition.z));
-            module.ResetModule(helper.GetModules());
+            Sc_MapModule module = Helper.Instance.GetModule(ref Map, new Vector3(currentVectorPosition.x, currentVectorPosition.y - 1, currentVectorPosition.z));
+            module.ResetModule(Sc_ModGenerator.Instance.GetModules());
             resetModules.Add(module);
         }
 
 
         if (currentVectorPosition.y + 1 < MapDimensions.y)
         {
-            Sc_MapModule module = helper.GetModule(ref Map, new Vector3(currentVectorPosition.x, currentVectorPosition.y + 1, currentVectorPosition.z));
-            module.ResetModule(helper.GetModules());
+            Sc_MapModule module = Helper.Instance.GetModule(ref Map, new Vector3(currentVectorPosition.x, currentVectorPosition.y + 1, currentVectorPosition.z));
+            module.ResetModule(Sc_ModGenerator.Instance.GetModules());
             resetModules.Add(module);
         }
 
         // Checking Z sides
         if (currentVectorPosition.z - 1 >= 0)
         {
-            Sc_MapModule module = helper.GetModule(ref Map, new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z - 1));
-            module.ResetModule(helper.GetModules());
+            Sc_MapModule module = Helper.Instance.GetModule(ref Map, new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z - 1));
+            module.ResetModule(Sc_ModGenerator.Instance.GetModules());
             resetModules.Add(module);
         }
 
         if (currentVectorPosition.z + 1 < MapDimensions.z)
         {
-            Sc_MapModule module = helper.GetModule(ref Map, new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z + 1));
-            module.ResetModule(helper.GetModules());
+            Sc_MapModule module = Helper.Instance.GetModule(ref Map, new Vector3(currentVectorPosition.x, currentVectorPosition.y, currentVectorPosition.z + 1));
+            module.ResetModule(Sc_ModGenerator.Instance.GetModules());
             resetModules.Add(module);
         }
 
@@ -378,16 +388,21 @@ public class MapMultiThreader
 
         AttemptToRefactorModule(ref currentModule);
 
-        currentModule.Collapse(random);
+        currentModule.Collapse();
 
 
+        RebuildMap();
 
         /// TODO
         /// ADD WAY TO REBUILD MAP
         /// ----------------------------------------------------- DON'T FORGET
     }
 
-
+    void RebuildMap()
+    {
+        if (Helper.Instance.GetGenerateFloor()) { Helper.Instance.SetLevelToType(ref Map, LayerMask.NameToLayer("FLOOR"), 0); }
+        MapGen.GenerateMap(MapDimensions);
+    }
 
 
 }

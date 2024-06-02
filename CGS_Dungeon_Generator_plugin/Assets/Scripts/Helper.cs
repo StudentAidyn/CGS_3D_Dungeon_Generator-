@@ -5,9 +5,8 @@ using UnityEditor;
 using UnityEngine;
 
 
-/// WARNING: TODO
-/// CONVERT HELPER TO SEARCH FOR MONOBEHAVIOUR, WILL BE ATTACHED TO THE MAP GENERATOR
-public class Helper : MonoBehaviour 
+[System.Serializable]
+public class Helper
 {
     private static Helper _instance;
 
@@ -18,7 +17,6 @@ public class Helper : MonoBehaviour
     {
         get
         {
-            // If the instance is null, create a new instance
             if (_instance == null)
             {
                 _instance = new Helper();
@@ -28,23 +26,43 @@ public class Helper : MonoBehaviour
     }
 
 
+
     // -------------------------- VARIABLES -------------------------- 
 
     ThreadRandomiser random = ThreadRandomiser.Instance;
 
-    //Fail indicator
-    [Header("Fail Indicator")]
-    [SerializeField] GameObject FAIL = null;
+    GameObject MapGenParent = null;
+    GameObject REFACTOR = null;
+    public List<GameObject> m_Build = new List<GameObject>();
 
-    [Header("Final Build")]
-    [SerializeField] GameObject Dungeon = null;
-    [SerializeField] GameObject REFACTOR = null;
-    [SerializeField] public List<GameObject> m_Build = new List<GameObject>();
+    bool GenerateFloor;
+
+    // --------------- Variable Controls ------------------
 
 
-    // list of all the possible modules
-    [SerializeField] List<Sc_Module> m_modules = new List<Sc_Module>();
-    public List<Sc_Module> GetModules() { return m_modules; }
+    // Setters:
+
+    public void SetMapBuildParent(GameObject newParent, GameObject refactParent = null)
+    {
+        MapGenParent = newParent;
+        REFACTOR = refactParent;
+    }
+
+    public void SetBuildList(ref List<GameObject> build)
+    {
+        m_Build = build;
+    }
+
+    public void SetGenerateFloor(bool state) { GenerateFloor = state; }
+
+
+    // Gettters:
+
+    public bool GetGenerateFloor() { return GenerateFloor; }
+
+
+    // -------------------- End --------------------
+
 
     // --------------- MAP MODULES --------------- 
 
@@ -82,7 +100,7 @@ public class Helper : MonoBehaviour
 
 
 
-    // --------------- MAP BUILDER --------------- 
+    // --------------- MAP FUNCTIONS --------------- 
 
     public void BuildMap(ref Sc_MapModule[,,] Map, bool refact = false)
     {
@@ -96,19 +114,21 @@ public class Helper : MonoBehaviour
     public bool AttemptBuild(Sc_MapModule _mod, bool refact = false)
     {
         GameObject mod;
-
-        if (!_mod.IsCollapsed())
-        {
-            _mod.Collapse(random);
-        }
-        if (_mod.GetModule() == null)
-        {
-            FailBuild(_mod.mapPos);
-            return false;
-        }
+        if (_mod == null) return false;
+        if (!_mod.IsCollapsed()) _mod.Collapse();
+        if (_mod.GetModule() == null) return false;
+ 
         mod = _mod.GetModule().GetMesh();
-
-        GameObject obj = Instantiate(mod, _mod.mapPos, Quaternion.Euler(ModRotation(_mod.GetModule())), refact ? REFACTOR.transform : Dungeon.transform);
+        GameObject obj;
+        if (MapGenParent)
+        {
+             obj = GameObject.Instantiate(mod, _mod.mapPos, Quaternion.Euler(ModRotation(_mod.GetModule())), refact ? REFACTOR.transform : MapGenParent.transform);
+        }
+        else
+        {
+            obj = GameObject.Instantiate(mod, _mod.mapPos, Quaternion.Euler(ModRotation(_mod.GetModule())));
+        }
+       
         m_Build.Add(obj);
         return true;
     }
@@ -119,11 +139,44 @@ public class Helper : MonoBehaviour
     }
 
 
-    void FailBuild(Vector3 _coords)
+    public void SetLevelToType(ref Sc_MapModule[,,] Map, LayerMask _layer, int _level)
     {
-        GameObject fail = Instantiate(FAIL, new Vector3(_coords.x, _coords.y, _coords.z), Quaternion.identity, Dungeon.transform);
-        m_Build.Add(fail);
+        foreach (Sc_MapModule mod in GetModulesFromLevel(ref Map, _level))
+        {
+            List<Sc_Module> toRemove = new List<Sc_Module>();
+            foreach (Sc_Module option in mod.GetOptions())
+            {
+                if (option.GetLayerType() != (option.GetLayerType() | (1 << _layer)))
+                {
+                    toRemove.Add(option);
+                }
+            }
+
+            foreach (Sc_Module option in toRemove)
+            {
+                mod.RemoveOption(option);
+            }
+        }
     }
+
+
+    List<Sc_MapModule> GetModulesFromLevel(ref Sc_MapModule[,,] Map, int _level)
+    {
+        List<Sc_MapModule> modules = new List<Sc_MapModule>();
+
+        for (int z = 0; z < Map.GetLength(2); z++)
+        {
+            for (int x = 0; x < Map.GetLength(0); x++)
+            {
+                modules.Add(Helper.Instance.GetModule(ref Map, new Vector3(x, _level, z)));
+            }
+        }
+
+        return modules;
+    }
+
+
+
 
     // --------------- END --------------- 
 
@@ -144,8 +197,8 @@ public class Helper : MonoBehaviour
     public void DestroyObj(UnityEngine.Object obj)
     {
         if (Application.isPlaying)
-            Destroy(obj);
+            GameObject.Destroy(obj);
         else
-            DestroyImmediate(obj);
+            GameObject.DestroyImmediate(obj);
     }
 }
