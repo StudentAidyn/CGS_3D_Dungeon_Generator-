@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,6 +18,9 @@ public class Sc_Map : MonoBehaviour
     [SerializeField] int Width = 5;
     [SerializeField] int Height = 5;
     [SerializeField] int Length = 5;
+
+
+    [SerializeField] int MinimumSizeForMultiThreading = 15;
 
     Vector3 MapDimensions;
 
@@ -61,6 +65,8 @@ public class Sc_Map : MonoBehaviour
     // Generates map based on initial inputs
     public void GenerateMap()
     {
+        Helper.Instance.START();
+
         if (!SetupForGeneration()) return;
 
 
@@ -114,7 +120,7 @@ public class Sc_Map : MonoBehaviour
         // Clears objects in scene
         Helper.Instance.ClearGOList();
 
-        if (MapDimensions.x > 15 && MapDimensions.z > 15)
+        if (MapDimensions.x > MinimumSizeForMultiThreading && MapDimensions.z > MinimumSizeForMultiThreading)
         {
             MultiThreadMap = new MapMultiThreader(ref Map, ref MapGen, ref MapDimensions);
             StartCoroutine(MultiThreadMap.GenerateMultiThreadMap(MapDimensions));
@@ -123,7 +129,9 @@ public class Sc_Map : MonoBehaviour
         {
             MapGen.GenerateMap(MapDimensions);
             // Builds map based on map's modules
-            Helper.Instance.BuildMap(ref Map); 
+            Helper.Instance.BuildMap(ref Map);
+            Helper.Instance.END();
+            Debug.Log(Helper.Instance.GetTotalTime());
         }
     }
 

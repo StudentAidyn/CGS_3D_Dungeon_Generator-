@@ -157,6 +157,8 @@ public class MapMultiThreader
 
         Helper.Instance.BuildMap(ref Map, true);
 
+        Helper.Instance.END();
+        Debug.Log(Helper.Instance.GetTotalTime());
     }
     // The .isAlive property will return TRUE if the current thread is Active, FALSE if the current thread has finished or aborted
     private bool CheckThreadState()

@@ -37,9 +37,15 @@ public class Helper
 
     bool GenerateFloor;
 
+    DateTime start;
+    DateTime end;
+
     // --------------- Variable Controls ------------------
 
+    public void START() { start = DateTime.Now; }
+    public void END() { end = DateTime.Now; }
 
+    public TimeSpan GetTotalTime() { return (end - start); }
     // Setters:
 
     public void SetMapBuildParent(GameObject newParent, GameObject refactParent = null)
