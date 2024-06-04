@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
@@ -53,6 +54,8 @@ public class Sc_ModGenerator : MonoBehaviour
     [SerializeField] char m_dominantEdges = 'D';
     [SerializeField] char m_recessiveEdges = 'R';
 
+    char[] EdgeTypes;
+
     [Header("To Prevent Accidental Variants")]
     [SerializeField] bool GENERATE = false;
     [SerializeField] bool DELETE = false;
@@ -62,6 +65,7 @@ public class Sc_ModGenerator : MonoBehaviour
     // generate connections based on the connection rules - can generate during editor (out of play state)
     public void CreateConnections()
     {
+        EdgeTypes = new char[] { m_similarEdges, m_flippedEdges, m_dominantEdges, m_recessiveEdges, '_'};
         // Clear all previous connections
         ResetModuleNeighbours();
         // cycle through each module and compare module sides to the other modules sides. long process
@@ -154,26 +158,49 @@ public class Sc_ModGenerator : MonoBehaviour
         char[] edge = (_edge.ToUpper()).ToCharArray();
         char[] other = (_other.ToUpper()).ToCharArray();
         // Compare if they share the same first edge identifier
-        if (edge[0] == other[0])
+
+        string edgeValue = "";
+
+        for(int i = 0; i < edge.Length; i++)
         {
-            // check size then check if both have an F if so then it fails if not then it passes
-            if (edge.Length == 2 && other.Length == 2)
+            if (!EdgeTypes.Contains(edge[i])) {
+                edgeValue += edge[i];
+            }   
+        }
+
+        string otherValue = "";
+
+        for (int i = 0; i < other.Length; i++)
+        {
+            if (!EdgeTypes.Contains(other[i]))
             {
-                // Compares the last 2, if they are both S then they succeed
-                // if not then it means at least 1 was an F causing it to fail since it knows it already knows there is 2 chars in this string
-                if (edge[1] == m_similarEdges && other[1] == m_similarEdges) {
+                otherValue += other[i];
+            }
+        }
+
+
+        // Checks if both values are available
+        if (edgeValue == otherValue)
+        {
+            char endEdge = edge[edge.Length - 1];
+            char endOther = other[other.Length - 1];
+            // Checks if the last values in the list are NOT Flipped Edges chars
+            if (endEdge != m_flippedEdges && endOther != m_flippedEdges)
+            {
+                // Compares the last 2, if they are both S then it succeeds
+                if (endEdge == m_similarEdges && endOther == m_similarEdges) {
                     return true;
                 }
-                if (edge[1] == m_dominantEdges && (other[1] == m_dominantEdges || other[1] == m_recessiveEdges)) { return true; }
-                if ((edge[1] == m_dominantEdges || edge[1] == m_recessiveEdges) && other[1] == m_dominantEdges) { return true; }
+                if (endEdge == m_dominantEdges && (endOther == m_dominantEdges || endOther == m_recessiveEdges)) { return true; }
+                if ((endEdge == m_dominantEdges || endEdge == m_recessiveEdges) && endOther == m_dominantEdges) { return true; }
             }
             // if baseEdge length is larger than otherEdge then it has 2 chars and if any of those chars = f then it can connect
-            else if (edge.Length > other.Length)
-            {
-                if (edge[1] == m_flippedEdges) { return true; }
+            else if (endEdge == m_flippedEdges && endOther != m_flippedEdges)
+            {        
+                return true;
             }
-            else if (edge.Length < other.Length) {
-                if (other[1] == m_flippedEdges) { return true; }
+            else if (endEdge != m_flippedEdges && endOther == m_flippedEdges) {
+                return true;
             }
         }
         // else return false
@@ -196,8 +223,31 @@ public class Sc_ModGenerator : MonoBehaviour
         // convert this to check for rotation, a value after an '_' will indicate the orientation of the piece
         char[] edge = (_edge.ToUpper()).ToCharArray();
         char[] other = (_other.ToUpper()).ToCharArray();
-       
-        if (edge[0] == other[0])
+
+        string edgeValue = "";
+
+        for (int i = 0; i < edge.Length; i++)
+        {
+            if (!EdgeTypes.Contains(edge[i]))
+            {
+                edgeValue += edge[i];
+            }
+            else { break; }
+        }
+
+        string otherValue = "";
+
+        for (int i = 0; i < other.Length; i++)
+        {
+            if (!EdgeTypes.Contains(other[i]))
+            {
+                otherValue += other[i];
+            }
+            else { break; }
+        }
+
+
+        if (edgeValue == otherValue)
         {
             if (edge[edge.Length - 1] == other[other.Length - 1])
             {

@@ -1,10 +1,10 @@
-using JetBrains.Annotations;
-using System;
-using System.Collections;
+
+
+
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Threading;
+
+
+
 using UnityEngine;
 
 
@@ -65,6 +65,8 @@ public class Sc_Map : MonoBehaviour
     // Generates map based on initial inputs
     public void GenerateMap()
     {
+
+
         Helper.Instance.START();
 
         if (!SetupForGeneration()) return;
