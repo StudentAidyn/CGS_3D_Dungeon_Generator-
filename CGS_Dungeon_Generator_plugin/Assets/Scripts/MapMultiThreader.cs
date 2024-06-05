@@ -13,6 +13,8 @@ public class MapMultiThreader
 
     // Thread Quadrant sizes
     Vector3 LocalSize;
+    // Variant size to fix sizing issues with map generation with odd numbers
+    Vector3 LocalSizeAdjustments;
 
     // Threads for Multi Threading 
     Thread TopLeftThread;
@@ -51,32 +53,33 @@ public class MapMultiThreader
 
         LocalSize = new Vector3((int)_mapSize.x / 2, (int)_mapSize.y, (int)_mapSize.z / 2);
 
+        LocalSizeAdjustments = new Vector3((_mapSize.x % 2 == 0) ? (int)LocalSize.x : (int)LocalSize.x + 1, LocalSize.y, (_mapSize.z % 2 == 0) ? (int)LocalSize.z : (int)LocalSize.z + 1);
 
-        TopLeftMapQuadrant = new Sc_MapModule[(int)LocalSize.x, (int)LocalSize.y, (int)LocalSize.z];
-        TopRightMapQuadrant = new Sc_MapModule[(int)LocalSize.x, (int)LocalSize.y, (int)LocalSize.z];
-        BottomLeftMapQuadrant = new Sc_MapModule[(int)LocalSize.x, (int)LocalSize.y, (int)LocalSize.z];
+        TopLeftMapQuadrant = new Sc_MapModule[(int)LocalSizeAdjustments.x, (int)LocalSize.y, (int)LocalSizeAdjustments.z];
+        TopRightMapQuadrant = new Sc_MapModule[(int)LocalSize.x, (int)LocalSize.y, (int)LocalSizeAdjustments.z];
+        BottomLeftMapQuadrant = new Sc_MapModule[(int)LocalSizeAdjustments.x, (int)LocalSize.y, (int)LocalSize.z];
         BottomRightMapQuadrant = new Sc_MapModule[(int)LocalSize.x, (int)LocalSize.y, (int)LocalSize.z];
 
         // The Vectors of the Top Left Quadrant
         //   -> [X][O]
         //      [O][O]
 
-        FillQuadrantArray(ref TopLeftMapQuadrant, new Vector3(0, 0, 0), LocalSize, LocalSize);
+        FillQuadrantArray(ref TopLeftMapQuadrant, new Vector3(0, 0, 0), LocalSizeAdjustments, LocalSizeAdjustments);
 
         // The Vectors of the Top Right Quadrant
         //   -> [O][X]
         //      [O][O]
-        FillQuadrantArray(ref TopRightMapQuadrant, new Vector3(LocalSize.x, 0, 0), new Vector3(_mapSize.x, _mapSize.y, LocalSize.z), LocalSize);
+        FillQuadrantArray(ref TopRightMapQuadrant, new Vector3(LocalSizeAdjustments.x, 0, 0), new Vector3(_mapSize.x, _mapSize.y, LocalSizeAdjustments.z), new Vector3(LocalSize.x, LocalSize.y, LocalSizeAdjustments.z));
 
         // The Vectors of the Bottom Left Quadrant
         //   -> [O][O]
         //      [X][O]
-        FillQuadrantArray(ref BottomLeftMapQuadrant, new Vector3(0, 0, LocalSize.z), new Vector3(LocalSize.x, _mapSize.y, _mapSize.z), LocalSize);
+        FillQuadrantArray(ref BottomLeftMapQuadrant, new Vector3(0, 0, LocalSizeAdjustments.z), new Vector3(LocalSizeAdjustments.x, _mapSize.y, _mapSize.z), new Vector3(LocalSizeAdjustments.x, LocalSize.y, LocalSize.z));
 
         // The Vectors of the Bottom Right Quadrant
         //   -> [O][O]
         //      [O][X]
-        FillQuadrantArray(ref BottomRightMapQuadrant, new Vector3(LocalSize.x, 0, LocalSize.z), _mapSize, LocalSize);
+        FillQuadrantArray(ref BottomRightMapQuadrant, new Vector3(LocalSizeAdjustments.x, 0, LocalSizeAdjustments.z), _mapSize, LocalSize);
 
 
         MapGenThread1 = new Sc_MapGenerator(ref TopLeftMapQuadrant, 0);
@@ -86,19 +89,10 @@ public class MapMultiThreader
 
         Vector3 size = _mapSize - new Vector3(1, 0, 1);
 
-        // Adjust Values if odd number
 
-        /*
-         + new Vector2(1, 0)
-         + new Vector2(0, 1)
-         + new Vector2(1, 1)
-         
-         
-         */
-
-        TopLeftThread = new Thread(() => MapGenThread1.GenerateMap(LocalSize));
-        TopRightThread = new Thread(() => MapGenThread2.GenerateMap(LocalSize));
-        BottomLeftThread = new Thread(() => MapGenThread3.GenerateMap(LocalSize));
+        TopLeftThread = new Thread(() => MapGenThread1.GenerateMap(LocalSizeAdjustments));
+        TopRightThread = new Thread(() => MapGenThread2.GenerateMap(new Vector3(LocalSize.x, LocalSize.y, LocalSizeAdjustments.z)));
+        BottomLeftThread = new Thread(() => MapGenThread3.GenerateMap(new Vector3(LocalSizeAdjustments.x, LocalSize.y, LocalSize.z)));
         BottomRightThread = new Thread(() => MapGenThread4.GenerateMap(LocalSize));
 
 
@@ -137,11 +131,10 @@ public class MapMultiThreader
         }
 
         // Map Quadrant Array || Minimum Corner (Vector3) || Maximum Corner (Vector3)
-        RebuildArrayMap(ref TopLeftMapQuadrant, new Vector3(0, 0, 0), LocalSize);
-        RebuildArrayMap(ref TopRightMapQuadrant, new Vector3(LocalSize.x, 0, 0), new Vector3(_size.x, LocalSize.y, LocalSize.z));
-        RebuildArrayMap(ref BottomLeftMapQuadrant, new Vector3(0, 0, LocalSize.z), new Vector3(LocalSize.x, LocalSize.y, _size.z));
-        RebuildArrayMap(ref BottomRightMapQuadrant, new Vector3(LocalSize.x, 0, LocalSize.z), _size);
-
+        RebuildArrayMap(ref TopLeftMapQuadrant, new Vector3(0, 0, 0), LocalSizeAdjustments, LocalSizeAdjustments);
+        RebuildArrayMap(ref TopRightMapQuadrant, new Vector3(LocalSizeAdjustments.x, 0, 0), new Vector3(_size.x, _size.y, LocalSizeAdjustments.z), new Vector3(LocalSize.x, LocalSize.y, LocalSizeAdjustments.z));
+        RebuildArrayMap(ref BottomLeftMapQuadrant, new Vector3(0, 0, LocalSizeAdjustments.z), new Vector3(LocalSizeAdjustments.x, _size.y, _size.z), new Vector3(LocalSizeAdjustments.x, LocalSize.y, LocalSize.z));
+        RebuildArrayMap(ref BottomRightMapQuadrant, new Vector3(LocalSizeAdjustments.x, 0, LocalSizeAdjustments.z), _size, LocalSize);
         Helper.Instance.BuildMap(ref Map);
 
         //StartCoroutine(RefactorThreadMap());
@@ -153,6 +146,7 @@ public class MapMultiThreader
     {
         Debug.Log("REFACTORING MAP");
 
+        FixMap();
         FixMap();
 
         Helper.Instance.BuildMap(ref Map, true);
@@ -170,16 +164,19 @@ public class MapMultiThreader
         return false;
     }
 
-    void RebuildArrayMap(ref Sc_MapModule[,,] _moduleQuadrant, Vector3 TopLeft, Vector3 BottomRight)
+    void RebuildArrayMap(ref Sc_MapModule[,,] _moduleQuadrant, Vector3 TopLeft, Vector3 BottomRight, Vector3 QuadrantSize)
     {
+        // 101x1x101
+        // 51x51 50x51 
+        // 51x50 50x50
 
-        for (int y = 0; y < MapDimensions.y; y++)
+        for (int z = (int)TopLeft.z; z < BottomRight.z; z++)
         {
-            for (int z = (int)TopLeft.z; z < BottomRight.z; z++)
+            for (int y = (int)TopLeft.y; y < BottomRight.y; y++)
             {
                 for (int x = (int)TopLeft.x; x < BottomRight.x; x++)
                 {
-                    Map[x, y, z] = _moduleQuadrant[x % (int)LocalSize.x, y, z % (int)LocalSize.z];
+                    Map[x, y, z] = _moduleQuadrant[x % (int)QuadrantSize.x, y, z % (int)QuadrantSize.z];
                 }
             }
         }
