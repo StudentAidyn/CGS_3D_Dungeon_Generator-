@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2901058418638757387
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2901058418638757389}
+  - component: {fileID: 2901058418638757391}
+  - component: {fileID: 2901058418638757386}
+  m_Layer: 0
+  m_Name: Generator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2901058418638757389
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2901058418638757387}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2901058418638757391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2901058418638757387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c9bf29a186c03340aafb9d4581502dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Width: 5
+  Height: 1
+  Length: 5
+  ControlMultiThreading: 0
+  CustomMinimumThreadingValue: 4000
+  Generate_Path: 0
+  Total_Paths: 1
+  Path: 
+  Generate_Floor: 0
+  Floor: 
+  LocalMapTransform: {fileID: 0}
+--- !u!114 &2901058418638757386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2901058418638757387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 512541b95af3b6b4680fbd1f09a29cf9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_modules:
+  - {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
+  - {fileID: 11400000, guid: ec17b3cd3cbe2d74a80c224db99b8b36, type: 2}
+  - {fileID: 11400000, guid: 31f38f0d97703904fb0d9c52e46872ce, type: 2}
+  - {fileID: 11400000, guid: 0ce856a5fc61c1d4cb08adb071047118, type: 2}
+  - {fileID: 11400000, guid: 0f427102216b8104ab4b1ea247746584, type: 2}
+  m_similarEdges: 83
+  m_flippedEdges: 70
+  m_dominantEdges: 68
+  m_recessiveEdges: 82
+  GENERATE: 0
+  DELETE: 0
