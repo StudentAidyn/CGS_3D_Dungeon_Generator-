@@ -23,19 +23,28 @@ MonoBehaviour:
   m_neighbours:
   - m_edge: 0
     m_type: -s
-    _validOptions: []
+    _validOptions:
+    - {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
   - m_edge: 1
     m_type: 2
-    _validOptions: []
+    _validOptions:
+    - {fileID: 11400000}
+    - {fileID: 11400000}
   - m_edge: 2
     m_type: 0s
-    _validOptions: []
+    _validOptions:
+    - {fileID: 11400000, guid: ec17b3cd3cbe2d74a80c224db99b8b36, type: 2}
+    - {fileID: 11400000, guid: 31f38f0d97703904fb0d9c52e46872ce, type: 2}
   - m_edge: 3
     m_type: 2f
-    _validOptions: []
+    _validOptions:
+    - {fileID: 11400000, guid: 0ce856a5fc61c1d4cb08adb071047118, type: 2}
+    - {fileID: 11400000}
+    - {fileID: 11400000}
   - m_edge: 4
-    m_type: 2_0
+    m_type: -_X
     _validOptions: []
   - m_edge: 5
-    m_type: 2_0
-    _validOptions: []
+    m_type: 0_X
+    _validOptions:
+    - {fileID: 11400000, guid: ec17b3cd3cbe2d74a80c224db99b8b36, type: 2}

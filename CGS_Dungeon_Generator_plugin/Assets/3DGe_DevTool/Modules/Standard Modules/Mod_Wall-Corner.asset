@@ -25,31 +25,21 @@ MonoBehaviour:
     m_type: -s
     _validOptions:
     - {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-    - {fileID: 11400000, guid: 410a9a3104209204a93180db35cd96b1, type: 2}
-    - {fileID: 11400000, guid: 10ad101673013d94f861d6a71f41cf67, type: 2}
   - m_edge: 1
     m_type: 2
     _validOptions:
     - {fileID: 11400000, guid: 0f427102216b8104ab4b1ea247746584, type: 2}
-    - {fileID: 11400000, guid: 79b579d60dd222544bfc51d7990a5432, type: 2}
   - m_edge: 2
     m_type: 2f
-    _validOptions:
-    - {fileID: 11400000, guid: d10e7941dcb4ac443aa349382bca9b3a, type: 2}
-    - {fileID: 11400000, guid: 19b5cf43f2a7dee4bb55896f85f02df4, type: 2}
+    _validOptions: []
   - m_edge: 3
     m_type: -s
     _validOptions:
     - {fileID: 11400000, guid: 2c224c858d32ade448bc66c9e780eb05, type: 2}
-    - {fileID: 11400000, guid: 79b579d60dd222544bfc51d7990a5432, type: 2}
-    - {fileID: 11400000, guid: f68dcd41099339d488086eb6a3a1e070, type: 2}
   - m_edge: 4
-    m_type: 1_0
-    _validOptions:
-    - {fileID: 11400000}
-    - {fileID: 11400000}
+    m_type: -_X
+    _validOptions: []
   - m_edge: 5
-    m_type: 1_0
+    m_type: 0_X
     _validOptions:
-    - {fileID: 11400000}
-    - {fileID: 11400000}
+    - {fileID: 11400000, guid: ec17b3cd3cbe2d74a80c224db99b8b36, type: 2}
